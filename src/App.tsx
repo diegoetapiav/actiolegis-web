@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { LoginModal } from './components/LoginModal';
 import { SatjeBuscadorModal } from './components/EstudioJuridico/SatjeBuscadorModal';
-import { ExpedientesManager } from './components/EstudioJuridico/ExpedientesManager';
+import { ModuloExpedientes } from './ModuloExpedientes';
 import { HonorariosManager } from './components/EstudioJuridico/HonorariosManager';
 import { CitasManager } from './components/EstudioJuridico/CitasManager';
 import { MensajesManager } from './components/EstudioJuridico/MensajesManager';
