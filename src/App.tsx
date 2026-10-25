@@ -411,15 +411,8 @@ export default function App() {
               // ==================== VISTAS INTERNAS ESTUDIO JURÍDICO ====================
               <>
                 {tabActiva === 'expedientes' && (
-                  <ExpedientesManager
-                    expedientes={expedientes}
-                    clientes={clientes}
-                    usuarioActivo={usuarioActivoEstudio}
-                    onAbrirNuevoExpediente={() => setModalNuevoExpedienteAbierto(true)}
-                    onAbrirSatje={() => setModalSatjeAbierto(true)}
-                    onActualizarExpediente={handleActualizarExpediente}
-                  />
-                )}
+  <ModuloExpedientes />
+)}
 
                 {tabActiva === 'casillero' && (
                   <CasilleroEscritosManager
