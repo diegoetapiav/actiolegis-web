@@ -1,0 +1,6 @@
+{
+  "name": "Estudio Jurídico ACTIO LEGIS",
+  "description": "Portal web oficial y plataforma procesal del Estudio Jurídico ACTIO LEGIS en Guayaquil, Ecuador, con blog de novedades, noticias judiciales, acceso a clientes e intranet.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
