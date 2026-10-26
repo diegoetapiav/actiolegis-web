@@ -102,16 +102,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER EDITORIAL (BLANCO Y NEGRO SOBRIO) */}
+      {/* 1. HEADER EDITORIAL */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
-          {/* LOGOTIPO A LA IZQUIERDA EN PLACA SÓLIDA 3D */}
+          {/* LOGOTIPO CON SLOGAN DESPEGADO DE LA PLACA */}
           <div 
             onClick={() => setVista('sitio-web')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
+            className="flex items-center gap-3.5 cursor-pointer select-none group"
           >
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start pb-0.5">
               <div className="relative inline-block py-0.5">
                 <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
                 <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
@@ -119,7 +119,9 @@ export default function App() {
                   <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
                 </div>
               </div>
-              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-1 font-semibold">
+              
+              {/* Slogan con separación clara de la placa */}
+              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-2.5 font-semibold">
                 en servicio del derecho
               </span>
             </div>
@@ -194,7 +196,7 @@ export default function App() {
          ========================================================= */}
       {vista === 'sitio-web' && (
         <main>
-          {/* HERO CENTRADO (SIN LA BARRA INFERIOR DE NÚMEROS) */}
+          {/* HERO CENTRADO */}
           <section className="relative pt-20 pb-24 md:pt-32 md:pb-36 border-b border-neutral-200 bg-white">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
               
@@ -211,7 +213,6 @@ export default function App() {
                 ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
               </p>
 
-              {/* Botones Centrados */}
               <div className="flex flex-wrap items-center justify-center gap-4 pt-8">
                 <button
                   type="button"
@@ -424,7 +425,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* CONTACTO: BLANCO Y NEGRO SOBRIO CON DIRECCIÓN OFICIAL DE KENNEDY NORTE */}
+          {/* CONTACTO */}
           <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="bg-neutral-50 border border-neutral-200 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
@@ -463,12 +464,12 @@ export default function App() {
             </div>
           </section>
 
-          {/* FOOTER SOBRIO (BLANCO Y NEGRO, LOGO A LA IZQUIERDA Y DIRECCIÓN KENNEDY NORTE) */}
+          {/* FOOTER */}
           <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
             <div className="max-w-6xl mx-auto space-y-12">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                 
-                {/* Columna 1: LOGOTIPO A LA IZQUIERDA Y DIRECCIÓN EXACTA */}
+                {/* Columna 1: LOGOTIPO A LA IZQUIERDA Y SLOGAN DESPEGADO */}
                 <div className="space-y-4 md:col-span-1">
                   <div className="flex flex-col items-start select-none py-1">
                     <div className="relative inline-block py-0.5">
@@ -478,7 +479,7 @@ export default function App() {
                         <span className="font-black text-sm tracking-[0.18em] leading-tight font-sans">LEGIS</span>
                       </div>
                     </div>
-                    <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-1.5">
+                    <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-2.5">
                       en servicio del derecho
                     </span>
                   </div>
