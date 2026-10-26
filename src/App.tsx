@@ -350,16 +350,6 @@ export default function App() {
         paleta={paletaActiva}
       />
 
-      {/* Selector de Paletas Cromáticas Interactivas de Revista Web (Para jugar con los colores que combinan con el logo B&N) */}
-      {vistaPrincipal === 'sitio-web' && (
-        <SelectorPaletaRevista
-          paletaActiva={paletaActiva}
-          onSeleccionarPaleta={setPaletaActiva}
-          tamanoTexto={tamanoTexto}
-          onCambiarTamanoTexto={setTamanoTexto}
-        />
-      )}
-
       {/* Contenido Principal */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {vistaPrincipal === 'sitio-web' ? (
