@@ -1,6 +1,5 @@
 import React from 'react';
-import { Lock, UserCheck, Shield } from 'lucide-react';
-import { ActioLegisLogo } from './Brand/ActioLegisLogo';
+import { Lock, Shield } from 'lucide-react';
 import { SesionUsuario } from '../services/storageService';
 
 interface NavbarProps {
@@ -24,7 +23,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onAbrirLoginConTab,
   onAbrirReservarCita,
 }) => {
-  // Cuando se está en la intranet o portal cliente, se mantiene la barra interna de gestión
   if (vistaActual !== 'sitio-web') {
     return null;
   }
@@ -33,15 +31,28 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-50 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-neutral-200/80">
       <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* Logotipo Oficial */}
+        {/* LOGO OFICIAL DEFINITIVO: BLOQUE CON SOMBRA EN ESCUADRA */}
         <div 
           onClick={() => {
             onCambiarVistaPrincipal('sitio-web');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          className="cursor-pointer"
+          className="cursor-pointer select-none py-1"
         >
-          <ActioLegisLogo size="sm" showSlogan={false} />
+          <div className="relative inline-block">
+            {/* Sombra / Escuadra posterior */}
+            <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
+            
+            {/* Bloque principal negro con tipografía en blanco */}
+            <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center">
+              <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
+                ACTIO
+              </span>
+              <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
+                LEGIS
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Menú de Navegación Editorial */}
