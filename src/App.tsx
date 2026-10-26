@@ -80,7 +80,7 @@ const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       <header className="sticky top-0 z-50 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           
-          {/* Logo Oficial con relieve y Slogan bajado */}
+          {/* Logo Oficial con relieve y Slogan */}
           <div 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="cursor-pointer select-none flex flex-col"
@@ -404,51 +404,58 @@ const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          CIERRE & CONTACTO
+          BANNER INFERIOR EXACTO (CAPTURA SOLICITADA)
          ========================================================= */}
-      <section id="contacto" className="py-24 bg-neutral-950 text-white">
+      <section id="contacto" className="py-24 bg-black text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
+          
+          {/* Círculo con la balanza */}
           <div className="w-12 h-12 border border-white/20 rounded-full flex items-center justify-center mx-auto mb-8">
             <Scale className="w-5 h-5 text-white" />
           </div>
 
+          {/* Título principal */}
           <h2 className="text-3xl sm:text-5xl font-serif tracking-tight mb-6">
             Confíe su causa a una defensa rigurosa.
           </h2>
 
+          {/* Subtítulo */}
           <p className="text-neutral-400 text-base max-w-xl mx-auto mb-10 leading-relaxed font-light">
             Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          {/* Botones de acción centrados */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
             <button
               onClick={onAbrirReservarCita}
-              className="w-full sm:w-auto px-8 py-4 bg-white text-neutral-950 font-semibold text-sm rounded-full hover:bg-neutral-100 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 bg-white text-neutral-950 font-semibold text-sm rounded-full hover:bg-neutral-100 transition-all cursor-pointer shadow-sm"
             >
               Solicitar Reunión en Despacho
             </button>
             <button
               onClick={onAbrirLoginIntranet}
-              className="w-full sm:w-auto px-6 py-4 bg-transparent text-neutral-400 hover:text-white text-xs font-mono tracking-wider uppercase transition-colors cursor-pointer"
+              className="text-xs font-mono tracking-wider uppercase text-neutral-400 hover:text-white transition-colors cursor-pointer"
             >
-              Acceso Intranet Abogados
+              ACCESO INTRANET ABOGADOS
             </button>
           </div>
 
-          <div className="pt-12 border-t border-neutral-800 grid sm:grid-cols-3 gap-6 text-left text-xs text-neutral-400">
+          {/* Pie de 3 columnas con división superior */}
+          <div className="pt-12 border-t border-neutral-800 grid sm:grid-cols-3 gap-8 text-left text-xs text-neutral-400">
             <div>
-              <div className="text-white font-medium mb-1">Oficinas Principales</div>
-              <p>Puerto Santa Ana & Av. Malecón Simón Bolívar, Guayaquil, Ecuador.</p>
+              <div className="text-white font-medium mb-1.5 text-sm">Oficinas Principales</div>
+              <p className="leading-relaxed">Puerto Santa Ana & Av. Malecón Simón Bolívar, Guayaquil, Ecuador.</p>
             </div>
             <div>
-              <div className="text-white font-medium mb-1">Contacto Telefónico</div>
-              <p>+593 (4) 259-8800 • Atención a urgencias procesales 24/7</p>
+              <div className="text-white font-medium mb-1.5 text-sm">Contacto Telefónico</div>
+              <p className="leading-relaxed">+593 (4) 259-8800 • Atención a urgencias procesales 24/7</p>
             </div>
             <div>
-              <div className="text-white font-medium mb-1">Despacho Digital</div>
-              <p>contacto@actiolegisec.com • Sincronización SATJE en tiempo real</p>
+              <div className="text-white font-medium mb-1.5 text-sm">Despacho Digital</div>
+              <p className="leading-relaxed">contacto@actiolegisec.com • Sincronización SATJE en tiempo real</p>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -727,7 +734,7 @@ export function App() {
           </main>
         </div>
       ) : (
-        /* VISTA PRINCIPAL PÚBLICA EDITORIAL (IDÉNTICA A TU DISEÑO) */
+        /* VISTA PRINCIPAL PÚBLICA EDITORIAL */
         <PaginaPrincipal 
           onAbrirReservarCita={() => {
             const seccionContacto = document.getElementById('contacto');
