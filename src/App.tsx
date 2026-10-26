@@ -27,7 +27,6 @@ import {
 import { USUARIOS_ESTUDIO } from './data/mockLegalData';
 import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
 import { ReservarCitaModal } from './components/SitioWeb/ReservarCitaModal';
-import { ExternalLink, MapPin, Phone, Mail, ArrowUp } from 'lucide-react';
 
 export default function App() {
   const [usuarios, setUsuarios] = useState<UsuarioEstudio[]>(() => StorageService.getUsuarios());
@@ -267,7 +266,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans antialiased">
       
-      {/* Barra de Navegación Editorial ACTIO LEGIS */}
+      {/* Barra de Navegación (visible únicamente en Intranet y Portal Clientes) */}
       <Navbar
         sesion={sesion}
         tabActiva={tabActiva}
@@ -419,18 +418,40 @@ export default function App() {
         )}
       </main>
 
-      {/* Pie de Página Minimalista Blanco/Marfil */}
-      {vistaPrincipal === 'sitio-web' && (
-        <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
-          <div className="max-w-6xl mx-auto space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-              
-              <div className="space-y-4 md:col-span-1">
-                <div className="relative inline-block select-none py-1">
-                  <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
-                  <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center">
-                    <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
-                      ACTIO
-                    </span>
-                    <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
-                      LEGIS
+      {/* Modales Globales */}
+      <LoginModal
+        isOpen={modalLoginAbierto}
+        onClose={() => setModalLoginAbierto(false)}
+        onLogin={handleLogin}
+        tabInicial={loginTabInicial}
+      />
+
+      <ReservarCitaModal
+        isOpen={modalReservarCitaAbierto}
+        onCerrar={() => setModalReservarCitaAbierto(false)}
+        onConfirmarCita={handleAgregarCita}
+      />
+
+      <SatjeBuscadorModal
+        isOpen={modalSatjeAbierto}
+        onClose={() => setModalSatjeAbierto(false)}
+        clientes={clientes}
+        expedientesExistentes={expedientes}
+        onImportarCausa={handleImportarCausaSatje}
+        onSincronizarCausaExistente={handleSincronizarCausaExistente}
+      />
+
+      <NuevoExpedienteModal
+        isOpen={modalNuevoExpedienteAbierto}
+        onClose={() => setModalNuevoExpedienteAbierto(false)}
+        clientes={clientes}
+        onGuardar={handleGuardarNuevoExpediente}
+      />
+
+      <CalculadoraLegalModal
+        isOpen={modalCalculadoraAbierto}
+        onClose={() => setModalCalculadoraAbierto(false)}
+      />
+    </div>
+  );
+}
