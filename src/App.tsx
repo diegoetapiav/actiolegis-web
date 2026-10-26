@@ -27,9 +27,7 @@ import {
 import { USUARIOS_ESTUDIO } from './data/mockLegalData';
 import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
 import { ReservarCitaModal } from './components/SitioWeb/ReservarCitaModal';
-import { 
-  ExternalLink, MapPin, Phone, Mail, Globe, ArrowUp 
-} from 'lucide-react';
+import { ExternalLink, MapPin, Phone, Mail, ArrowUp } from 'lucide-react';
 
 export default function App() {
   const [usuarios, setUsuarios] = useState<UsuarioEstudio[]>(() => StorageService.getUsuarios());
@@ -269,7 +267,7 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans antialiased">
       
-      {/* Barra de Navegación Editorial */}
+      {/* Barra de Navegación Editorial ACTIO LEGIS */}
       <Navbar
         sesion={sesion}
         tabActiva={tabActiva}
@@ -295,41 +293,9 @@ export default function App() {
           />
         ) : (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-sm">
-              <div className="flex items-center gap-3">
-                <span className={`w-3 h-3 rounded-full ${vistaPrincipal === 'intranet' ? 'bg-neutral-950' : 'bg-neutral-400'}`} />
-                <div>
-                  <h2 className="font-bold text-neutral-900 text-sm">
-                    {vistaPrincipal === 'intranet' ? 'Intranet del Despacho • ACTIO LEGIS' : 'Portal de Clientes • Causas & Consultas'}
-                  </h2>
-                  <p className="text-xs text-neutral-500 font-mono">
-                    {sesion.nombre} • {sesion.rol || 'Cliente Registrado'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setVistaPrincipal('sitio-web')}
-                  className="px-3.5 py-2 bg-neutral-950 hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
-                >
-                  <Globe className="w-3.5 h-3.5 text-neutral-300" />
-                  <span>Volver al Sitio Web Principal</span>
-                </button>
-                <button
-                  onClick={() => handleAbrirLoginConTab(vistaPrincipal === 'intranet' ? 'cliente' : 'estudio')}
-                  className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold rounded-xl transition-all cursor-pointer"
-                >
-                  Cambiar Rol
-                </button>
-              </div>
-            </div>
-
             {sesion.tipo === 'estudio' ? (
               <>
-                {tabActiva === 'expedientes' && (
-                  <ModuloExpedientes />
-                )}
+                {tabActiva === 'expedientes' && <ModuloExpedientes />}
 
                 {tabActiva === 'casillero' && (
                   <CasilleroEscritosManager
@@ -460,7 +426,6 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
               
               <div className="space-y-4 md:col-span-1">
-                {/* LOGO DEFINITIVO EN PIE DE PÁGINA */}
                 <div className="relative inline-block select-none py-1">
                   <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
                   <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center">
@@ -553,85 +518,3 @@ export default function App() {
                       <ExternalLink className="w-3 h-3 text-neutral-400" />
                     </a>
                   </li>
-                </ul>
-              </div>
-
-              <div className="space-y-3">
-                <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
-                  Atención Guayaquil
-                </h4>
-                <div className="space-y-2 text-neutral-500 text-xs">
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-neutral-950" />
-                    <span className="font-medium text-neutral-800">+593 (4) 259-8800</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-neutral-950" />
-                    <span>contacto@actiolegisec.com</span>
-                  </div>
-                  <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
-                    Lunes a Viernes: 08:30 – 18:30 <br />
-                    Urgencias en materia penal 24/7
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
-              <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
-              <div className="flex items-center gap-4">
-                <span>Firma Electrónica Válida</span>
-                <span>•</span>
-                <span>Sincronización SATJE</span>
-                <span>•</span>
-                <button 
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Subir al inicio</span>
-                  <ArrowUp className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </footer>
-      )}
-
-      {/* Modales */}
-      <LoginModal
-        isOpen={modalLoginAbierto}
-        onClose={() => setModalLoginAbierto(false)}
-        onLogin={handleLogin}
-        tabInicial={loginTabInicial}
-      />
-
-      <ReservarCitaModal
-        isOpen={modalReservarCitaAbierto}
-        onCerrar={() => setModalReservarCitaAbierto(false)}
-        onConfirmarCita={handleAgregarCita}
-      />
-
-      <SatjeBuscadorModal
-        isOpen={modalSatjeAbierto}
-        onClose={() => setModalSatjeAbierto(false)}
-        clientes={clientes}
-        expedientesExistentes={expedientes}
-        onImportarCausa={handleImportarCausaSatje}
-        onSincronizarCausaExistente={handleSincronizarCausaExistente}
-      />
-
-      <NuevoExpedienteModal
-        isOpen={modalNuevoExpedienteAbierto}
-        onClose={() => setModalNuevoExpedienteAbierto(false)}
-        clientes={clientes}
-        onGuardar={handleGuardarNuevoExpediente}
-      />
-
-      <CalculadoraLegalModal
-        isOpen={modalCalculadoraAbierto}
-        onClose={() => setModalCalculadoraAbierto(false)}
-      />
-    </div>
-  );
-}
