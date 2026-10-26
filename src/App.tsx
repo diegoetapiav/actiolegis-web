@@ -24,7 +24,7 @@ import {
   CuotaProgramada, GastoCliente, EscritoFirmaDigital, CausaSatjeBusqueda, 
   TipoActuacion, UsuarioEstudio, EventoCalendarioInterno 
 } from './types/legal';
-import { USUARIOS_ESTUDIO } from './data/mockLegalData';
+import { USUARIOS_ESTUDIO, CLIENTES_INICIALES } from './data/mockLegalData';
 import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
 import { ReservarCitaModal } from './components/SitioWeb/ReservarCitaModal';
 
@@ -253,20 +253,34 @@ export default function App() {
 
   const handleCerrarSesion = () => {
     setVistaPrincipal('sitio-web');
-    setModalLoginAbierto(true);
+    setModalLoginAbierto(false);
   };
 
-  const clienteActivo =
-    sesion.tipo === 'cliente'
-      ? clientes.find((c) => c.id === sesion.clienteId || c.codigoAcceso === sesion.codigoAcceso) || clientes[0]
-      : null;
+  // Respaldo robusto para evitar que la vista quede en blanco
+  const clienteActivo: Cliente =
+    (sesion.tipo === 'cliente'
+      ? clientes.find((c) => c.id === sesion.clienteId || c.codigoAcceso === sesion.codigoAcceso || c.email === sesion.emailOIdentificacion)
+      : null) ||
+    clientes[0] ||
+    (CLIENTES_INICIALES && CLIENTES_INICIALES[0]) || {
+      id: 'cli-demo',
+      nombre: sesion.nombre || 'Inmobiliaria del Valle S.A.S.',
+      identificacion: '0992348576001',
+      tipo: 'Empresa',
+      telefono: '+593 99 876 5432',
+      email: sesion.emailOIdentificacion || 'contacto@inmovalle.ec',
+      direccion: 'Av. Samborondón Km 2.5, Guayaquil',
+      codigoAcceso: 'ACTIO-8492',
+      expedientesAsignados: ['exp-1', 'exp-2'],
+      fechaRegistro: '2026-01-15'
+    };
 
   const totalMensajesPendientes = mensajes.filter((m) => m.estado === 'Pendiente').length;
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans antialiased">
       
-      {/* Barra de Navegación (visible únicamente en Intranet y Portal Clientes) */}
+      {/* Barra de navegación institucional para Intranet y Portal de Clientes */}
       <Navbar
         sesion={sesion}
         tabActiva={tabActiva}
@@ -292,7 +306,7 @@ export default function App() {
           />
         ) : (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            {sesion.tipo === 'estudio' ? (
+            {vistaPrincipal === 'intranet' ? (
               <>
                 {tabActiva === 'expedientes' && <ModuloExpedientes />}
 
@@ -374,51 +388,50 @@ export default function App() {
                 )}
               </>
             ) : (
-              clienteActivo && (
-                <>
-                  {tabActiva === 'cliente-casos' && (
-                    <ClienteCasosView
-                      cliente={clienteActivo}
-                      expedientes={expedientes}
-                      onIrAConsultas={() => setTabActiva('cliente-consultas')}
-                      onIrACitas={() => setTabActiva('cliente-citas')}
-                    />
-                  )}
+              /* PORTAL DE CLIENTES */
+              <>
+                {tabActiva === 'cliente-casos' && (
+                  <ClienteCasosView
+                    cliente={clienteActivo}
+                    expedientes={expedientes}
+                    onIrAConsultas={() => setTabActiva('cliente-consultas')}
+                    onIrACitas={() => setTabActiva('cliente-citas')}
+                  />
+                )}
 
-                  {tabActiva === 'cliente-citas' && (
-                    <ClienteCitasView
-                      cliente={clienteActivo}
-                      expedientes={expedientes}
-                      citas={citas}
-                      eventosInternos={eventosInternos}
-                      onSolicitarCita={handleAgregarCita}
-                    />
-                  )}
+                {tabActiva === 'cliente-citas' && (
+                  <ClienteCitasView
+                    cliente={clienteActivo}
+                    expedientes={expedientes}
+                    citas={citas}
+                    eventosInternos={eventosInternos}
+                    onSolicitarCita={handleAgregarCita}
+                  />
+                )}
 
-                  {tabActiva === 'cliente-honorarios' && (
-                    <ClienteHonorariosView
-                      cliente={clienteActivo}
-                      expedientes={expedientes}
-                      honorarios={honorarios}
-                    />
-                  )}
+                {tabActiva === 'cliente-honorarios' && (
+                  <ClienteHonorariosView
+                    cliente={clienteActivo}
+                    expedientes={expedientes}
+                    honorarios={honorarios}
+                  />
+                )}
 
-                  {tabActiva === 'cliente-consultas' && (
-                    <ClienteConsultasView
-                      cliente={clienteActivo}
-                      expedientes={expedientes}
-                      mensajes={mensajes}
-                      onEnviarMensaje={handleEnviarMensajeCliente}
-                    />
-                  )}
-                </>
-              )
+                {tabActiva === 'cliente-consultas' && (
+                  <ClienteConsultasView
+                    cliente={clienteActivo}
+                    expedientes={expedientes}
+                    mensajes={mensajes}
+                    onEnviarMensaje={handleEnviarMensajeCliente}
+                  />
+                )}
+              </>
             )}
           </div>
         )}
       </main>
 
-      {/* Modales Globales */}
+      {/* Modales */}
       <LoginModal
         isOpen={modalLoginAbierto}
         onClose={() => setModalLoginAbierto(false)}
