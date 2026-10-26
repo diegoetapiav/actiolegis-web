@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   Scale, Shield, BookOpen, Clock, MapPin, Phone, 
   Mail, ArrowRight, ExternalLink, Calculator, CheckCircle2, 
-  FileText, Users, Award, Landmark, ChevronRight
+  FileText, Users, Award, Landmark, ChevronRight, ArrowUp
 } from 'lucide-react';
 
 interface PaginaPrincipalProps {
@@ -21,7 +21,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
     <div className="font-sans text-neutral-900 bg-[#FAF9F6]">
       
       {/* =========================================================
-          1. HERO EDITORIAL Y MANIFIESTO
+          1. HERO EDITORIAL Y MANIFIESTO INSTITUCIONAL
          ========================================================= */}
       <section className="relative pt-12 pb-20 md:pt-20 md:pb-28 border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -38,10 +38,10 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             </h1>
 
             <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl">
-              ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y excelencia técnica.
+              ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
             </p>
 
-            {/* Botones de Acción del Hero */}
+            {/* Acciones Rápidas */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 type="button"
@@ -64,7 +64,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
 
           </div>
 
-          {/* Cifras y Pilares Institucionales */}
+          {/* Cifras Institucionales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-16 mt-16 border-t border-neutral-200/80">
             <div>
               <div className="font-serif text-3xl font-bold text-neutral-950">20+</div>
@@ -88,7 +88,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          2. PROPÓSITO & FILOSOFÍA DE LA FIRMA
+          2. FILOSOFÍA Y MANIFIESTO
          ========================================================= */}
       <section id="proposito" className="py-20 md:py-28 border-b border-neutral-200/80 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -105,10 +105,10 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
 
             <div className="md:col-span-8 space-y-6 text-sm text-neutral-600 font-light leading-relaxed">
               <p>
-                En un entorno jurídico donde predomina la sobrecarga y la delegación descuidada, ACTIO LEGIS nace para restituir la dignidad del ejercicio forense: cada causa es analizada personalmente por sus socios, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria exhaustiva.
+                En un entorno forense habituado a la sobrecarga y a la tramitación delegada, ACTIO LEGIS nace para ejercer el derecho con la devoción técnica que amerita: cada causa es patrocinada directamente por sus socios, formulando teorías del caso respaldadas en jurisprudencia obligatoria y recopilación probatoria exhaustiva.
               </p>
               <p>
-                Nuestra premisa es la transparencia total hacia el cliente: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados judiciales y tribunales arbitrales.
+                Nuestra premisa es la lealtad y la claridad con el patrocinado: información en tiempo real sin falsas expectativas, evaluación objetiva de riesgos y defensa inquebrantable ante estrados judiciales y tribunales arbitrales.
               </p>
             </div>
 
@@ -117,7 +117,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          3. SOCIOS PRINCIPALES: DIEGO TAPIA & MARCELA DUNN
+          3. SOCIOS DIRECTORES: DIEGO TAPIA & MARCELA DUNN
          ========================================================= */}
       <section id="socios" className="py-20 md:py-28 border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -130,13 +130,13 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               Liderazgo Forense & Criterio Jurídico
             </h2>
             <p className="text-xs sm:text-sm text-neutral-600 font-light">
-              Trayectoria académica y práctica de litigio penal estratégico en las judicaturas del Ecuador.
+              Trayectoria de litigio estratégico en las judicaturas y tribunales del Ecuador.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
-            {/* Tarjeta Dr. Diego Tapia */}
+            {/* Dr. Diego Tapia */}
             <div className="bg-white rounded-3xl border border-neutral-200/90 p-8 shadow-xs space-y-6">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socio Principal</span>
@@ -144,14 +144,14 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
               </div>
               <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-                Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa técnica ante la Fiscalía General del Estado y diseño de estrategias preventivas de responsabilidad corporativa.
+                Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa técnica ante la Fiscalía General del Estado y diseño de estrategias de prevención de responsabilidad corporativa.
               </p>
               <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
                 contacto@actiolegisec.com • Guayaquil
               </div>
             </div>
 
-            {/* Tarjeta Marcela Dunn */}
+            {/* Ab. Marcela Dunn */}
             <div className="bg-white rounded-3xl border border-neutral-200/90 p-8 shadow-xs space-y-6">
               <div className="space-y-1">
                 <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socia Directora</span>
@@ -172,7 +172,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          4. PRÁCTICAS JURÍDICAS
+          4. PRÁCTICAS FORENSES
          ========================================================= */}
       <section id="practica" className="py-20 md:py-28 border-b border-neutral-200/80 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -188,51 +188,51 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-neutral-50/50 space-y-3">
+            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
               <Shield className="w-5 h-5 text-neutral-950" />
               <h4 className="font-serif font-bold text-base text-neutral-950">Litigio Penal & Delitos Económicos</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Defensa y acusación particular en delitos contra la administración pública, lavado de activos, defraudación tributaria y societaria.
+                Defensa y acusación particular en delitos societarios, lavado de activos, defraudación tributaria y controversias penales de alta complejidad.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-neutral-50/50 space-y-3">
+            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
               <Scale className="w-5 h-5 text-neutral-950" />
               <h4 className="font-serif font-bold text-base text-neutral-950">Derecho Societario & Mercantil</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Conflictos entre socios, disolución judicial de compañías, impugnación de actas y controversias contractuales mercantiles.
+                Conflictos de accionistas, impugnación de asambleas, auditoría legal preventiva y disolución judicial de compañías.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-neutral-50/50 space-y-3">
+            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
               <Landmark className="w-5 h-5 text-neutral-950" />
               <h4 className="font-serif font-bold text-base text-neutral-950">Contencioso Administrativo & Tributario</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Impugnación de actos administrativos, glosas de Contraloría y reclamaciones ante el Servicio de Rentas Internas (SRI).
+                Impugnación de actos administrativos, defensas ante la Contraloría General del Estado y acciones judiciales ante el SRI.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-neutral-50/50 space-y-3">
+            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
               <FileText className="w-5 h-5 text-neutral-950" />
               <h4 className="font-serif font-bold text-base text-neutral-950">Litigio Civil & Bienes Inmuebles</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Prescripción adquisitiva de dominio, saneamiento de títulos prediales, reivindicación y controversias contractuales civiles.
+                Prescripción adquisitiva extraordinaria de dominio, saneamiento registral, acciones reivindicatorias y controversias contractuales.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-neutral-50/50 space-y-3">
+            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
               <Users className="w-5 h-5 text-neutral-950" />
-              <h4 className="font-serif font-bold text-base text-neutral-950">Arbitraje & Mediación</h4>
+              <h4 className="font-serif font-bold text-base text-neutral-950">Arbitraje Comercial & Mediación</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Representación técnica ante las cámaras de comercio y centros de arbitraje de Guayaquil y Quito bajo reglas CIAC / UNCITRAL.
+                Patrocinio en tribunales arbitrales de las Cámaras de Comercio de Guayaquil y Quito bajo reglamentos nacionales e internacionales.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-neutral-50/50 space-y-3">
+            <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
               <Award className="w-5 h-5 text-neutral-950" />
-              <h4 className="font-serif font-bold text-base text-neutral-950">Compliance & Gestión de Riesgo Penal</h4>
+              <h4 className="font-serif font-bold text-base text-neutral-950">Compliance & Gestión Penal Preventiva</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Manuales de cumplimiento, debida diligencia de contrapartes y blindaje normativo para directorios y grupos corporativos.
+                Programas de cumplimiento normativo, debida diligencia de directores y mitigación de riesgo penal de la persona jurídica.
               </p>
             </div>
 
@@ -242,7 +242,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          5. EDITORIAL JURÍDICO & CRITERIOS TÉCNICOS
+          5. EDITORIAL JURÍDICO
          ========================================================= */}
       <section id="editorial" className="py-20 md:py-28 border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -250,14 +250,14 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
               <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500 font-semibold">
-                Doctrina & Análisis
+                Doctrina & Criterios
               </span>
               <h2 className="text-3xl font-serif font-bold text-neutral-950 mt-1">
                 Editorial Jurídico ACTIO LEGIS
               </h2>
             </div>
             <p className="text-xs text-neutral-500 max-w-sm font-light">
-              Apuntes breves sobre jurisprudencia de la Corte Nacional de Justicia y tendencias procesales en Ecuador.
+              Análisis sobre jurisprudencia vinculante de la Corte Nacional y tendencias procesales en Ecuador.
             </p>
           </div>
 
@@ -266,30 +266,30 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
               <span className="text-[10px] font-mono text-neutral-400">Octubre 2026 • Derecho Penal Económico</span>
               <h4 className="font-serif font-bold text-base text-neutral-950">
-                La carga dinámica de la prueba en investigaciones por presuntos delitos contables
+                La carga probatoria en peritajes contables durante la investigación previa
               </h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Análisis de las recientes resoluciones de casación respecto al derecho a la no autoincriminación en peritajes tributarios.
+                Garantías constitucionales frente a requerimientos fiscales y límites a la autoincriminación en materia corporativa.
               </p>
             </article>
 
             <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
               <span className="text-[10px] font-mono text-neutral-400">Septiembre 2026 • Litigio Civil</span>
               <h4 className="font-serif font-bold text-base text-neutral-950">
-                El cómputo de términos fatales en citaciones por boletas fijadas
+                Cómputo estricto de términos en citaciones por boletas fijadas
               </h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Puntos críticos en el COGEP que previenen la nulidad insaneable de todo lo actuado en juicios ordinarios.
+                Puntos críticos en el COGEP para evitar nulidades procesales en juicios ordinarios de prescripción predial.
               </p>
             </article>
 
             <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
               <span className="text-[10px] font-mono text-neutral-400">Agosto 2026 • Societario</span>
               <h4 className="font-serif font-bold text-base text-neutral-950">
-                Responsabilidad solidaria de administradores de S.A.S. en disolución
+                Responsabilidad patrimonial de accionistas y administradores en S.A.S.
               </h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Límites legales y defensas procesales frente a reclamaciones de acreedores y entidades de control.
+                Límites legales al levantamiento del velo societario ante reclamaciones de terceros y entidades de control.
               </p>
             </article>
 
@@ -299,7 +299,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          6. SECCIÓN DE CONTACTO Y ATENCIÓN (LIMPIA, CLARA Y ELEGANTE)
+          6. SECCIÓN DE ATENCIÓN EN DESPACHO (DISEÑO LIMPIO EN MARFIL)
          ========================================================= */}
       <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -314,7 +314,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 Confíe su causa a una defensa rigurosa.
               </h2>
               <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
-                Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Puerto Santa Ana o por vía telemática.
+                Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Puerto Santa Ana, Guayaquil, o por vía telemática.
               </p>
             </div>
 
@@ -340,22 +340,23 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          7. PIE DE PÁGINA EDITORIAL APROBADO (BLANCO / MARFIL)
+          7. PIE DE PÁGINA EDITORIAL OFICIAL (BLANCO / MARFIL CON PLACA)
          ========================================================= */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
         <div className="max-w-6xl mx-auto space-y-12">
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            {/* Columna 1: Logo Oficial Tipo Placa y Misión */}
+            {/* Columna 1: Logotipo Oficial en Placa 3D y Datos de Sede */}
             <div className="space-y-4 md:col-span-1">
+              
               <div className="relative inline-block select-none py-1">
                 <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
-                <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center">
-                  <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
+                <div className="relative px-4 py-2 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
+                  <span className="font-black text-sm tracking-[0.14em] leading-tight font-sans">
                     ACTIO
                   </span>
-                  <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
+                  <span className="font-black text-sm tracking-[0.14em] leading-tight font-sans">
                     LEGIS
                   </span>
                 </div>
@@ -366,7 +367,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </div>
 
               <p className="text-neutral-500 text-xs leading-relaxed pt-1">
-                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa técnica en servicio del derecho.
+                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa forense en servicio del derecho.
               </p>
               
               <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
@@ -474,7 +475,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
 
           </div>
 
-          {/* Sub-pie inferior */}
+          {/* Sub-pie inferior con enlaces y botón de subir */}
           <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
             <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
             <div className="flex items-center gap-4">
@@ -485,9 +486,10 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               <button 
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="text-neutral-900 font-medium hover:underline cursor-pointer"
+                className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
               >
-                Subir al inicio ↑
+                <span>Subir al inicio</span>
+                <ArrowUp className="w-3 h-3" />
               </button>
             </div>
           </div>
