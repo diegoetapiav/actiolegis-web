@@ -197,7 +197,7 @@ export default function App() {
       
       {/* 1. HEADER COMPARTIDO */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-between">
           
           {/* LOGOTIPO DINÁMICO */}
           <div 
@@ -215,12 +215,12 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                /* LOGO DEL ESTUDIO JURÍDICO: Imagen desde /public/logo-estudio.png */
+                /* LOGO DEL ESTUDIO JURÍDICO: Imagen desde /public/logo-estudio.png */ 
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
-                  className="h-12 w-auto object-contain"
-                />
+                  className="h-20 w-auto object-contain hover:scale-105 transition-transform"
+              />
               )}
 
               <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-1 font-semibold">
@@ -647,8 +647,8 @@ export default function App() {
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
-                  className="h-12 w-auto object-contain"
-                />
+                  className="h-24 w-auto object-contain"
+                />  
                 <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-2">
                   en servicio del derecho
                 </span>
