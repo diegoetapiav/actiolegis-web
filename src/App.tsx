@@ -5,7 +5,6 @@ import {
   ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, Users
 } from 'lucide-react';
 
-// Paleta suave aprobada para el portal de clientes
 const PALETA_TRAMITES = [
   {
     fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
@@ -101,19 +100,18 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
+    <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER EDITORIAL OFICIAL (LOGO A LA IZQUIERDA CON SOMBRA PLACA 3D) */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200/80">
+      {/* 1. HEADER EDITORIAL (BLANCO Y NEGRO SOBRIO) */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
-          {/* LOGO APROBADO A LA IZQUIERDA CON SU LEYENDA/SLOGAN ORIGINAL */}
+          {/* LOGOTIPO A LA IZQUIERDA EN PLACA SÓLIDA 3D */}
           <div 
             onClick={() => setVista('sitio-web')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
             <div className="flex flex-col items-start">
-              {/* Placa negra sólida con relieve 3D */}
               <div className="relative inline-block py-0.5">
                 <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
                 <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
@@ -121,7 +119,6 @@ export default function App() {
                   <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
                 </div>
               </div>
-              {/* Slogan debajo de la placa */}
               <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-1 font-semibold">
                 en servicio del derecho
               </span>
@@ -137,7 +134,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* NAVEGACIÓN WEB O PORTAL */}
+          {/* NAVEGACIÓN */}
           {vista === 'sitio-web' ? (
             <div className="flex items-center gap-4 sm:gap-6">
               <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
@@ -193,74 +190,56 @@ export default function App() {
       </header>
 
       {/* =========================================================
-          VISTA 1: SITIO WEB PÚBLICO (DISEÑO EDITORIAL APROBADO)
+          VISTA 1: SITIO WEB PÚBLICO
          ========================================================= */}
       {vista === 'sitio-web' && (
         <main>
-          {/* HERO */}
-          <section className="relative pt-14 pb-20 md:pt-24 md:pb-28 border-b border-neutral-200/80">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <div className="max-w-3xl space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-neutral-200 shadow-2xs text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-600">
-                  <span className="w-2 h-2 rounded-full bg-neutral-950" />
-                  <span>Firma Forense Boutique • Guayaquil, Ecuador</span>
-                </div>
-
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-neutral-950 tracking-tight leading-[1.12] font-normal">
-                  Rigor técnico, litigio estratégico y defensa <span className="italic font-normal">en servicio del derecho.</span>
-                </h1>
-
-                <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl">
-                  ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-4 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const el = document.getElementById('contacto');
-                      el?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>Agendar Consulta Confidencial</span>
-                    <ArrowRight className="w-4 h-4 text-neutral-300" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setModalLogin(true)}
-                    className="px-6 py-3.5 bg-white hover:bg-neutral-100 text-neutral-900 border border-neutral-300 text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <span>Portal de Clientes</span>
-                    <ChevronRight className="w-4 h-4 text-neutral-400" />
-                  </button>
-                </div>
+          {/* HERO CENTRADO (SIN LA BARRA INFERIOR DE NÚMEROS) */}
+          <section className="relative pt-20 pb-24 md:pt-32 md:pb-36 border-b border-neutral-200 bg-white">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+              
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-neutral-50 border border-neutral-200 shadow-2xs text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-600 mb-8 mx-auto">
+                <span className="w-2 h-2 rounded-full bg-neutral-950" />
+                <span>Firma Forense Boutique • Guayaquil, Ecuador</span>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-16 mt-16 border-t border-neutral-200/80">
-                <div>
-                  <div className="font-serif text-3xl font-bold text-neutral-950">20+</div>
-                  <div className="text-xs font-mono uppercase tracking-wider text-neutral-500 mt-1">Años de Trayectoria</div>
-                </div>
-                <div>
-                  <div className="font-serif text-3xl font-bold text-neutral-950">100%</div>
-                  <div className="text-xs font-mono uppercase tracking-wider text-neutral-500 mt-1">Rigor Procesal</div>
-                </div>
-                <div>
-                  <div className="font-serif text-3xl font-bold text-neutral-950">SATJE</div>
-                  <div className="text-xs font-mono uppercase tracking-wider text-neutral-500 mt-1">Sincronización Judicial</div>
-                </div>
-                <div>
-                  <div className="font-serif text-3xl font-bold text-neutral-950">Boutique</div>
-                  <div className="text-xs font-mono uppercase tracking-wider text-neutral-500 mt-1">Atención Personalizada</div>
-                </div>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-neutral-950 tracking-tight leading-[1.15] font-normal max-w-3xl mx-auto">
+                Rigor técnico, litigio estratégico y defensa <span className="italic font-normal">en servicio del derecho.</span>
+              </h1>
+
+              <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl mx-auto mt-6">
+                ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
+              </p>
+
+              {/* Botones Centrados */}
+              <div className="flex flex-wrap items-center justify-center gap-4 pt-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('contacto');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="px-7 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Agendar Consulta Confidencial</span>
+                  <ArrowRight className="w-4 h-4 text-neutral-300" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setModalLogin(true)}
+                  className="px-7 py-3.5 bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-300 text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Portal de Clientes</span>
+                  <ChevronRight className="w-4 h-4 text-neutral-400" />
+                </button>
               </div>
+
             </div>
           </section>
 
           {/* PROPÓSITO */}
-          <section id="proposito" className="py-20 md:py-28 border-b border-neutral-200/80 bg-white">
+          <section id="proposito" className="py-20 md:py-28 border-b border-neutral-200 bg-neutral-50/40">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
                 <div className="md:col-span-4 space-y-3">
@@ -284,7 +263,7 @@ export default function App() {
           </section>
 
           {/* SOCIOS */}
-          <section id="socios" className="py-20 md:py-28 border-b border-neutral-200/80">
+          <section id="socios" className="py-20 md:py-28 border-b border-neutral-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
                 <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500 font-semibold">
@@ -299,7 +278,7 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-3xl border border-neutral-200/90 p-8 shadow-xs space-y-6">
+                <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socio Principal</span>
                     <h3 className="text-2xl font-serif font-bold text-neutral-950">Dr. Diego Tapia</h3>
@@ -313,7 +292,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-neutral-200/90 p-8 shadow-xs space-y-6">
+                <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socia Directora</span>
                     <h3 className="text-2xl font-serif font-bold text-neutral-950">Ab. Marcela Dunn</h3>
@@ -331,7 +310,7 @@ export default function App() {
           </section>
 
           {/* PRÁCTICAS */}
-          <section id="practica" className="py-20 md:py-28 border-b border-neutral-200/80 bg-white">
+          <section id="practica" className="py-20 md:py-28 border-b border-neutral-200 bg-neutral-50/40">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="max-w-xl mb-14 space-y-3">
                 <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500 font-semibold">
@@ -343,7 +322,7 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <Shield className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Litigio Penal & Delitos Económicos</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
@@ -351,7 +330,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <Scale className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Derecho Societario & Mercantil</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
@@ -359,7 +338,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <Landmark className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Contencioso Administrativo & Tributario</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
@@ -367,7 +346,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <FileText className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Litigio Civil & Bienes Inmuebles</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
@@ -375,7 +354,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <Users className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Arbitraje Comercial & Mediación</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
@@ -383,7 +362,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="p-6 rounded-2xl border border-neutral-200/90 bg-[#FAF9F6] space-y-3">
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <Award className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Compliance & Gestión Penal Preventiva</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
@@ -395,7 +374,7 @@ export default function App() {
           </section>
 
           {/* EDITORIAL */}
-          <section id="editorial" className="py-20 md:py-28 border-b border-neutral-200/80">
+          <section id="editorial" className="py-20 md:py-28 border-b border-neutral-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
@@ -412,7 +391,7 @@ export default function App() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
+                <article className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-2xs space-y-3">
                   <span className="text-[10px] font-mono text-neutral-400">Octubre 2026 • Penal Económico</span>
                   <h4 className="font-serif font-bold text-base text-neutral-950">
                     La carga probatoria en peritajes contables durante la investigación previa
@@ -422,7 +401,7 @@ export default function App() {
                   </p>
                 </article>
 
-                <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
+                <article className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-2xs space-y-3">
                   <span className="text-[10px] font-mono text-neutral-400">Septiembre 2026 • Litigio Civil</span>
                   <h4 className="font-serif font-bold text-base text-neutral-950">
                     Cómputo estricto de términos en citaciones por boletas fijadas
@@ -432,7 +411,7 @@ export default function App() {
                   </p>
                 </article>
 
-                <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
+                <article className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-2xs space-y-3">
                   <span className="text-[10px] font-mono text-neutral-400">Agosto 2026 • Societario</span>
                   <h4 className="font-serif font-bold text-base text-neutral-950">
                     Responsabilidad patrimonial de accionistas y administradores en S.A.S.
@@ -445,10 +424,10 @@ export default function App() {
             </div>
           </section>
 
-          {/* CONTACTO: EN FONDO CLARO EDITORIAL (SIN EL BLOQUE NEGRO TOSCO) */}
-          <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200/80">
+          {/* CONTACTO: BLANCO Y NEGRO SOBRIO CON DIRECCIÓN OFICIAL DE KENNEDY NORTE */}
+          <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <div className="bg-[#FAF9F6] border border-neutral-200/90 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
+              <div className="bg-neutral-50 border border-neutral-200 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
                 <div className="space-y-3 max-w-xl">
                   <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-neutral-500 font-semibold">
                     <Shield className="w-3.5 h-3.5 text-neutral-900" />
@@ -458,7 +437,7 @@ export default function App() {
                     Confíe su causa a una defensa rigurosa.
                   </h2>
                   <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
-                    Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Puerto Santa Ana, Guayaquil, o por vía telemática.
+                    Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Kennedy Norte, Guayaquil, o por vía telemática.
                   </p>
                 </div>
 
@@ -484,17 +463,12 @@ export default function App() {
             </div>
           </section>
 
-          {/* =========================================================
-              FOOTER EDITORIAL APROBADO:
-              - LOGO A LA IZQUIERDA EN PLACA SÓLIDA 3D
-              - SLOGAN EXACTO DEBAJO: "EN SERVICIO DEL DERECHO"
-              - FONDO BLANCO/MARFIL Y CUATRO COLUMNAS COMPLETAS
-             ========================================================= */}
-          <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs font-sans">
+          {/* FOOTER SOBRIO (BLANCO Y NEGRO, LOGO A LA IZQUIERDA Y DIRECCIÓN KENNEDY NORTE) */}
+          <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
             <div className="max-w-6xl mx-auto space-y-12">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                 
-                {/* Columna 1: LOGOTIPO A LA IZQUIERDA Y SLOGAN APROBADO */}
+                {/* Columna 1: LOGOTIPO A LA IZQUIERDA Y DIRECCIÓN EXACTA */}
                 <div className="space-y-4 md:col-span-1">
                   <div className="flex flex-col items-start select-none py-1">
                     <div className="relative inline-block py-0.5">
@@ -513,9 +487,9 @@ export default function App() {
                     Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal, asesoría corporativa y arbitraje en servicio del derecho.
                   </p>
                   
-                  <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
-                    <MapPin className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                    <span>Puerto Santa Ana & Malecón Simón Bolívar, Guayaquil</span>
+                  <div className="flex items-start gap-2 text-[11px] text-neutral-800 font-mono pt-1 leading-snug">
+                    <MapPin className="w-3.5 h-3.5 text-neutral-950 shrink-0 mt-0.5" />
+                    <span>Kennedy Norte, Alfonso Ortiz y José Castillo. Edificio Kennedy Office Center, piso 3, oficina 2. Guayaquil, Ecuador.</span>
                   </div>
                 </div>
 
@@ -595,7 +569,7 @@ export default function App() {
                       Guardia técnica para urgencias penales 24/7
                     </p>
                     <div className="pt-2 text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
-                      Puerto Santa Ana • Guayaquil, Ecuador
+                      Kennedy Norte • Guayaquil, Ecuador
                     </div>
                   </div>
                 </div>
@@ -603,7 +577,7 @@ export default function App() {
               </div>
 
               {/* Sub-pie */}
-              <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
+              <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
                 <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
                 <div className="flex items-center gap-4">
                   <span>Firma Electrónica Válida</span>
@@ -627,12 +601,10 @@ export default function App() {
       )}
 
       {/* =========================================================
-          VISTA 2: PORTAL DE CLIENTES LIMPIO
+          VISTA 2: PORTAL DE CLIENTES
          ========================================================= */}
       {vista === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-          
-          {/* Cabecera Limpia (Sin banner negro) */}
           <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-2">
@@ -644,7 +616,6 @@ export default function App() {
                 Bienvenido/a, <span className="font-semibold">Inmobiliaria del Valle S.A.S.</span>
               </h1>
 
-              {/* LEYENDA INSTITUCIONAL OFICIAL */}
               <p className="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
                 Este dashboard le permitirá enterarse de las causas judiciales, trámites administrativos o investigaciones patrocinados por ACTIO LEGIS. Cualquier información adicional, no dude en contactar a su abogado patrocinador.
               </p>
@@ -662,10 +633,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Listado de Casos y Detalle */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            
-            {/* Lista Izquierda con colores diferenciados */}
             <div className="lg:col-span-4 space-y-3">
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold">
@@ -697,7 +665,6 @@ export default function App() {
                       {caso.tipoProceso}
                     </h3>
 
-                    {/* Barra de Progreso Individual */}
                     <div className="pt-2.5 border-t border-neutral-900/10 space-y-1.5">
                       <div className="flex justify-between items-center text-[11px]">
                         <span className="text-neutral-700 font-medium">{caso.etapaProcesalActual}</span>
@@ -724,7 +691,6 @@ export default function App() {
               })}
             </div>
 
-            {/* Detalle Derecho */}
             <div className={`lg:col-span-8 rounded-3xl border border-neutral-200 shadow-sm p-6 sm:p-8 space-y-6 ${estiloActivo.detalleFondo}`}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-neutral-200">
                 <div>
@@ -747,14 +713,13 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Barra Gráfica de Etapas */}
               <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
                       Etapa Procesal Actual
                     </div>
-                    <div className="text-sm sm:text-base font-serif font-semibold text-neutral-900 mt-0.5">
+                    <div className="text-sm sm:text-base font-serif font-semibold text-neutral-950 mt-0.5">
                       {casoActivo.etapaProcesalActual}
                     </div>
                   </div>
@@ -778,8 +743,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Datos de Unidad Judicial y Patrocinio */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/80 p-4 rounded-2xl border border-neutral-200 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-neutral-200 text-xs">
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Juzgado / Unidad</div>
                   <div className="font-medium text-neutral-900 mt-0.5">{casoActivo.unidadJudicial}</div>
@@ -794,7 +758,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Cápsula de providencias explicadas */}
               <div className="space-y-3">
                 <h3 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5">
                   <FileText className="w-4 h-4 text-neutral-900" />
