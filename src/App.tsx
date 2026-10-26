@@ -195,8 +195,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER COMPARTIDO */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
+      {/* 1. HEADER COMPARTIDO (Fondo Blanco Puro y mezcla transparente en Logo) */}
+      <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-between">
           
           {/* LOGOTIPO DINÁMICO */}
@@ -215,12 +215,12 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                /* LOGO DEL ESTUDIO JURÍDICO: Imagen desde /public/logo-estudio.png */ 
+                /* LOGO DEL ESTUDIO JURÍDICO (Sin marco recortado) */
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
-                  className="h-20 w-auto object-contain hover:scale-105 transition-transform"
-              />
+                  className="h-20 w-auto object-contain mix-blend-multiply hover:scale-105 transition-transform"
+                />
               )}
 
               <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-1 font-semibold">
@@ -270,7 +270,6 @@ export default function App() {
                 Prácticas
               </a>
               
-              {/* EDITORIAL ABRE PÁGINA INDEPENDIENTE */}
               <button 
                 type="button" 
                 onClick={() => setVista('editorial')} 
@@ -636,19 +635,19 @@ export default function App() {
         </main>
       )}
 
-      {/* FOOTER COMPARTIDO CON LOGO OFICIAL DEL ESTUDIO */}
+      {/* FOOTER COMPARTIDO (Logo del Estudio con fusión limpia) */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
             <div className="space-y-4 md:col-span-1">
               <div className="flex flex-col items-start select-none py-1">
-                {/* LOGO DEL ESTUDIO JURÍDICO EN EL FOOTER */}
+                {/* LOGO DEL ESTUDIO EN EL FOOTER (Sin marco recortado) */}
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
-                  className="h-24 w-auto object-contain"
-                />  
+                  className="h-24 w-auto object-contain mix-blend-multiply"
+                />
                 <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-2">
                   en servicio del derecho
                 </span>
