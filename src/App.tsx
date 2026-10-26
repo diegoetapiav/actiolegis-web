@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+Fimport React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { LoginModal } from './components/LoginModal';
 import { SatjeBuscadorModal } from './components/EstudioJuridico/SatjeBuscadorModal';import { ModuloExpedientes } from "./components/ModuloExpedientes";
@@ -331,8 +331,8 @@ export default function App() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col text-slate-900 font-sans transition-colors duration-300"
-      style={{ backgroundColor: paletaActiva.hexFondo }}
+      className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans"
+  
     >
       {/* Barra de Navegación Principal Institucional ACTIO LEGIS */}
       <Navbar
