@@ -1,333 +1,324 @@
 import React, { useState } from 'react';
-import { Cliente, Expediente } from '../../types/legal';
 import { 
-  Scale, ExternalLink, Calendar, Clock, 
-  MessageSquare, ChevronRight, FileText, Shield
+  MessageSquare, 
+  Send, 
+  CheckCircle2, 
+  Clock, 
+  AlertCircle,
+  FileText,
+  User,
+  Shield,
+  HelpCircle
 } from 'lucide-react';
+import type { ExpedienteJudicial, Cliente } from '../../types/legal';
 
-interface ClienteCasosViewProps {
-  cliente?: Cliente | null;
-  expedientes?: Expediente[];
-  onIrAConsultas: () => void;
-  onIrACitas: () => void;
+interface Props {
+  cliente: Cliente;
+  expedientes: ExpedienteJudicial[];
 }
 
-const PALETA_TRAMITES = [
-  {
-    fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
-    badgeMateria: 'bg-[#E1EFE7] text-[#1B4D33] border-[#C2DFCF]',
-    barraProgreso: 'bg-[#2E6B4A]',
-    indicadorActivo: 'bg-[#2E6B4A]',
-    detalleFondo: 'bg-[#FAFBF9]',
-  },
-  {
-    fondoCard: 'bg-[#FAF6EE] border-[#EADFCB]',
-    badgeMateria: 'bg-[#F3EBD8] text-[#5C4217] border-[#DFCBB0]',
-    barraProgreso: 'bg-[#8C6424]',
-    indicadorActivo: 'bg-[#8C6424]',
-    detalleFondo: 'bg-[#FCFBF8]',
-  },
-  {
-    fondoCard: 'bg-[#F0F5FA] border-[#CFDFEE]',
-    badgeMateria: 'bg-[#E1EDF7] text-[#19456B] border-[#BFDAF0]',
-    barraProgreso: 'bg-[#255C8F]',
-    indicadorActivo: 'bg-[#255C8F]',
-    detalleFondo: 'bg-[#F7FAFC]',
-  },
-  {
-    fondoCard: 'bg-[#F5F2F9] border-[#DDD3EB]',
-    badgeMateria: 'bg-[#ECE4F5] text-[#422268] border-[#D2C0E8]',
-    barraProgreso: 'bg-[#5B338E]',
-    indicadorActivo: 'bg-[#5B338E]',
-    detalleFondo: 'bg-[#FAF8FC]',
-  }
-];
+interface MensajeConsulta {
+  id: string;
+  expedienteId?: string;
+  expedienteNumero?: string;
+  asunto: string;
+  mensaje: string;
+  fechaEnvio: string;
+  estado: 'enviado' | 'en_revision' | 'respondido';
+  respuesta?: {
+    abogado: string;
+    mensaje: string;
+    fechaRespuesta: string;
+  };
+}
 
-export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
-  cliente,
-  expedientes = [],
-  onIrAConsultas,
-  onIrACitas
-}) => {
-  const clienteNombre = (cliente && cliente.nombre) ? String(cliente.nombre).trim() : 'Inmobiliaria del Valle S.A.S.';
-  const clienteId = cliente ? String(cliente.id || '') : '';
+export const ClienteConsultasView: React.FC<Props> = ({ cliente, expedientes }) => {
+  const [expedienteSeleccionado, setExpedienteSeleccionado] = useState<string>('');
+  const [asunto, setAsunto] = useState('');
+  const [mensaje, setMensaje] = useState('');
+  const [enviadoExito, setEnviadoExito] = useState(false);
+  const [errorValidacion, setErrorValidacion] = useState('');
 
-  // Filtro sin riesgo de errores de tipo
-  const misCasos = (Array.isArray(expedientes) ? expedientes : []).filter((e) => {
-    if (!e) return false;
-    if (clienteId && e.clienteId === clienteId) return true;
-    if (e.cliente) {
-      const expCli = String(e.cliente).toLowerCase();
-      const cliNom = clienteNombre.toLowerCase();
-      return expCli.includes(cliNom) || cliNom.includes(expCli);
-    }
-    return true;
-  });
-
-  const casosParaMostrar: Expediente[] = misCasos.length > 0 ? misCasos : [
+  // Historial de consultas precargado con opción de persistencia local
+  const [consultas, setConsultas] = useState<MensajeConsulta[]>([
     {
-      id: 'exp-demo-1',
-      clienteId: clienteId || 'cli-1',
-      numProceso: '17230-2024-00482',
-      materia: 'Civil',
-      tipoProceso: 'Prescripción Extraordinaria Adquisitiva de Dominio de Lote Urbano',
-      cliente: clienteNombre,
-      contraparte: 'Herederos de Juan Carlos Peñaherrera y Otros',
-      unidadJudicial: 'Unidad Judicial Civil de Guayaquil',
-      abogadoLider: 'Dr. Diego Tapia',
-      estado: 'En Trámite',
-      etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
-      proximaFechaClave: '2026-10-18',
-      proximasAcciones: 'Entrega de informe pericial planimétrico y observaciones de la actora.',
-      actuaciones: [
-        {
-          id: 'act-1',
-          fecha: '2026-10-08 11:20',
-          tipo: 'Providencia Judicial',
-          titulo: 'Concesión de término fatal para informe pericial',
-          resumen: 'El Juez ordenó la planimetría.',
-          resumenParaCliente: 'El Juez ordenó al perito técnico que entregue el informe de medición del terreno en un plazo de 10 días para continuar.',
-          foja: '142',
-          abogado: 'Dr. Diego Tapia'
-        }
-      ]
+      id: 'cons-1',
+      expedienteId: expedientes[0]?.id || 'exp-01',
+      expedienteNumero: expedientes[0]?.numeroCaso || '09332-2023-01824',
+      asunto: 'Consulta sobre término de prueba testimonial',
+      mensaje: 'Estimado Dr., quisiera saber si se requiere que preparemos algún documento adicional para los testigos de la audiencia.',
+      fechaEnvio: '2026-10-20 10:15',
+      estado: 'respondido',
+      respuesta: {
+        abogado: 'Abg. Diego E. Tapia V.',
+        mensaje: 'Estimado/a cliente, los documentos ya reposan en el expediente judicial. Solo coordinaremos una sesión previa de preparación 48 horas antes.',
+        fechaRespuesta: '2026-10-20 15:40'
+      }
+    },
+    {
+      id: 'cons-2',
+      expedienteId: expedientes[1]?.id || 'exp-02',
+      expedienteNumero: expedientes[1]?.numeroCaso || '17203-2024-00412',
+      asunto: 'Certificación de cumplimiento en liquidación',
+      mensaje: 'Buenos días. Adjunto la constancia de pago para que sea ingresada al juzgado respectivo.',
+      fechaEnvio: '2026-10-24 09:30',
+      estado: 'en_revision'
     }
-  ];
+  ]);
 
-  const [casoSeleccionadoId, setCasoSeleccionadoId] = useState<string>(
-    casosParaMostrar[0]?.id || ''
-  );
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorValidacion('');
 
-  const casoActivo = casosParaMostrar.find((c) => c.id === casoSeleccionadoId) || casosParaMostrar[0];
-  const indiceActivo = casosParaMostrar.findIndex((c) => c.id === casoActivo?.id);
-  const colorEstiloActivo = PALETA_TRAMITES[Math.max(0, indiceActivo) % PALETA_TRAMITES.length];
+    if (!asunto.trim() || !mensaje.trim()) {
+      setErrorValidacion('Por favor, complete el asunto y el mensaje de su consulta.');
+      return;
+    }
 
-  const calcularProgresoEtapa = (etapa?: string) => {
-    const et = String(etapa || '').toLowerCase();
-    if (et.includes('sentencia') || et.includes('ejecutoria') || et.includes('concluid')) {
-      return { porcentaje: 100, label: 'Sentencia Definitiva' };
+    const expRelacionado = expedientes.find(exp => exp.id === expedienteSeleccionado);
+
+    const nuevaConsulta: MensajeConsulta = {
+      id: `cons-${Date.now()}`,
+      expedienteId: expedienteSeleccionado || undefined,
+      expedienteNumero: expRelacionado?.numeroCaso || 'Consulta General',
+      asunto: asunto.trim(),
+      mensaje: mensaje.trim(),
+      fechaEnvio: new Date().toISOString().slice(0, 16).replace('T', ' '),
+      estado: 'enviado'
+    };
+
+    setConsultas([nuevaConsulta, ...consultas]);
+    setAsunto('');
+    setMensaje('');
+    setExpedienteSeleccionado('');
+    setEnviadoExito(true);
+
+    setTimeout(() => {
+      setEnviadoExito(false);
+    }, 4500);
+  };
+
+  const getBadgeEstado = (estado: MensajeConsulta['estado']) => {
+    switch (estado) {
+      case 'respondido':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            Respondido
+          </span>
+        );
+      case 'en_revision':
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+            <Clock className="w-3.5 h-3.5 text-amber-600" />
+            En revisión
+          </span>
+        );
+      case 'enviado':
+      default:
+        return (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            <Send className="w-3.5 h-3.5 text-blue-600" />
+            Enviado al despacho
+          </span>
+        );
     }
-    if (et.includes('audiencia') || et.includes('prueba') || et.includes('probatori') || et.includes('juicio')) {
-      return { porcentaje: 65, label: 'Fase Probatoria / Audiencia' };
-    }
-    if (et.includes('califica') || et.includes('contestaci') || et.includes('tramite')) {
-      return { porcentaje: 35, label: 'Calificación & Citación' };
-    }
-    return { porcentaje: 15, label: 'Presentación / Inicio' };
   };
 
   return (
-    <div className="space-y-6 font-sans">
-      
-      {/* CABECERA MINIMALISTA (SIN BLOQUE NEGRO) */}
-      <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-2">
-            <Shield className="w-3.5 h-3.5 text-neutral-800" />
-            <span>Código Confidencial: {cliente?.codigoAcceso || 'ACTIO-8492'}</span>
+    <div className="space-y-8 animate-fadeIn">
+      {/* Encabezado Institucional */}
+      <div className="border-b border-neutral-200 pb-5">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-neutral-100 rounded-xl text-neutral-800">
+            <MessageSquare className="w-6 h-6" />
           </div>
-
-          <h1 className="text-2xl sm:text-3xl font-serif text-neutral-950 font-normal">
-            Bienvenido/a, <span className="font-semibold">{clienteNombre}</span>
-          </h1>
-
-          <p className="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
-            Este dashboard le permitirá enterarse de las causas judiciales, trámites administrativos o investigaciones patrocinados por ACTIO LEGIS. Cualquier información adicional, no dude en contactar a su abogado patrocinador.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={onIrACitas}
-            className="px-4 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-medium rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-          >
-            <Calendar className="w-4 h-4 text-neutral-300" />
-            <span>Agendar Cita</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={onIrAConsultas}
-            className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <MessageSquare className="w-4 h-4 text-neutral-600" />
-            <span>Hacer una Pregunta</span>
-          </button>
+          <div>
+            <h1 className="text-xl font-semibold text-neutral-900 tracking-tight">
+              Canal Directo de Consultas Legales
+            </h1>
+            <p className="text-sm text-neutral-500 mt-0.5">
+              Comuníquese directamente con su equipo patrocinador de ACTIO LEGIS.
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* CONTENIDO PRINCIPAL: TRÁMITES Y DETALLE */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* LISTADO DE TRÁMITES */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold">
-              Mis Juicios & Trámites ({casosParaMostrar.length})
-            </h2>
-            <span className="text-[11px] text-neutral-400">Seleccione para ver detalle</span>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Formulario de Nueva Consulta */}
+        <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-sm">
+          <h2 className="text-base font-medium text-neutral-900 mb-1 flex items-center gap-2">
+            <Send className="w-4 h-4 text-neutral-700" />
+            Redactar Consulta
+          </h2>
+          <p className="text-xs text-neutral-500 mb-5">
+            Su mensaje será remitido directamente al abogado a cargo de su trámite.
+          </p>
 
-          {casosParaMostrar.map((caso, index) => {
-            const colorConfig = PALETA_TRAMITES[index % PALETA_TRAMITES.length];
-            const estaSeleccionado = caso.id === casoActivo?.id;
-            const { porcentaje, label } = calcularProgresoEtapa(caso.etapaProcesalActual || caso.estado);
-
-            return (
-              <div
-                key={caso.id}
-                onClick={() => setCasoSeleccionadoId(caso.id)}
-                className={`rounded-2xl p-5 border transition-all cursor-pointer relative ${colorConfig.fondoCard} ${estaSeleccionado ? 'ring-2 ring-neutral-950 shadow-sm' : 'opacity-90 hover:opacity-100'}`}
-              >
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="font-mono text-xs font-bold text-neutral-900">
-                    {caso.numProceso || 'En trámite prejudicial'}
-                  </span>
-                  <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-md border ${colorConfig.badgeMateria}`}>
-                    {caso.materia}
-                  </span>
-                </div>
-
-                <h3 className="font-serif font-semibold text-neutral-950 text-sm leading-snug mb-3 line-clamp-2">
-                  {caso.tipoProceso}
-                </h3>
-
-                {/* BARRA DE PROGRESO INDIVIDUAL POR CADA CASO */}
-                <div className="pt-2.5 border-t border-neutral-900/10 space-y-1.5">
-                  <div className="flex justify-between items-center text-[11px]">
-                    <span className="text-neutral-700 font-medium">{label}</span>
-                    <span className="font-mono font-bold text-neutral-900">{porcentaje}%</span>
-                  </div>
-                  
-                  <div className="w-full h-1.5 bg-neutral-900/10 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-500 ${colorConfig.barraProgreso}`}
-                      style={{ width: `${porcentaje}%` }}
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3 text-neutral-500" />
-                    {caso.proximaFechaClave ? caso.proximaFechaClave : 'Causa en término judicial'}
-                  </span>
-                  <ChevronRight className={`w-4 h-4 transition-transform ${estaSeleccionado ? 'rotate-90 text-neutral-950' : 'text-neutral-400'}`} />
-                </div>
+          {enviadoExito && (
+            <div className="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2.5 text-emerald-800 text-xs leading-relaxed animate-fadeIn">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="font-medium">Mensaje enviado exitosamente.</span> Su abogado patrocinador revisará su requerimiento a la brevedad.
               </div>
-            );
-          })}
+            </div>
+          )}
+
+          {errorValidacion && (
+            <div className="mb-5 p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2 text-rose-700 text-xs">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{errorValidacion}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="expediente" className="block text-xs font-medium text-neutral-700 mb-1.5">
+                Vincular a Proceso o Causa (Opcional)
+              </label>
+              <select
+                id="expediente"
+                value={expedienteSeleccionado}
+                onChange={(e) => setExpedienteSeleccionado(e.target.value)}
+                className="w-full text-xs rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 transition-colors"
+              >
+                <option value="">-- Consulta general no vinculada a juicio --</option>
+                {expedientes.map((exp) => (
+                  <option key={exp.id} value={exp.id}>
+                    {exp.numeroCaso} - {exp.titulo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="asunto" className="block text-xs font-medium text-neutral-700 mb-1.5">
+                Asunto del requerimiento *
+              </label>
+              <input
+                id="asunto"
+                type="text"
+                value={asunto}
+                onChange={(e) => setAsunto(e.target.value)}
+                placeholder="Ej. Duda sobre la fecha de audiencia"
+                className="w-full text-xs rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="mensaje" className="block text-xs font-medium text-neutral-700 mb-1.5">
+                Mensaje o consulta detallada *
+              </label>
+              <textarea
+                id="mensaje"
+                rows={5}
+                value={mensaje}
+                onChange={(e) => setMensaje(e.target.value)}
+                placeholder="Detalle sus inquietudes o proporcione la información requerida por su abogado..."
+                className="w-full text-xs rounded-xl border border-neutral-300 bg-white px-3 py-2.5 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 transition-colors resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors shadow-sm"
+            >
+              <Send className="w-3.5 h-3.5" />
+              Enviar Consulta al Despacho
+            </button>
+          </form>
+
+          <div className="mt-6 pt-5 border-t border-neutral-100 flex items-start gap-2.5 text-[11px] text-neutral-500 leading-relaxed">
+            <Shield className="w-4 h-4 text-neutral-400 flex-shrink-0 mt-0.5" />
+            <span>
+              Toda comunicación cursada por este canal se encuentra protegida por el secreto profesional y confidencialidad abogado-cliente.
+            </span>
+          </div>
         </div>
 
-        {/* DETALLE DEL TRÁMITE SELECCIONADO */}
-        {casoActivo && (
-          <div className={`lg:col-span-8 rounded-3xl border border-neutral-200 shadow-sm p-6 sm:p-8 space-y-6 ${colorEstiloActivo.detalleFondo}`}>
-            
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-neutral-200">
-              <div>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className={`w-2.5 h-2.5 rounded-full ${colorEstiloActivo.indicadorActivo}`} />
-                  <span className="text-xs font-mono font-bold text-neutral-600">
-                    Causa Judicial: {casoActivo.numProceso}
-                  </span>
-                  <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${colorEstiloActivo.badgeMateria}`}>
-                    {casoActivo.materia}
-                  </span>
-                </div>
+        {/* Historial de Respuestas y Consultas */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="flex items-center justify-between pb-1">
+            <h2 className="text-base font-medium text-neutral-900 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-neutral-700" />
+              Historial de Comunicaciones
+            </h2>
+            <span className="text-xs text-neutral-500 font-mono">
+              {consultas.length} {consultas.length === 1 ? 'registro' : 'registros'}
+            </span>
+          </div>
 
-                <h2 className="text-xl sm:text-2xl font-serif font-bold text-neutral-950">
-                  {casoActivo.tipoProceso}
-                </h2>
-                <p className="text-xs text-neutral-600 mt-1">
-                  Demandante: <strong className="text-neutral-900 font-medium">{casoActivo.cliente || clienteNombre}</strong> • Demandado/Contraparte: <strong className="text-neutral-900 font-medium">{casoActivo.contraparte}</strong>
-                </p>
-              </div>
-
-              {casoActivo.enlaceSatje && (
-                <a
-                  href={casoActivo.enlaceSatje}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-neutral-300 hover:border-neutral-900 text-xs font-medium text-neutral-900 transition-colors shadow-sm shrink-0"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Verificar en SATJE</span>
-                </a>
-              )}
+          {consultas.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 border border-neutral-200/80 text-center">
+              <HelpCircle className="w-8 h-8 text-neutral-300 mx-auto mb-2" />
+              <p className="text-sm font-medium text-neutral-700">No hay consultas registradas</p>
+              <p className="text-xs text-neutral-500 mt-1">
+                Puede formular su primera consulta utilizando el formulario de la izquierda.
+              </p>
             </div>
-
-            {/* BARRA GRÁFICA DE ETAPAS */}
-            <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-                    Etapa Procesal Actual
-                  </div>
-                  <div className="text-sm sm:text-base font-serif font-semibold text-neutral-900 mt-0.5">
-                    {casoActivo.etapaProcesalActual || 'Fase Probatoria / Audiencia de Juicio'}
-                  </div>
-                </div>
-
-                <span className="text-xs font-mono font-bold text-neutral-900">
-                  {calcularProgresoEtapa(casoActivo.etapaProcesalActual).porcentaje}% Completado
-                </span>
-              </div>
-
-              <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+          ) : (
+            <div className="space-y-4">
+              {consultas.map((item) => (
                 <div 
-                  className={`h-full rounded-full transition-all duration-700 ${colorEstiloActivo.barraProgreso}`}
-                  style={{ width: `${calcularProgresoEtapa(casoActivo.etapaProcesalActual).porcentaje}%` }}
-                />
-              </div>
-
-              <div className="grid grid-cols-4 gap-2 text-center pt-1 text-[11px]">
-                <div className="font-medium text-neutral-900">1. Demanda</div>
-                <div className="font-medium text-neutral-900">2. Citación</div>
-                <div className="font-bold text-neutral-950">3. Pruebas</div>
-                <div className="text-neutral-400">4. Sentencia</div>
-              </div>
-            </div>
-
-            {/* DATOS DEL TRIBUNAL Y PATROCINIO */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white/80 p-4 rounded-2xl border border-neutral-200 text-xs">
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Juzgado / Unidad</div>
-                <div className="font-medium text-neutral-900 mt-0.5">{casoActivo.unidadJudicial || 'Unidad Judicial Civil de Guayaquil'}</div>
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Contraparte</div>
-                <div className="font-medium text-neutral-900 mt-0.5">{casoActivo.contraparte}</div>
-              </div>
-              <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Abogado Patrocinador</div>
-                <div className="font-semibold text-neutral-900 mt-0.5">{casoActivo.abogadoLider || 'Dr. Diego Tapia'} • ACTIO LEGIS</div>
-              </div>
-            </div>
-
-            {/* PRÓXIMA FECHA CLAVE */}
-            {casoActivo.proximaFechaClave && (
-              <div className="bg-[#FAF6EE] border border-[#EADFCB] rounded-2xl p-4 flex items-start gap-3">
-                <Clock className="w-4 h-4 text-[#8C6424] shrink-0 mt-0.5" />
-                <div className="text-xs">
-                  <span className="font-bold text-[#5C4217]">Próxima Fecha Clave: {casoActivo.proximaFechaClave}</span>
-                  <p className="text-[#6D5325] mt-0.5">{casoActivo.proximasAcciones || 'Actuación y diligencia programada en el juzgado.'}</p>
-                </div>
-              </div>
-            )}
-
-            {/* HISTORIAL EXPLICADO DE PROVIDENCIAS */}
-            <div className="space-y-3">
-              <h3 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5">
-                <FileText className="w-4 h-4 text-neutral-900" />
-                <span>Historial de Providencias & Resoluciones</span>
-              </h3>
-
-              {casoActivo.actuaciones && casoActivo.actuaciones.length > 0 ? (
-                casoActivo.actuaciones.map((act) => (
-                  <div key={act.id} className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                      <span className="font-bold text-neutral-900 font-serif text-sm">{act.titulo}</span>
-                      <span className="text-neutral-400 font-mono text-[11px]">{act.fecha}</span>
+                  key={item.id}
+                  className="bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-sm space-y-4 transition-all hover:border-neutral-300"
+                >
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <span className="text-xs font-semibold text-neutral-900">
+                          {item.asunto}
+                        </span>
+                        {getBadgeEstado(item.estado)}
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] text-neutral-500">
+                        <span className="flex items-center gap-1 font-mono">
+                          <FileText className="w-3 h-3 text-neutral-400" />
+                          {item.expedienteNumero}
+                        </span>
+                        <span>•</span>
+                        <span>{item.fechaEnvio}</span>
+                      </div>
                     </div>
-                    <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 text-xs text-neutral-700 leading
+                  </div>
+
+                  {/* Cuerpo de la consulta del cliente */}
+                  <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 text-xs text-neutral-700 leading-relaxed">
+                    <p className="font-medium text-neutral-500 text-[11px] mb-1 flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      Consulta enviada por usted:
+                    </p>
+                    <p className="whitespace-pre-wrap">{item.mensaje}</p>
+                  </div>
+
+                  {/* Respuesta del Despacho (si existe) */}
+                  {item.respuesta ? (
+                    <div className="ml-3 pl-3 border-l-2 border-emerald-500/50 space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-semibold text-neutral-900 flex items-center gap-1.5">
+                          <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                          {item.respuesta.abogado}
+                        </span>
+                        <span className="text-[11px] text-neutral-400 font-mono">
+                          {item.respuesta.fechaRespuesta}
+                        </span>
+                      </div>
+                      <p className="text-xs text-neutral-700 leading-relaxed bg-emerald-50/40 rounded-xl p-3 border border-emerald-100/60 whitespace-pre-wrap">
+                        {item.respuesta.mensaje}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-neutral-400 italic flex items-center gap-1.5 pt-1">
+                      <Clock className="w-3 h-3" />
+                      Pendiente de contestación por parte del abogado patrocinador.
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
