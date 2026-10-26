@@ -317,7 +317,7 @@ export default function App() {
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl mx-auto mt-6">
-                ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
+                ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, civiles y controversias societarias bajo estándares de estricta reserva y ética profesional.
               </p>
 
               {/* Botones Centrados */}
@@ -554,7 +554,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => {
-                      alert('Para coordinar su cita en despacho, contáctenos al +593 (4) 259-8800 o al correo contacto@actiolegisec.com');
+                      alert('Para coordinar su cita en despacho, contáctenos al +593 (4) 6005080 o al correo info@actiolegisec.com');
                     }}
                     className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
                   >
@@ -593,7 +593,7 @@ export default function App() {
                   </div>
 
                   <p className="text-neutral-500 text-xs leading-relaxed pt-1 font-light">
-                    Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal, asesoría corporativa y arbitraje en servicio del derecho.
+                    Firma jurídica boutique en Guayaquil. Litigio penal y civil estratégicos, rigor procesal y asesoría corporativa en servicio del derecho.
                   </p>
                   
                   <div className="flex items-start gap-2 text-[11px] text-neutral-800 font-mono pt-1 leading-snug">
@@ -611,7 +611,7 @@ export default function App() {
                     <li><a href="#proposito" className="hover:text-neutral-950 transition-colors">Propósito & Manifiesto</a></li>
                     <li><a href="#socios" className="hover:text-neutral-950 transition-colors">Socios: Dr. Diego Tapia & Marcela Dunn</a></li>
                     <li><a href="#practica" className="hover:text-neutral-950 transition-colors">Defensa Penal Económica & Fraude</a></li>
-                    <li><a href="#practica" className="hover:text-neutral-950 transition-colors">Arbitraje & Controversias Societarias</a></li>
+                    <li><a href="#practica" className="hover:text-neutral-950 transition-colors">Controversias Societarias</a></li>
                     <li><a href="#editorial" className="hover:text-neutral-950 transition-colors">Editorial Jurídico ACTIO LEGIS</a></li>
                   </ul>
                 </div>
@@ -671,11 +671,11 @@ export default function App() {
                     </div>
                     <div className="flex items-center gap-2">
                       <Mail className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                      <span>contacto@actiolegisec.com</span>
+                      <span>info@actiolegisec.com</span>
                     </div>
                     <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
-                      Lunes a Viernes: 08:30 – 18:30 <br />
-                      Guardia técnica para urgencias penales 24/7
+                      Lunes a Viernes: 08:45 – 18:30 <br />
+                      Urgencias en penales falgrantes: 24/7
                     </p>
                     <div className="pt-2 text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
                       Kennedy Norte • Guayaquil, Ecuador
@@ -689,20 +689,15 @@ export default function App() {
               <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
                 <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
                 <div className="flex items-center gap-4">
-                  <span>Firma Electrónica Válida</span>
-                  <span>•</span>
-                  <span>Ley de Comercio Electrónico</span>
-                  <span>•</span>
-                  <button 
-                    type="button"
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Subir al inicio</span>
-                    <ArrowUp className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
+  <button 
+    type="button"
+    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+    className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
+  >
+    <span>Subir al inicio</span>
+    <ArrowUp className="w-3 h-3" />
+  </button>
+</div>
 
             </div>
           </footer>
