@@ -141,13 +141,18 @@ export default function App() {
     }
   };
 
-  const abrirPortalCliente = () => {
-    setVista('cliente');
+  const solicitarAccesoCliente = () => {
+    setRolLogin('cliente');
+    setInputUser('');
+    setInputPass('');
+    setModalLogin(true);
   };
 
-  const abrirIntranetAbogados = () => {
-    setVista('intranet');
-    setTabIntranet('expedientes');
+  const solicitarAccesoIntranet = () => {
+    setRolLogin('estudio');
+    setInputUser('');
+    setInputPass('');
+    setModalLogin(true);
   };
 
   const handleProcesarConIA = () => {
@@ -215,7 +220,7 @@ export default function App() {
           >
             <div className="flex flex-col items-start pb-0.5">
               {vista === 'editorial' ? (
-                /* LOGO DE LA EDITORIAL: Placa Sólida 3D Negra */
+                /* LOGO DE LA EDITORIAL */
                 <div className="flex flex-col items-start">
                   <div className="relative inline-block py-0.5">
                     <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
@@ -250,79 +255,88 @@ export default function App() {
 
           {/* NAVEGACIÓN PRINCIPAL */}
           <div className="flex items-center gap-3 sm:gap-5">
-            <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
-              <button 
-                type="button" 
-                onClick={() => setVista('sitio-web')} 
-                className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'sitio-web' ? 'text-neutral-950 font-bold' : ''}`}
-              >
-                Inicio
-              </button>
-              <a 
-                href="#proposito" 
-                onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
-                className="hover:text-neutral-950 transition-colors"
-              >
-                Propósito
-              </a>
-              <a 
-                href="#socios" 
-                onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
-                className="hover:text-neutral-950 transition-colors"
-              >
-                Socios
-              </a>
-              <a 
-                href="#practica" 
-                onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
-                className="hover:text-neutral-950 transition-colors"
-              >
-                Prácticas
-              </a>
-              
-              <button 
-                type="button" 
-                onClick={() => setVista('editorial')} 
-                className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'editorial' ? 'text-neutral-950 font-bold border-b border-neutral-950' : ''}`}
-              >
-                Editorial
-              </button>
+            {vista === 'sitio-web' || vista === 'editorial' ? (
+              <>
+                <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
+                  <button 
+                    type="button" 
+                    onClick={() => setVista('sitio-web')} 
+                    className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'sitio-web' ? 'text-neutral-950 font-bold' : ''}`}
+                  >
+                    Inicio
+                  </button>
+                  <a 
+                    href="#proposito" 
+                    onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
+                    className="hover:text-neutral-950 transition-colors"
+                  >
+                    Propósito
+                  </a>
+                  <a 
+                    href="#socios" 
+                    onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
+                    className="hover:text-neutral-950 transition-colors"
+                  >
+                    Socios
+                  </a>
+                  <a 
+                    href="#practica" 
+                    onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
+                    className="hover:text-neutral-950 transition-colors"
+                  >
+                    Prácticas
+                  </a>
+                  
+                  <button 
+                    type="button" 
+                    onClick={() => setVista('editorial')} 
+                    className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'editorial' ? 'text-neutral-950 font-bold border-b border-neutral-950' : ''}`}
+                  >
+                    Editorial
+                  </button>
 
-              <a 
-                href="#contacto" 
-                onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
-                className="hover:text-neutral-950 transition-colors"
-              >
-                Contacto
-              </a>
-            </nav>
+                  <a 
+                    href="#contacto" 
+                    onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
+                    className="hover:text-neutral-950 transition-colors"
+                  >
+                    Contacto
+                  </a>
+                </nav>
 
-            <button
-              type="button"
-              onClick={abrirPortalCliente}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer shadow-2xs"
-            >
-              <User className="w-3.5 h-3.5 text-neutral-600" />
-              <span className="hidden sm:inline">Portal</span> Clientes
-            </button>
+                <button
+                  type="button"
+                  onClick={solicitarAccesoCliente}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer shadow-2xs"
+                >
+                  <User className="w-3.5 h-3.5 text-neutral-600" />
+                  <span className="hidden sm:inline">Portal</span> Clientes
+                </button>
 
-            <button
-              type="button"
-              onClick={abrirIntranetAbogados}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 transition-all cursor-pointer"
-            >
-              <Building2 className="w-3.5 h-3.5 text-neutral-500" />
-              <span>Intranet</span>
-            </button>
-
-            {vista !== 'sitio-web' && (
-              <button
-                type="button"
-                onClick={() => setVista('sitio-web')}
-                className="px-3.5 py-2 bg-neutral-950 text-white text-xs font-medium rounded-xl hover:bg-black transition-all cursor-pointer"
-              >
-                Volver
-              </button>
+                <button
+                  type="button"
+                  onClick={solicitarAccesoIntranet}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 transition-all cursor-pointer"
+                >
+                  <Building2 className="w-3.5 h-3.5 text-neutral-500" />
+                  <span>Intranet</span>
+                </button>
+              </>
+            ) : (
+              /* BOTÓN CERRAR SESIÓN EN VISTAS PRIVADAS */
+              <div className="flex items-center gap-3">
+                <span className="hidden md:inline text-xs font-mono text-neutral-500">
+                  {vista === 'cliente' ? 'Sesión: Cliente Registrado' : 'Sesión: Abogado Litigante'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setVista('sitio-web')}
+                  className="px-4 py-2 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-2 shadow-xs"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-neutral-300" />
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
             )}
           </div>
 
@@ -366,7 +380,7 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={abrirPortalCliente}
+                  onClick={solicitarAccesoCliente}
                   className="px-7 py-3.5 bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-300 text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>Portal de Clientes</span>
@@ -391,7 +405,7 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
+                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
                   </p>
                   <p>
                     Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados judiciales y tribunales arbitrales.
@@ -1128,7 +1142,7 @@ export default function App() {
                 <li>
                   <button 
                     type="button"
-                    onClick={abrirPortalCliente}
+                    onClick={solicitarAccesoCliente}
                     className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
                   >
                     Portal Clientes
@@ -1137,7 +1151,7 @@ export default function App() {
                 <li>
                   <button 
                     type="button"
-                    onClick={abrirIntranetAbogados}
+                    onClick={solicitarAccesoIntranet}
                     className="hover:text-neutral-950 transition-colors text-left cursor-pointer font-medium text-neutral-900"
                   >
                     Intranet Abogados
@@ -1199,6 +1213,102 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* MODAL DE AUTENTICACIÓN Y CONTROL DE ACCESO */}
+      {modalLogin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
+            <button
+              onClick={() => setModalLogin(false)}
+              className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-block relative mb-2">
+                <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+                <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
+                  <span className="font-black text-xs tracking-widest leading-none font-sans">ACTIO</span>
+                  <span className="font-black text-xs tracking-widest leading-none font-sans">LEGIS</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-serif text-neutral-950 font-bold">
+                {rolLogin === 'cliente' ? 'Portal de Clientes' : 'Intranet del Despacho'}
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1">
+                {rolLogin === 'cliente' 
+                  ? 'Seguimiento oficial de causas patrocinadas.' 
+                  : 'Acceso exclusivo para el equipo de abogados de ACTIO LEGIS.'}
+              </p>
+            </div>
+
+            <div className="flex bg-neutral-100 p-1 rounded-xl mb-5">
+              <button
+                type="button"
+                onClick={() => setRolLogin('cliente')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  rolLogin === 'cliente' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                Portal Clientes
+              </button>
+              <button
+                type="button"
+                onClick={() => setRolLogin('estudio')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  rolLogin === 'estudio' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                Intranet Abogados
+              </button>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
+                  Usuario o Correo Registrado
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                  <input
+                    type="text"
+                    required
+                    value={inputUser}
+                    onChange={(e) => setInputUser(e.target.value)}
+                    placeholder={rolLogin === 'cliente' ? "ACTIO-8492 o cliente@correo.com" : "diego.tapia@actiolegisec.com"}
+                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                  <input
+                    type="password"
+                    required
+                    value={inputPass}
+                    onChange={(e) => setInputPass(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full mt-2 py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer"
+              >
+                Ingresar a la Plataforma Privada
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
