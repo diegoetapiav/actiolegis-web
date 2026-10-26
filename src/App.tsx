@@ -313,7 +313,7 @@ export default function App() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-neutral-950 tracking-tight leading-[1.15] font-normal max-w-3xl mx-auto">
-                Rigor técnico, litigio estratégico y defensa <span className="italic font-normal">en servicio del derecho.</span>
+                Rigor técnico, litigio estratégico y defensa <span className="italic font-normal text-[#D4C7B5]">en servicio del derecho.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl mx-auto mt-6">
@@ -348,18 +348,18 @@ export default function App() {
           </section>
 
           {/* PROPÓSITO */}
-          <section id="proposito" className="py-20 md:py-28 border-b border-neutral-200 bg-neutral-50/40">
+          <section id="proposito" className="py-20 md:py-28 border-b border-neutral-800 bg-[#281F26] text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
                 <div className="md:col-span-4 space-y-3">
-                  <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500 font-semibold">
+                  <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#D4C7B5] font-semibold">
                     Filosofía de Litigio
-                  </span>
+                  </span>  
                   <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-950 leading-tight">
                     No ejercemos el derecho en masa. Asumimos causas con compromiso de fondo.
                   </h2>
                 </div>
-                <div className="md:col-span-8 space-y-6 text-sm text-neutral-600 font-light leading-relaxed">
+                <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
                     En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
                   </p>
