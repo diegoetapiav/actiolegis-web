@@ -526,138 +526,84 @@ export default function App() {
         )}
       </main>
 
-      {/* Pie de Página Institucional ACTIO LEGIS • Guayaquil, Ecuador */}
-      <footer className="bg-slate-950 text-slate-300 border-t border-slate-800 py-12 px-4 sm:px-6 lg:px-8 text-xs">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Columna 1: Firma y Logo */}
-            <div className="space-y-3 md:col-span-1">
-              <div className="flex items-center gap-2.5">
-                <div className="p-1 bg-black rounded-lg border border-white/20">
-                  <ActioLegisLogo variant="white" size="xs" />
-                </div>
-                <span className="font-extrabold text-white text-base font-display">
-                  ACTIO LEGIS
-                </span>
-              </div>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Estudio Jurídico de alto rendimiento en Guayaquil. Litigio estratégico, rigor procesal y seguimiento tecnológico en tiempo real.
+{/* =========================================================
+          PIE DE PÁGINA EDITORIAL & MINIMALISTA • ACTIO LEGIS
+         ========================================================= */}
+      <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
+        <div className="max-w-6xl mx-auto space-y-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+            
+            {/* Columna 1: Logotipo Oficial y Posicionamiento */}
+            <div className="space-y-4 md:col-span-1">
+              <ActioLegisLogo variant="black" showSlogan={true} size="sm" />
+              
+              <p className="text-neutral-500 text-xs leading-relaxed pt-2">
+                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa en servicio del derecho.
               </p>
-              <div className="flex items-center gap-2 text-[11px] text-amber-400 pt-1 font-mono">
-                <MapPin className="w-3.5 h-3.5" />
+
+              <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
+                <MapPin className="w-3.5 h-3.5 text-neutral-950" />
                 <span>Puerto Santa Ana & Malecón, Guayaquil</span>
               </div>
             </div>
 
-            {/* Columna 2: Navegación del Sitio */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-white text-xs uppercase tracking-wider font-mono text-amber-400">
-                Página Web
+            {/* Columna 2: Navegación Editorial */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
+                Línea Institucional
               </h4>
-              <ul className="space-y-1.5 text-slate-400">
+              <ul className="space-y-2 text-neutral-500">
                 <li>
-                  <button 
-                    onClick={() => {
-                      setVistaPrincipal('sitio-web');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }} 
-                    className="hover:text-white transition-colors cursor-pointer"
-                  >
-                    Inicio & Galería Guayaquil
-                  </button>
+                  <a href="#proposito" className="hover:text-neutral-950 transition-colors">
+                    Propósito & Manifiesto
+                  </a>
                 </li>
                 <li>
-                  <button 
-                    onClick={() => {
-                      setVistaPrincipal('sitio-web');
-                      setTimeout(() => {
-                        document.getElementById('quienes-somos')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }} 
-                    className="hover:text-white transition-colors cursor-pointer"
-                  >
-                    Quiénes Somos & Socios
-                  </button>
+                  <a href="#socios" className="hover:text-neutral-950 transition-colors">
+                    Socios: Diego Tapia & Marcela Dunn
+                  </a>
                 </li>
                 <li>
-                  <button 
-                    onClick={() => {
-                      setVistaPrincipal('sitio-web');
-                      setTimeout(() => {
-                        document.getElementById('blog-novedades')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }} 
-                    className="hover:text-white transition-colors cursor-pointer"
-                  >
-                    Blog de Novedades Jurídicas
-                  </button>
+                  <a href="#practica" className="hover:text-neutral-950 transition-colors">
+                    Defensa Penal & Prácticas
+                  </a>
                 </li>
                 <li>
-                  <button 
-                    onClick={() => {
-                      setVistaPrincipal('sitio-web');
-                      setTimeout(() => {
-                        document.getElementById('noticias-judiciales')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }} 
-                    className="hover:text-white transition-colors cursor-pointer"
-                  >
-                    Noticias Función Judicial
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => {
-                      setVistaPrincipal('sitio-web');
-                      setTimeout(() => {
-                        document.getElementById('redes-oficiales')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 100);
-                    }} 
-                    className="hover:text-white transition-colors cursor-pointer"
-                  >
-                    Canales en Redes Oficiales
-                  </button>
+                  <a href="#editorial" className="hover:text-neutral-950 transition-colors">
+                    Editorial Jurídico Actio Legis
+                  </a>
                 </li>
               </ul>
             </div>
 
-            {/* Columna 3: Accesos y Plataforma */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-white text-xs uppercase tracking-wider font-mono text-amber-400">
+            {/* Columna 3: Servicios & Plataforma Privada */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Plataforma Privada
               </h4>
-              <ul className="space-y-1.5 text-slate-400">
+              <ul className="space-y-2 text-neutral-500">
                 <li>
                   <button 
                     onClick={() => handleAbrirLoginConTab('cliente')}
-                    className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="hover:text-neutral-950 transition-colors text-left"
                   >
-                    <span>Ingreso Clientes (Causas & Pagos)</span>
+                    Portal Clientes (Causas & Pagos)
                   </button>
                 </li>
                 <li>
                   <button 
                     onClick={() => handleAbrirLoginConTab('estudio')}
-                    className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="hover:text-neutral-950 transition-colors text-left"
                   >
-                    <span>Ingreso Intranet (Equipo Legal)</span>
+                    Intranet de Litigantes
                   </button>
                 </li>
                 <li>
                   <button 
                     onClick={() => setModalReservarCitaAbierto(true)}
-                    className="hover:text-amber-400 transition-colors flex items-center gap-1.5 cursor-pointer text-amber-300 font-semibold"
+                    className="text-neutral-950 font-medium hover:underline text-left"
                   >
-                    <span>Reservar Cita / Consulta en Línea</span>
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setModalCalculadoraAbierto(true)}
-                    className="hover:text-white transition-colors flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Calculator className="w-3 h-3" />
-                    <span>Calculadora Arancelaria & Términos</span>
+                    Agendar Consulta Confidencial
                   </button>
                 </li>
                 <li>
@@ -665,97 +611,54 @@ export default function App() {
                     href="https://www.funcionjudicial.gob.ec/" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="hover:text-white transition-colors flex items-center gap-1.5"
+                    className="hover:text-neutral-950 transition-colors flex items-center gap-1.5"
                   >
-                    <ExternalLink className="w-3 h-3" />
-                    <span>Portal Función Judicial Oficial</span>
+                    <span>Función Judicial SATJE</span>
+                    <ExternalLink className="w-3 h-3 text-neutral-400" />
                   </a>
                 </li>
               </ul>
             </div>
 
-            {/* Columna 4: Contacto Directo */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-white text-xs uppercase tracking-wider font-mono text-amber-400">
+            {/* Columna 4: Contacto Despacho */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Atención Guayaquil
               </h4>
-              <div className="space-y-2 text-slate-400 text-xs">
+              <div className="space-y-2 text-neutral-500 text-xs">
                 <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>+593 (4) 259-8800</span>
+                  <Phone className="w-3.5 h-3.5 text-neutral-950" />
+                  <span className="font-medium text-neutral-800">+593 (4) 259-8800</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-sky-400" />
+                  <Mail className="w-3.5 h-3.5 text-neutral-950" />
                   <span>contacto@actiolegisec.com</span>
                 </div>
-                <p className="text-[11px] text-slate-500 pt-1">
-                  Horario: Lun a Vie 08:30 - 18:30 <br />
-                  Urgencias procesales 24/7
+                <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
+                  Lunes a Viernes: 08:30 – 18:30 <br />
+                  Urgencias en materia penal 24/7
                 </p>
-                <button
-                  onClick={handleReiniciarDatos}
-                  className="mt-2 text-[11px] text-slate-500 hover:text-rose-400 flex items-center gap-1 transition-colors cursor-pointer"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Reiniciar datos demo</span>
-                </button>
               </div>
             </div>
+
           </div>
 
-          <div className="pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
-            <p>© {new Date().getFullYear()} ACTIO LEGIS - Estudio Jurídico. Todos los derechos reservados. Guayaquil, Ecuador.</p>
+          {/* Barra inferior de copyright y acreditación legal */}
+          <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
+            <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
             <div className="flex items-center gap-4">
-              <span>Sincronización SATJE Activa</span>
-              <span>•</span>
               <span>Firma Electrónica Válida</span>
+              <span>•</span>
+              <span>Sincronización SATJE</span>
               <span>•</span>
               <button 
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <span>Subir</span>
+                <span>Subir al inicio</span>
                 <ArrowUp className="w-3 h-3" />
               </button>
             </div>
           </div>
         </div>
       </footer>
-
-      {/* Modales Globales */}
-      <LoginModal
-        isOpen={modalLoginAbierto}
-        onClose={() => setModalLoginAbierto(false)}
-        onLogin={handleLogin}
-        tabInicial={loginTabInicial}
-      />
-
-      <ReservarCitaModal
-        isOpen={modalReservarCitaAbierto}
-        onCerrar={() => setModalReservarCitaAbierto(false)}
-        onConfirmarCita={handleAgregarCita}
-      />
-
-      <SatjeBuscadorModal
-        isOpen={modalSatjeAbierto}
-        onClose={() => setModalSatjeAbierto(false)}
-        clientes={clientes}
-        expedientesExistentes={expedientes}
-        onImportarCausa={handleImportarCausaSatje}
-        onSincronizarCausaExistente={handleSincronizarCausaExistente}
-      />
-
-      <NuevoExpedienteModal
-        isOpen={modalNuevoExpedienteAbierto}
-        onClose={() => setModalNuevoExpedienteAbierto(false)}
-        clientes={clientes}
-        onGuardar={handleGuardarNuevoExpediente}
-      />
-
-      <CalculadoraLegalModal
-        isOpen={modalCalculadoraAbierto}
-        onClose={() => setModalCalculadoraAbierto(false)}
-      />
-    </div>
-  );
-}
