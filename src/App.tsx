@@ -701,8 +701,7 @@ export default function App() {
               </div>
 
             </div>
-          </div>
-        </footer>
+          </footer>
         </main>
       )}
 
