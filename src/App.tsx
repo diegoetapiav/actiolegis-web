@@ -111,7 +111,6 @@ const CASOS_BASE: ExpedienteInterno[] = [
 ];
 
 export default function App() {
-  // Vistas disponibles: 'sitio-web', 'editorial', 'cliente', 'intranet'
   const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'cliente' | 'intranet'>('sitio-web');
   const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios'>('expedientes');
   const [modalLogin, setModalLogin] = useState(false);
@@ -200,7 +199,7 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
-          {/* LOGOTIPO DINÁMICO SEGÚN LA VISTA */}
+          {/* LOGOTIPO DINÁMICO */}
           <div 
             onClick={() => setVista('sitio-web')}
             className="flex items-center gap-3.5 cursor-pointer select-none group"
@@ -216,27 +215,15 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                /* LOGO DEL ESTUDIO JURÍDICO: Renderizado vectorizado para evitar imágenes rotas */
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 border border-neutral-300 rounded flex items-center justify-center p-1 bg-neutral-50/50">
-                    <div className="w-full h-full border border-neutral-400 p-0.5 flex items-center justify-center">
-                      <div className="w-full h-full border border-neutral-950 flex items-center justify-center">
-                        <span className="font-serif text-[10px] font-bold text-neutral-900">AL</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-serif text-sm font-bold tracking-tight text-neutral-950 leading-none">
-                      ACTIO LEGIS
-                    </span>
-                    <span className="text-[9px] tracking-wider text-neutral-500 font-sans mt-0.5">
-                      Consultores Jurídicos
-                    </span>
-                  </div>
-                </div>
+                /* LOGO DEL ESTUDIO JURÍDICO: Imagen desde /public/logo-estudio.png */
+                <img 
+                  src="/logo-estudio.png" 
+                  alt="ACTIO LEGIS Consultores Jurídicos" 
+                  className="h-12 w-auto object-contain"
+                />
               )}
 
-              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-2 font-semibold">
+              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-1 font-semibold">
                 en servicio del derecho
               </span>
             </div>
@@ -283,7 +270,7 @@ export default function App() {
                 Prácticas
               </a>
               
-              {/* AL DAR CLICK EN EDITORIAL: Abre la página dedicada */}
+              {/* EDITORIAL ABRE PÁGINA INDEPENDIENTE */}
               <button 
                 type="button" 
                 onClick={() => setVista('editorial')} 
@@ -492,7 +479,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* EDITORIAL (VISTA PREVIA DE ÚLTIMAS PUBLICACIONES) */}
+          {/* EDITORIAL (VISTA PREVIA) */}
           <section id="editorial-preview" className="py-20 md:py-28 border-b border-neutral-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
@@ -582,13 +569,12 @@ export default function App() {
       )}
 
       {/* =========================================================
-          VISTA 2: EDITORIAL JURÍDICO (PÁGINA DEDICADA COMPLETA)
+          VISTA 2: EDITORIAL JURÍDICO (PÁGINA DEDICADA)
          ========================================================= */}
       {vista === 'editorial' && (
         <main className="py-16 md:py-24 bg-neutral-50/50 min-h-[80vh]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
             
-            {/* Encabezado Editorial */}
             <div className="border-b border-neutral-200 pb-10 space-y-4 text-center md:text-left">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-neutral-950 text-white text-[10px] font-mono uppercase tracking-[0.2em]">
                 <BookOpen className="w-3 h-3 text-neutral-300" />
@@ -602,9 +588,7 @@ export default function App() {
               </p>
             </div>
 
-            {/* Parrilla de Publicaciones Doctrinarias */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              
               <article className="bg-white p-7 rounded-3xl border border-neutral-200 shadow-xs space-y-4 hover:border-neutral-400 transition-all">
                 <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider block">Octubre 2026 • Derecho Penal Económico</span>
                 <h3 className="font-serif font-bold text-xl text-neutral-950 leading-snug">
@@ -646,42 +630,26 @@ export default function App() {
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </article>
-
-              <article className="bg-white p-7 rounded-3xl border border-neutral-200 shadow-xs space-y-4 hover:border-neutral-400 transition-all">
-                <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider block">Julio 2026 • Arbitraje Comercial</span>
-                <h3 className="font-serif font-bold text-xl text-neutral-950 leading-snug">
-                  La acción de nulidad de laudo arbitral y sus causales tasadas
-                </h3>
-                <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                  Examen de la jurisprudencia de las Cortes Provinciales sobre el orden público constitucional como causal exordio.
-                </p>
-                <button type="button" onClick={() => alert('Lectura de ensayo completo.')} className="text-xs font-semibold text-neutral-950 hover:underline flex items-center gap-1">
-                  <span>Leer Ensayo Completo</span>
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              </article>
-
             </div>
 
           </div>
         </main>
       )}
 
-      {/* FOOTER COMPARTIDO */}
+      {/* FOOTER COMPARTIDO CON LOGO OFICIAL DEL ESTUDIO */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
             <div className="space-y-4 md:col-span-1">
               <div className="flex flex-col items-start select-none py-1">
-                <div className="relative inline-block py-0.5">
-                  <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
-                  <div className="relative px-4 py-2 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
-                    <span className="font-black text-sm tracking-[0.18em] leading-tight font-sans">ACTIO</span>
-                    <span className="font-black text-sm tracking-[0.18em] leading-tight font-sans">LEGIS</span>
-                  </div>
-                </div>
-                <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-2.5">
+                {/* LOGO DEL ESTUDIO JURÍDICO EN EL FOOTER */}
+                <img 
+                  src="/logo-estudio.png" 
+                  alt="ACTIO LEGIS Consultores Jurídicos" 
+                  className="h-12 w-auto object-contain"
+                />
+                <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-2">
                   en servicio del derecho
                 </span>
               </div>
