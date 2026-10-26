@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, ArrowUp, ExternalLink, Shield } from 'lucide-react';
+import { Shield, MapPin, Phone, Mail, ArrowUp, ExternalLink, Calendar, User } from 'lucide-react';
 
 interface BannerGuayaquilProps {
   onAbrirLoginClientes?: () => void;
@@ -13,55 +13,57 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
   onAbrirReservarCita,
 }) => {
   return (
-    <div className="font-sans text-neutral-900 bg-[#FAF9F6]">
+    <section className="bg-white border-t border-neutral-200/90 text-neutral-900 font-sans">
       
-      {/* 1. SECCIÓN DE ATENCIÓN EN DESPACHO (FONDO CLARO EDITORIAL) */}
-      <section id="contacto" className="py-20 md:py-24 bg-white border-t border-b border-neutral-200/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="bg-[#FAF9F6] border border-neutral-200/90 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
-            
-            <div className="space-y-3 max-w-xl">
-              <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-neutral-500 font-semibold">
-                <Shield className="w-3.5 h-3.5 text-neutral-900" />
-                <span>Atención Confidencial</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-950 tracking-tight leading-snug">
-                Confíe su causa a una defensa rigurosa.
-              </h2>
-              <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
-                Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Puerto Santa Ana, Guayaquil, o por vía telemática.
-              </p>
+      {/* 1. SECCIÓN DE CONVOCATORIA A DESPACHO (LIMPIA, EN BLANCO Y MARFIL) */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 border-b border-neutral-200/80">
+        <div className="bg-[#FAF9F6] border border-neutral-200/90 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
+          
+          <div className="space-y-3 max-w-xl">
+            <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-neutral-500 font-semibold">
+              <Shield className="w-3.5 h-3.5 text-neutral-900" />
+              <span>Atención Confidencial</span>
             </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto">
-              <button
-                type="button"
-                onClick={onAbrirReservarCita}
-                className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
-              >
-                Solicitar Reunión en Despacho
-              </button>
-              <button
-                type="button"
-                onClick={onAbrirLoginClientes}
-                className="px-5 py-3.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all text-center cursor-pointer shadow-2xs"
-              >
-                Portal Clientes
-              </button>
-            </div>
-
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-950 tracking-tight leading-snug">
+              Confíe su causa a una defensa rigurosa.
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
+              Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Puerto Santa Ana, Guayaquil, o por vía telemática.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* 2. PIE DE PÁGINA EDITORIAL APROBADO (BLANCO / MARFIL) */}
-      <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={onAbrirReservarCita}
+              className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Calendar className="w-3.5 h-3.5 text-neutral-300" />
+              <span>Solicitar Reunión en Despacho</span>
+            </button>
+            <button
+              type="button"
+              onClick={onAbrirLoginClientes}
+              className="px-5 py-3.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all text-center cursor-pointer shadow-2xs flex items-center justify-center gap-2"
+            >
+              <User className="w-3.5 h-3.5 text-neutral-500" />
+              <span>Portal Clientes</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* 2. PIE DE PÁGINA EDITORIAL APROBADO CON EL LOGO A LA IZQUIERDA Y TODOS LOS DATOS */}
+      <footer className="py-16 px-6 text-xs bg-white">
         <div className="max-w-6xl mx-auto space-y-12">
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            {/* Columna 1: Logotipo en Placa 3D a la izquierda con eslogan oficial */}
+            {/* COLUMNA 1: LOGOTIPO APROBADO A LA IZQUIERDA + SLOGAN OFICIAL + DESCRIPCIÓN */}
             <div className="space-y-4 md:col-span-1">
+              
+              {/* Placa oficial con sombra sólida 3D */}
               <div className="relative inline-block select-none py-1">
                 <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
                 <div className="relative px-4 py-2 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
@@ -74,12 +76,13 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
                 </div>
               </div>
 
+              {/* Slogan institucional oficial */}
               <div className="text-[8.5px] uppercase tracking-[0.25em] font-medium font-sans text-neutral-500">
                 en servicio del derecho
               </div>
 
               <p className="text-neutral-500 text-xs leading-relaxed pt-1 font-light">
-                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal, asesoría societaria y defensa forense en servicio del derecho.
+                Firma forense boutique en Guayaquil. Litigio penal estratégico, rigor procesal, derecho corporativo y arbitraje en servicio del derecho.
               </p>
               
               <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
@@ -88,7 +91,7 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
               </div>
             </div>
 
-            {/* Columna 2: Línea Forense */}
+            {/* COLUMNA 2: LÍNEA FORENSE & PRÁCTICA */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Línea Forense
@@ -101,7 +104,7 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
                 </li>
                 <li>
                   <a href="#socios" className="hover:text-neutral-950 transition-colors">
-                    Socios: Diego Tapia & Marcela Dunn
+                    Socios: Dr. Diego Tapia & Marcela Dunn
                   </a>
                 </li>
                 <li>
@@ -111,7 +114,7 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
                 </li>
                 <li>
                   <a href="#practica" className="hover:text-neutral-950 transition-colors">
-                    Arbitraje & Controversias Societarias
+                    Arbitraje & Litigio Societario
                   </a>
                 </li>
                 <li>
@@ -122,7 +125,7 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
               </ul>
             </div>
 
-            {/* Columna 3: Plataformas Privadas */}
+            {/* COLUMNA 3: PLATAFORMA PRIVADA & SERVICIOS */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Plataforma Privada
@@ -174,7 +177,7 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
               </ul>
             </div>
 
-            {/* Columna 4: Atención Guayaquil */}
+            {/* COLUMNA 4: CONTACTO GUAYAQUIL */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Sede Guayaquil
@@ -193,14 +196,14 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
                   Guardia técnica para urgencias penales 24/7
                 </p>
                 <div className="pt-2 text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
-                  Puerto Santa Ana • Guayaquil
+                  Puerto Santa Ana • Guayaquil, Ecuador
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Sub-pie inferior formal */}
+          {/* FRANJA INFERIOR EDITORIAL */}
           <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
             <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
             <div className="flex items-center gap-4">
@@ -222,6 +225,6 @@ export const BannerGuayaquil: React.FC<BannerGuayaquilProps> = ({
         </div>
       </footer>
 
-    </div>
+    </section>
   );
 };
