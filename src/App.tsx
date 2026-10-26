@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { 
   Shield, Scale, FileText, Calendar, DollarSign, MessageSquare, 
   MapPin, Phone, Mail, ArrowRight, ArrowUp, ExternalLink, 
-  ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, Users
+  ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, 
+  Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot
 } from 'lucide-react';
 
+// Paleta suave aprobada para el portal de clientes
 const PALETA_TRAMITES = [
   {
     fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
@@ -29,7 +31,31 @@ const PALETA_TRAMITES = [
   }
 ];
 
-const CASOS_BASE = [
+interface Actuacion {
+  id: string;
+  fecha: string;
+  titulo: string;
+  resumenParaCliente: string;
+  detectadoPorIA?: boolean;
+}
+
+interface ExpedienteInterno {
+  id: string;
+  numProceso: string;
+  materia: string;
+  tipoProceso: string;
+  cliente: string;
+  contraparte: string;
+  unidadJudicial: string;
+  abogadoLider: string;
+  etapaProcesalActual: string;
+  porcentaje: number;
+  proximaFechaClave: string;
+  proximasAcciones: string;
+  actuaciones: Actuacion[];
+}
+
+const CASOS_BASE: ExpedienteInterno[] = [
   {
     id: 'exp-1',
     numProceso: '17230-2024-00482',
@@ -48,13 +74,15 @@ const CASOS_BASE = [
         id: 'act-1',
         fecha: '2026-10-08 11:20',
         titulo: 'Concesión de término fatal para informe pericial',
-        resumenParaCliente: 'El Juez ordenó al perito técnico la entrega formal de la planimetría del terreno en 10 días para continuar a juicio.'
+        resumenParaCliente: 'El Juez ordenó al perito técnico la entrega formal de la planimetría del terreno en 10 días para continuar a juicio.',
+        detectadoPorIA: false
       },
       {
         id: 'act-2',
         fecha: '2026-09-14 09:15',
         titulo: 'Calificación de la demanda y auto de sustanciación',
-        resumenParaCliente: 'La demanda cumplió formalidades legales y el juzgado ordenó citar a los demandados.'
+        resumenParaCliente: 'La demanda cumplió formalidades legales y el juzgado ordenó citar a los demandados.',
+        detectadoPorIA: false
       }
     ]
   },
@@ -76,33 +104,104 @@ const CASOS_BASE = [
         id: 'act-3',
         fecha: '2026-10-01 15:00',
         titulo: 'Recepción de versión libre y voluntaria',
-        resumenParaCliente: 'Se compareció con la defensa técnica aportando libros contables que certifican la licitud patrimonial.'
+        resumenParaCliente: 'Se compareció con la defensa técnica aportando libros contables que certifican la licitud patrimonial.',
+        detectadoPorIA: false
       }
     ]
   }
 ];
 
 export default function App() {
-  const [vista, setVista] = useState<'sitio-web' | 'cliente'>('sitio-web');
+  const [vista, setVista] = useState<'sitio-web' | 'cliente' | 'intranet'>('sitio-web');
+  const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios'>('expedientes');
   const [modalLogin, setModalLogin] = useState(false);
+  const [rolLogin, setRolLogin] = useState<'cliente' | 'estudio'>('cliente');
+  
+  const [expedientes, setExpedientes] = useState<ExpedienteInterno[]>(CASOS_BASE);
   const [casoActivoId, setCasoActivoId] = useState(CASOS_BASE[0].id);
+  
+  // Estados para el Módulo de Notificaciones IA
+  const [textoNotificacionIA, setTextoNotificacionIA] = useState('');
+  const [procesandoIA, setProcesandoIA] = useState(false);
+  const [resultadoIA, setResultadoIA] = useState<string | null>(null);
+
+  // Estados Formulario de Login
   const [inputUser, setInputUser] = useState('');
   const [inputPass, setInputPass] = useState('');
 
-  const casoActivo = CASOS_BASE.find((c) => c.id === casoActivoId) || CASOS_BASE[0];
-  const indiceActivo = CASOS_BASE.findIndex((c) => c.id === casoActivo.id);
+  const casoActivo = expedientes.find((c) => c.id === casoActivoId) || expedientes[0];
+  const indiceActivo = expedientes.findIndex((c) => c.id === casoActivo?.id);
   const estiloActivo = PALETA_TRAMITES[Math.max(0, indiceActivo) % PALETA_TRAMITES.length];
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setModalLogin(false);
-    setVista('cliente');
+    if (rolLogin === 'cliente') {
+      setVista('cliente');
+    } else {
+      setVista('intranet');
+      setTabIntranet('expedientes');
+    }
+  };
+
+  // Motor del Expediente IA: analiza el texto pegado del SATJE o Fiscalía
+  const handleProcesarConIA = () => {
+    if (!textoNotificacionIA.trim()) return;
+    setProcesandoIA(true);
+
+    setTimeout(() => {
+      // Detección heurística de patrones jurídicos en Ecuador
+      const texto = textoNotificacionIA;
+      let tituloDetectado = 'Providencia Judicial Notificada';
+      let resumenGenerado = 'Se agrega al expediente la providencia emitida por el juzgador para conocimiento de las partes.';
+      let proximaFecha = '2026-11-12';
+
+      if (texto.toLowerCase().includes('audiencia')) {
+        tituloDetectado = 'Convocatoria a Audiencia de Juicio';
+        resumenGenerado = 'El tribunal ha fijado día y hora para la instalación de la audiencia. Se requiere comparecencia de la defensa técnica.';
+        proximaFecha = '2026-11-20';
+      } else if (texto.toLowerCase().includes('perit') || texto.toLowerCase().includes('informe')) {
+        tituloDetectado = 'Disposición de Informe Pericial Técnico';
+        resumenGenerado = 'El juzgador otorga término fatal para la presentación del informe pericial y observaciones técnicas.';
+        proximaFecha = '2026-11-10';
+      } else if (texto.toLowerCase().includes('sentencia') || texto.toLowerCase().includes('resoluci')) {
+        tituloDetectado = 'Emisión de Sentencia / Resolución';
+        resumenGenerado = 'El juzgado emite resolución de mérito. Se inicia el cómputo de términos para recursos procesales.';
+      }
+
+      const nuevaActuacion: Actuacion = {
+        id: `act-${Date.now()}`,
+        fecha: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        titulo: tituloDetectado,
+        resumenParaCliente: resumenGenerado,
+        detectadoPorIA: true
+      };
+
+      // Actualizar el expediente activo con la nueva providencia y fecha
+      setExpedientes((prev) =>
+        prev.map((exp) => {
+          if (exp.id === casoActivo.id) {
+            return {
+              ...exp,
+              proximaFechaClave: proximaFecha,
+              actuaciones: [nuevaActuacion, ...exp.actuaciones]
+            };
+          }
+          return exp;
+        })
+      );
+
+      setProcesandoIA(false);
+      setResultadoIA(`¡Notificación interpretada con éxito! Se agendó automáticamente: "${tituloDetectado}" para la causa ${casoActivo.numProceso}.`);
+      setTextoNotificacionIA('');
+      setTimeout(() => setResultadoIA(null), 5000);
+    }, 1200);
   };
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER EDITORIAL */}
+      {/* 1. HEADER EDITORIAL (CON BOTONES DE PORTAL E INTRANET) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
@@ -120,7 +219,6 @@ export default function App() {
                 </div>
               </div>
               
-              {/* Slogan con separación clara de la placa */}
               <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-2.5 font-semibold">
                 en servicio del derecho
               </span>
@@ -138,7 +236,7 @@ export default function App() {
 
           {/* NAVEGACIÓN */}
           {vista === 'sitio-web' ? (
-            <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-5">
               <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
                 <a href="#proposito" className="hover:text-neutral-950 transition-colors">Propósito</a>
                 <a href="#socios" className="hover:text-neutral-950 transition-colors">Socios</a>
@@ -149,11 +247,20 @@ export default function App() {
 
               <button
                 type="button"
-                onClick={() => setModalLogin(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer"
+                onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer"
               >
                 <User className="w-3.5 h-3.5 text-neutral-600" />
-                <span>Portal Clientes</span>
+                <span className="hidden sm:inline">Portal</span> Clientes
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setRolLogin('estudio'); setModalLogin(true); }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer"
+              >
+                <Building2 className="w-3.5 h-3.5 text-neutral-500" />
+                <span>Intranet</span>
               </button>
 
               <button
@@ -162,7 +269,7 @@ export default function App() {
                   const el = document.getElementById('contacto');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs cursor-pointer"
+                className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs cursor-pointer"
               >
                 <Calendar className="w-3.5 h-3.5 text-neutral-300" />
                 <span>Agendar Cita</span>
@@ -213,6 +320,7 @@ export default function App() {
                 ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
               </p>
 
+              {/* Botones Centrados */}
               <div className="flex flex-wrap items-center justify-center gap-4 pt-8">
                 <button
                   type="button"
@@ -228,7 +336,7 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => setModalLogin(true)}
+                  onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
                   className="px-7 py-3.5 bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-300 text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>Portal de Clientes</span>
@@ -425,7 +533,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* CONTACTO */}
+          {/* CONTACTO: DIRECCIÓN EXACTA KENNEDY NORTE */}
           <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="bg-neutral-50 border border-neutral-200 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
@@ -454,7 +562,7 @@ export default function App() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setModalLogin(true)}
+                    onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
                     className="px-5 py-3.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all text-center cursor-pointer shadow-2xs"
                   >
                     Portal Clientes
@@ -469,7 +577,7 @@ export default function App() {
             <div className="max-w-6xl mx-auto space-y-12">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
                 
-                {/* Columna 1: LOGOTIPO A LA IZQUIERDA Y SLOGAN DESPEGADO */}
+                {/* Columna 1 */}
                 <div className="space-y-4 md:col-span-1">
                   <div className="flex flex-col items-start select-none py-1">
                     <div className="relative inline-block py-0.5">
@@ -494,7 +602,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Columna 2: Línea Forense */}
+                {/* Columna 2 */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                     Línea Forense
@@ -508,7 +616,7 @@ export default function App() {
                   </ul>
                 </div>
 
-                {/* Columna 3: Plataformas Privadas */}
+                {/* Columna 3: Accesos */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                     Plataforma Privada
@@ -517,7 +625,7 @@ export default function App() {
                     <li>
                       <button 
                         type="button"
-                        onClick={() => setModalLogin(true)}
+                        onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
                         className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
                       >
                         Portal Clientes (Causas & Pagos)
@@ -526,10 +634,10 @@ export default function App() {
                     <li>
                       <button 
                         type="button"
-                        onClick={() => setModalLogin(true)}
-                        className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
+                        onClick={() => { setRolLogin('estudio'); setModalLogin(true); }}
+                        className="hover:text-neutral-950 transition-colors text-left cursor-pointer font-medium text-neutral-900"
                       >
-                        Intranet de Litigantes
+                        Intranet del Despacho (Expediente IA)
                       </button>
                     </li>
                     <li>
@@ -551,7 +659,7 @@ export default function App() {
                   </ul>
                 </div>
 
-                {/* Columna 4: Atención Guayaquil */}
+                {/* Columna 4 */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                     Sede Guayaquil
@@ -638,12 +746,12 @@ export default function App() {
             <div className="lg:col-span-4 space-y-3">
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold">
-                  Mis Causas Patrocinadas ({CASOS_BASE.length})
+                  Mis Causas Patrocinadas ({expedientes.length})
                 </h2>
                 <span className="text-[11px] text-neutral-400">Seleccione para ver detalle</span>
               </div>
 
-              {CASOS_BASE.map((caso, index) => {
+              {expedientes.map((caso, index) => {
                 const estilo = PALETA_TRAMITES[index % PALETA_TRAMITES.length];
                 const estaSeleccionado = caso.id === casoActivo.id;
 
@@ -768,7 +876,14 @@ export default function App() {
                 {casoActivo.actuaciones.map((act) => (
                   <div key={act.id} className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-2">
                     <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                      <span className="font-bold text-neutral-900 font-serif text-sm">{act.titulo}</span>
+                      <span className="font-bold text-neutral-900 font-serif text-sm flex items-center gap-1.5">
+                        {act.titulo}
+                        {act.detectadoPorIA && (
+                          <span className="bg-neutral-900 text-white text-[9px] px-1.5 py-0.5 rounded-md font-mono flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" /> IA
+                          </span>
+                        )}
+                      </span>
                       <span className="text-neutral-400 font-mono text-[11px]">{act.fecha}</span>
                     </div>
                     <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 text-xs text-neutral-700 leading-relaxed flex items-start gap-2">
@@ -785,7 +900,254 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL DE LOGIN */}
+      {/* =========================================================
+          VISTA 3: INTRANET DE LITIGANTES & EXPEDIENTE IA
+         ========================================================= */}
+      {vista === 'intranet' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          
+          {/* Barra Superior Intranet */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                <Building2 className="w-3.5 h-3.5 text-neutral-900" />
+                <span>Despacho Jurídico • Intranet Forense</span>
+              </div>
+              <h1 className="text-2xl font-serif font-bold text-neutral-950">
+                Panel de Control de Litigantes
+              </h1>
+            </div>
+
+            {/* Pestañas de la Intranet */}
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setTabIntranet('expedientes')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  tabIntranet === 'expedientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600 hover:text-neutral-950'
+                }`}
+              >
+                Expedientes & IA
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabIntranet('citas')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  tabIntranet === 'citas' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600 hover:text-neutral-950'
+                }`}
+              >
+                Citas & Audiencias
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabIntranet('honorarios')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  tabIntranet === 'honorarios' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600 hover:text-neutral-950'
+                }`}
+              >
+                Honorarios
+              </button>
+            </div>
+          </div>
+
+          {/* TAB 1: EXPEDIENTES & MOTOR DE IA JUDICIAL */}
+          {tabIntranet === 'expedientes' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              {/* Lado Izquierdo: Lector y Agendador Automático con IA */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="bg-neutral-950 text-white rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-300">
+                      <Bot className="w-4 h-4 text-emerald-400" />
+                      <span>Expediente IA • Lector Forense</span>
+                    </div>
+                    <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded-md border border-emerald-500/30">
+                      Activo
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-neutral-300 leading-relaxed font-light">
+                    Pegue directamente el texto de la providencia judicial o notificación SATJE. La IA extraerá los términos fatales, actualizará la causa y redactará la explicación para el cliente.
+                  </p>
+
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                      Causa a Actualizar:
+                    </label>
+                    <select
+                      value={casoActivoId}
+                      onChange={(e) => setCasoActivoId(e.target.value)}
+                      className="w-full bg-neutral-900 border border-neutral-700 text-white text-xs rounded-xl p-2.5 focus:outline-none focus:border-neutral-400 font-mono"
+                    >
+                      {expedientes.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.numProceso} — {c.cliente}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                      Texto de la Providencia o Notificación:
+                    </label>
+                    <textarea
+                      rows={5}
+                      value={textoNotificacionIA}
+                      onChange={(e) => setTextoNotificacionIA(e.target.value)}
+                      placeholder="Pegue aquí el texto: 'VISTOS: Agréguese al expediente el informe pericial presentado... Se convoca a audiencia de juicio el día 20 de noviembre...'"
+                      className="w-full bg-neutral-900 border border-neutral-700 text-neutral-200 text-xs rounded-xl p-3 focus:outline-none focus:border-neutral-400 font-sans leading-relaxed resize-none"
+                    />
+                  </div>
+
+                  {resultadoIA && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 rounded-xl text-xs flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{resultadoIA}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={procesandoIA || !textoNotificacionIA.trim()}
+                    onClick={handleProcesarConIA}
+                    className="w-full py-3 bg-white hover:bg-neutral-100 disabled:opacity-50 text-neutral-950 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-neutral-900" />
+                    <span>{procesandoIA ? 'Analizando con IA...' : 'Interpretar y Agendar Causa'}</span>
+                  </button>
+                </div>
+
+                {/* Resumen de causas en despacho */}
+                <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+                    Causas Patrocinadas ({expedientes.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {expedientes.map((c) => (
+                      <div
+                        key={c.id}
+                        onClick={() => setCasoActivoId(c.id)}
+                        className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                          c.id === casoActivoId ? 'border-neutral-950 bg-neutral-50 font-medium' : 'border-neutral-200 hover:bg-neutral-50'
+                        }`}
+                      >
+                        <div className="flex justify-between font-mono text-[11px]">
+                          <span>{c.numProceso}</span>
+                          <span className="font-bold">{c.porcentaje}%</span>
+                        </div>
+                        <div className="text-neutral-700 truncate mt-1">{c.cliente}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Lado Derecho: Ficha del Expediente Activo */}
+              <div className="lg:col-span-7 bg-white rounded-2xl border border-neutral-200 p-6 space-y-6">
+                <div className="border-b border-neutral-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase text-neutral-400 tracking-wider">
+                      Expediente Judicial Activo
+                    </span>
+                    <h2 className="text-xl font-serif font-bold text-neutral-950">
+                      {casoActivo.numProceso}
+                    </h2>
+                    <p className="text-xs text-neutral-600 mt-0.5">
+                      Cliente: <strong>{casoActivo.cliente}</strong> • {casoActivo.unidadJudicial}
+                    </p>
+                  </div>
+
+                  <span className="px-3 py-1 bg-neutral-100 rounded-lg text-xs font-mono text-neutral-800">
+                    Líder: {casoActivo.abogadoLider}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                    <span className="text-[10px] font-mono uppercase text-neutral-400 block">Etapa Procesal</span>
+                    <strong className="text-neutral-900 mt-0.5 block">{casoActivo.etapaProcesalActual}</strong>
+                  </div>
+                  <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                    <span className="text-[10px] font-mono uppercase text-neutral-400 block">Próxima Fecha Clave</span>
+                    <strong className="text-neutral-900 mt-0.5 block">{casoActivo.proximaFechaClave}</strong>
+                  </div>
+                </div>
+
+                {/* Actuaciones con etiqueta IA */}
+                <div className="space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold flex items-center justify-between">
+                    <span>Actuaciones del Proceso ({casoActivo.actuaciones.length})</span>
+                    <span className="text-[10px] text-neutral-400">Actualizado en tiempo real</span>
+                  </h3>
+
+                  <div className="space-y-3">
+                    {casoActivo.actuaciones.map((act) => (
+                      <div key={act.id} className="p-4 rounded-xl border border-neutral-200 space-y-2 bg-neutral-50/50">
+                        <div className="flex justify-between text-xs">
+                          <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                            {act.titulo}
+                            {act.detectadoPorIA && (
+                              <span className="bg-neutral-950 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
+                                Agendado por IA
+                              </span>
+                            )}
+                          </span>
+                          <span className="font-mono text-[11px] text-neutral-400">{act.fecha}</span>
+                        </div>
+                        <p className="text-xs text-neutral-600 leading-relaxed bg-white p-2.5 rounded-lg border border-neutral-200">
+                          {act.resumenParaCliente}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 2: CITAS & AUDIENCIAS */}
+          {tabIntranet === 'citas' && (
+            <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center space-y-4">
+              <Calendar className="w-8 h-8 text-neutral-400 mx-auto" />
+              <h3 className="text-lg font-serif font-bold text-neutral-950">Agenda Forense y Audiencias</h3>
+              <p className="text-xs text-neutral-500 max-w-md mx-auto">
+                Próximas comparecencias en la Corte Provincial del Guayas y reuniones en Kennedy Office Center.
+              </p>
+              <div className="max-w-xl mx-auto space-y-2 text-left pt-4">
+                <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-xs flex justify-between items-center">
+                  <div>
+                    <span className="font-bold text-neutral-900 block">Audiencia de Juicio Ordinario</span>
+                    <span className="text-neutral-500">Causa: 17230-2024-00482 • Inmobiliaria del Valle</span>
+                  </div>
+                  <span className="font-mono text-neutral-800 bg-white px-2.5 py-1 rounded-md border border-neutral-200">
+                    18 Octubre • 10:30
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: HONORARIOS */}
+          {tabIntranet === 'honorarios' && (
+            <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center space-y-4">
+              <DollarSign className="w-8 h-8 text-neutral-400 mx-auto" />
+              <h3 className="text-lg font-serif font-bold text-neutral-950">Gestión de Honorarios y Contratos</h3>
+              <p className="text-xs text-neutral-500 max-w-md mx-auto">
+                Control de contratos de patrocinio profesional, cuotas de éxito y facturación electrónica.
+              </p>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* =========================================================
+          MODAL DE LOGIN COMPARTIDO (CLIENTE O ABOGADO)
+         ========================================================= */}
       {modalLogin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
@@ -804,8 +1166,36 @@ export default function App() {
                   <span className="font-black text-xs tracking-widest leading-none font-sans">LEGIS</span>
                 </div>
               </div>
-              <h3 className="text-xl font-serif text-neutral-950 font-bold">Portal de Clientes</h3>
-              <p className="text-xs text-neutral-500 mt-1">Seguimiento oficial de causas patrocinadas por ACTIO LEGIS.</p>
+              <h3 className="text-xl font-serif text-neutral-950 font-bold">
+                {rolLogin === 'cliente' ? 'Portal de Clientes' : 'Intranet del Despacho'}
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1">
+                {rolLogin === 'cliente' 
+                  ? 'Seguimiento oficial de causas patrocinadas.' 
+                  : 'Acceso para el equipo jurídico de ACTIO LEGIS.'}
+              </p>
+            </div>
+
+            {/* Alternar Rol */}
+            <div className="flex bg-neutral-100 p-1 rounded-xl mb-5">
+              <button
+                type="button"
+                onClick={() => setRolLogin('cliente')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  rolLogin === 'cliente' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                Portal Clientes
+              </button>
+              <button
+                type="button"
+                onClick={() => setRolLogin('estudio')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  rolLogin === 'estudio' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                Intranet Abogados
+              </button>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
@@ -820,7 +1210,7 @@ export default function App() {
                     required
                     value={inputUser}
                     onChange={(e) => setInputUser(e.target.value)}
-                    placeholder="ACTIO-8492 o su correo"
+                    placeholder={rolLogin === 'cliente' ? "ACTIO-8492 o cliente@correo.com" : "diego.tapia@actiolegisec.com"}
                     className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
                   />
                 </div>
@@ -847,7 +1237,7 @@ export default function App() {
                 type="submit"
                 className="w-full mt-2 py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer"
               >
-                Ingresar al Portal
+                Ingresar a la Plataforma
               </button>
             </form>
           </div>
