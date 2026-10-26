@@ -283,4 +283,119 @@ export function App() {
                 <a href="#contacto" className="text-xs font-medium text-neutral-600 hover:text-neutral-950">Contacto</a>
 
                 <button
-                  onClick={() => setIsLoginModalOpen
+                  <button
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-900 text-white text-xs font-medium hover:bg-neutral-800 transition-colors shadow-sm"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-amber-400" />
+                  Portal Clientes
+                </button>
+              </>
+            )}
+          </nav>
+
+          {/* Menú Móvil Botón */}
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-neutral-600 hover:text-neutral-900"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </header>
+
+      {/* Contenido Principal */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {clienteActivo ? (
+          vistaActual === 'cliente-casos' ? (
+            <ClienteCasosView 
+              cliente={clienteActivo} 
+              expedientes={expedientesFiltrados.length > 0 ? expedientesFiltrados : DEFAULT_EXPEDIENTES} 
+            />
+          ) : (
+            <ClienteConsultasView 
+              cliente={clienteActivo} 
+              expedientes={expedientesFiltrados.length > 0 ? expedientesFiltrados : DEFAULT_EXPEDIENTES} 
+            />
+          )
+        ) : (
+          /* Página Web Pública */
+          <div className="space-y-24 py-12">
+            <section className="text-center max-w-3xl mx-auto space-y-6">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-900 border border-amber-200/60">
+                <Shield className="w-3.5 h-3.5 text-amber-600" />
+                Defensa Jurídica de Alto Nivel
+              </span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-neutral-950 tracking-tight leading-tight">
+                Patrocinio Estratégico y Rigor Constitucional
+              </h1>
+              <p className="text-base sm:text-lg text-neutral-600 leading-relaxed font-light">
+                Brindamos asesoría y representación legal integral en materias civil, societaria, constitucional y administrativa, con total transparencia digital para nuestros clientes.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4 pt-4">
+                <button
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="px-6 py-3 rounded-xl bg-neutral-950 text-white text-sm font-medium hover:bg-neutral-800 transition-all shadow-md flex items-center gap-2"
+                >
+                  <LogIn className="w-4 h-4 text-amber-400" />
+                  Acceso al Portal de Clientes
+                </button>
+                <a
+                  href="#contacto"
+                  className="px-6 py-3 rounded-xl bg-white border border-neutral-300 text-neutral-800 text-sm font-medium hover:bg-neutral-50 transition-colors"
+                >
+                  Solicitar Consulta Legal
+                </a>
+              </div>
+            </section>
+
+            <section id="servicios" className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="p-8 bg-white rounded-2xl border border-neutral-200/80 shadow-sm space-y-4">
+                <Briefcase className="w-8 h-8 text-neutral-800" />
+                <h3 className="text-lg font-serif font-bold text-neutral-950">Litigio Civil y Mercantil</h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  Resolución judicial de controversias patrimoniales, cobro de acreencias, arbitrajes y ejecución de contratos de alta complejidad.
+                </p>
+              </div>
+              <div className="p-8 bg-white rounded-2xl border border-neutral-200/80 shadow-sm space-y-4">
+                <Shield className="w-8 h-8 text-neutral-800" />
+                <h3 className="text-lg font-serif font-bold text-neutral-950">Justicia Constitucional</h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  Acciones de protección, medidas cautelares y demandas extraordinarias en defensa de los derechos de personas y corporaciones.
+                </p>
+              </div>
+              <div className="p-8 bg-white rounded-2xl border border-neutral-200/80 shadow-sm space-y-4">
+                <Clock className="w-8 h-8 text-neutral-800" />
+                <h3 className="text-lg font-serif font-bold text-neutral-950">Contencioso Administrativo</h3>
+                <p className="text-xs text-neutral-600 leading-relaxed">
+                  Impugnación de actos administrativos, multas, determinaciones tributarias y controversias con instituciones del Estado.
+                </p>
+              </div>
+            </section>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="mt-auto border-t border-neutral-200 bg-white py-8 text-xs text-neutral-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} ACTIO LEGIS - Estudio Jurídico. Todos los derechos reservados.</p>
+          <div className="flex items-center gap-6">
+            <span>Guayaquil, Ecuador</span>
+            <span>•</span>
+            <span>Confidencialidad Garantizada</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* Modal de Inicio de Sesión */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+    </div>
+  );
+}
+
+export default App;
