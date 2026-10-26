@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  ArrowUpRight, Shield, Scale, BookOpen, Clock, 
-  MapPin, Phone, Mail, ChevronRight, Lock, UserCheck, 
-  Award, FileText, CheckCircle2 
+  ArrowUpRight, Shield, Scale, BookOpen, ChevronRight, 
+  FileText 
 } from 'lucide-react';
-import { ActioLegisLogo } from '../Brand/ActioLegisLogo';
 
 interface PaginaPrincipalProps {
   onAbrirReservarCita: () => void;
@@ -17,7 +15,6 @@ interface PaginaPrincipalProps {
 
 export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
   onAbrirReservarCita,
-  onAbrirLoginClientes,
   onAbrirLoginIntranet,
 }) => {
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<number | null>(null);
@@ -63,47 +60,11 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
 
   return (
     <div className="bg-[#FAF9F6] text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
-      
-      {/* =========================================================
-          1. BARRA SUPERIOR SUBTIL (BRAND STATEMENT & ACCESOS)
-         ========================================================= */}
-      <div className="border-b border-neutral-200/80 bg-white/70 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <ActioLegisLogo size="sm" showSlogan={true} />
-          
-          <div className="flex items-center gap-6">
-            <nav className="hidden md:flex items-center gap-8 text-xs font-medium tracking-wide uppercase text-neutral-600">
-              <a href="#proposito" className="hover:text-neutral-950 transition-colors">Propósito</a>
-              <a href="#socios" className="hover:text-neutral-950 transition-colors">Socios</a>
-              <a href="#practica" className="hover:text-neutral-950 transition-colors">Áreas</a>
-              <a href="#editorial" className="hover:text-neutral-950 transition-colors">Editorial</a>
-              <a href="#contacto" className="hover:text-neutral-950 transition-colors">Contacto</a>
-            </nav>
-
-            <div className="flex items-center gap-3 border-l border-neutral-200 pl-6">
-              <button
-                onClick={onAbrirLoginClientes}
-                className="text-xs font-semibold px-3 py-1.5 text-neutral-700 hover:text-neutral-950 transition-all flex items-center gap-1.5"
-              >
-                <Lock className="w-3.5 h-3.5 text-neutral-400" />
-                <span>Portal Clientes</span>
-              </button>
-
-              <button
-                onClick={onAbrirReservarCita}
-                className="text-xs font-semibold px-4 py-2 bg-neutral-900 hover:bg-black text-white rounded-full transition-all tracking-wide"
-              >
-                Consultar Causa
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* =========================================================
-          2. HERO SECTION EDITORIAL & MINIMALISTA
+          HERO SECTION EDITORIAL & MINIMALISTA
          ========================================================= */}
-      <section className="pt-20 pb-24 md:pt-32 md:pb-36 border-b border-neutral-200/70 bg-gradient-to-b from-white to-[#FAF9F6]">
+      <section className="pt-16 pb-24 md:pt-24 md:pb-32 border-b border-neutral-200/70 bg-gradient-to-b from-white to-[#FAF9F6]">
         <div className="max-w-4xl mx-auto px-6 text-center">
           
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-100 rounded-full text-[11px] font-medium tracking-widest uppercase text-neutral-600 mb-8">
@@ -116,13 +77,13 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           </h1>
 
           <p className="text-lg md:text-xl text-neutral-600 font-light max-w-2xl mx-auto leading-relaxed mb-12">
-            Dirigido por Diego Tapia y Marcela Dunn. Construimos una defensa de alto estándar que fusiona la profundidad dogmática con la protección sensible de la dignidad humana.
+            Dirigido por Diego Tapia y Marcela Dunn[cite: 11, 12]. Construimos una defensa de alto estándar que fusiona la profundidad dogmática con la protección sensible de la dignidad humana[cite: 13].
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={onAbrirReservarCita}
-              className="w-full sm:w-auto px-8 py-3.5 bg-neutral-900 hover:bg-black text-white text-sm font-medium rounded-full transition-all flex items-center justify-center gap-2 group shadow-sm"
+              className="w-full sm:w-auto px-8 py-3.5 bg-neutral-900 hover:bg-black text-white text-sm font-medium rounded-full transition-all flex items-center justify-center gap-2 group shadow-sm cursor-pointer"
             >
               <span>Agendar Evaluación Confidencial</span>
               <ArrowUpRight className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" />
@@ -148,7 +109,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             </div>
             <div>
               <div className="text-xs uppercase font-mono tracking-wider text-neutral-400">Compromiso</div>
-              <div className="text-sm font-medium text-neutral-900 mt-1">En Servicio del Derecho</div>
+              <div className="text-sm font-medium text-neutral-900 mt-1">En Servicio del Derecho[cite: 14]</div>
             </div>
             <div>
               <div className="text-xs uppercase font-mono tracking-wider text-neutral-400">Transparencia</div>
@@ -159,7 +120,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          3. PROPÓSITO: "NUESTRA HUELLA EN EL SISTEMA JURÍDICO"
+          PROPÓSITO: "NUESTRA HUELLA EN EL SISTEMA JURÍDICO"
          ========================================================= */}
       <section id="proposito" className="py-24 border-b border-neutral-200/70 bg-white">
         <div className="max-w-4xl mx-auto px-6">
@@ -168,7 +129,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           </div>
           
           <h2 className="text-2xl sm:text-4xl font-serif text-neutral-950 leading-snug mb-8">
-            «Actio Legis es nuestra huella en el sistema jurídico: defender los derechos fundamentales desde la más rigurosa técnica legal.»
+            «Actio Legis es nuestra huella en el sistema jurídico: defender los derechos fundamentales desde la más rigurosa técnica legal.»[cite: 13]
           </h2>
 
           <div className="grid md:grid-cols-2 gap-10 text-neutral-600 text-sm leading-relaxed">
@@ -176,14 +137,14 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               Rechazamos la abogacía masificada y el sensacionalismo procesal. Nos concentramos en un número selecto de casos donde la libertad, el honor o el patrimonio de nuestros patrocinados exigen una estrategia construida a la medida, con fundamentación dogmática intachable ante los tribunales.
             </p>
             <p>
-              Creemos firmemente que la credibilidad de una firma se fundamenta en su capacidad de generar pensamiento jurídico propio. Por ello, transformamos nuestra experiencia en audiencia en doctrina accesible a través de nuestro editorial independiente.
+              Creemos firmemente que la credibilidad de una firma se fundamenta en su capacidad de generar pensamiento jurídico propio[cite: 13, 14]. Por ello, transformamos nuestra experiencia en audiencia en doctrina accesible a través de nuestro editorial independiente[cite: 14].
             </p>
           </div>
         </div>
       </section>
 
       {/* =========================================================
-          4. SOCIOS DIRECTORES: TAPIA & DUNN
+          SOCIOS DIRECTORES: TAPIA & DUNN
          ========================================================= */}
       <section id="socios" className="py-24 border-b border-neutral-200/70 bg-[#FAF9F6]">
         <div className="max-w-5xl mx-auto px-6">
@@ -195,12 +156,12 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               Liderazgo & Visión Jurídica
             </h2>
             <p className="text-sm text-neutral-500 mt-2">
-              El balance entre la precisión dogmática y la comprensión sensible de la causa humana.
+              El balance entre la precisión dogmática y la comprensión sensible de la causa humana[cite: 13].
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Socio 1: Diego Tapia */}
+            {/* Diego Tapia */}
             <div className="bg-white p-8 rounded-2xl border border-neutral-200 shadow-sm flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 bg-neutral-900 text-white rounded-xl flex items-center justify-center font-serif text-xl mb-6">
@@ -213,7 +174,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                   Diego Tapia, Ab.
                 </h3>
                 <p className="text-sm text-neutral-600 leading-relaxed mb-6">
-                  Especializado en litigio penal económico, dogmática procesal y recursos de casación. Su enfoque combina la filosofía del derecho con una meticulosa construcción de la teoría del caso en audiencias complejas.
+                  Especializado en litigio penal económico, dogmática procesal y recursos de casación. Su enfoque combina la filosofía del derecho con una meticulosa construcción de la teoría del caso en audiencias complejas[cite: 13].
                 </p>
               </div>
 
@@ -223,7 +184,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </div>
             </div>
 
-            {/* Socia 2: Marcela Dunn */}
+            {/* Marcela Dunn */}
             <div className="bg-white p-8 rounded-2xl border border-neutral-200 shadow-sm flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 bg-neutral-900 text-white rounded-xl flex items-center justify-center font-serif text-xl mb-6">
@@ -236,7 +197,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                   Marcela Dunn, Ab.
                 </h3>
                 <p className="text-sm text-neutral-600 leading-relaxed mb-6">
-                  Dedicada a la protección de garantías fundamentales, defensa de personas vulnerables y tutela constitucional. Su práctica aporta una visión empática, centrada en la dignidad del cliente y el impacto social de la resolución.
+                  Dedicada a la protección de garantías fundamentales, defensa de personas vulnerables y tutela constitucional[cite: 13]. Su práctica aporta una visión empática, centrada en la dignidad del cliente y el impacto social de la resolución[cite: 13].
                 </p>
               </div>
 
@@ -250,7 +211,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          5. ÁREAS DE PRÁCTICA (CON ENFOQUE EN DERECHO PENAL)
+          ÁREAS DE PRÁCTICA
          ========================================================= */}
       <section id="practica" className="py-24 border-b border-neutral-200/70 bg-white">
         <div className="max-w-5xl mx-auto px-6">
@@ -270,7 +231,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 Derecho Penal & Compliance
               </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Patrocinio activo en investigaciones previas, audiencias de juicio y apelaciones en delitos patrimoniales, contra la administración pública y libertades individuales.
+                Patrocinio activo en investigaciones previas, audiencias de juicio y apelaciones en delitos patrimoniales, contra la administración pública y libertades individuales[cite: 12].
               </p>
             </div>
 
@@ -298,7 +259,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          6. EL EDITORIAL JURÍDICO ACTIO LEGIS (DIFERENCIADOR CLAVE)
+          EL EDITORIAL JURÍDICO ACTIO LEGIS
          ========================================================= */}
       <section id="editorial" className="py-24 border-b border-neutral-200/70 bg-[#FAF9F6]">
         <div className="max-w-5xl mx-auto px-6">
@@ -311,7 +272,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 Editorial Jurídico Actio Legis
               </h2>
               <p className="text-sm text-neutral-500 mt-1">
-                Doctrina, análisis crítico de fallos y divulgación en servicio de los Derechos Humanos.
+                Doctrina, análisis crítico de fallos y divulgación en servicio de los Derechos Humanos[cite: 14].
               </p>
             </div>
             
@@ -365,7 +326,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          7. CIERRE & AGENDAMIENTO DIRECTO
+          CIERRE & CONTACTO
          ========================================================= */}
       <section id="contacto" className="py-24 bg-neutral-950 text-white">
         <div className="max-w-4xl mx-auto px-6 text-center">
@@ -384,35 +345,4 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <button
               onClick={onAbrirReservarCita}
-              className="w-full sm:w-auto px-8 py-4 bg-white text-neutral-950 font-semibold text-sm rounded-full hover:bg-neutral-100 transition-all"
-            >
-              Solicitar Reunión en Despacho
-            </button>
-            <button
-              onClick={onAbrirLoginIntranet}
-              className="w-full sm:w-auto px-6 py-4 bg-transparent text-neutral-400 hover:text-white text-xs font-mono tracking-wider uppercase transition-colors"
-            >
-              Acceso Intranet Abogados
-            </button>
-          </div>
-
-          <div className="pt-12 border-t border-neutral-800 grid sm:grid-cols-3 gap-6 text-left text-xs text-neutral-400">
-            <div>
-              <div className="text-white font-medium mb-1">Oficinas Principales</div>
-              <p>Puerto Santa Ana & Av. Malecón Simón Bolívar, Guayaquil, Ecuador.</p>
-            </div>
-            <div>
-              <div className="text-white font-medium mb-1">Contacto Telefónico</div>
-              <p>+593 (4) 259-8800 • Atención a urgencias procesales 24/7</p>
-            </div>
-            <div>
-              <div className="text-white font-medium mb-1">Despacho Digital</div>
-              <p>contacto@actiolegisec.com • Sincronización SATJE en tiempo real</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
-  );
-};
+              className="w-full sm
