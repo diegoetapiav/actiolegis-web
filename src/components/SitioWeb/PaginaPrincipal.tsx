@@ -68,10 +68,10 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       <header className="sticky top-0 z-50 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           
-          {/* Logo Oficial con relieve y Slogan equilibrado */}
+          {/* Logo Oficial con relieve y Slogan */}
           <div 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="cursor-pointer select-none flex flex-col pt-1"
+            className="cursor-pointer select-none flex flex-col"
           >
             <div className="relative inline-block w-fit">
               <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
@@ -84,7 +84,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 </span>
               </div>
             </div>
-            <span className="text-[7.5px] uppercase tracking-[0.26em] font-semibold text-neutral-600 mt-2.5">
+            <span className="text-[7.5px] uppercase tracking-[0.24em] font-semibold text-neutral-600 mt-1">
               en servicio del derecho
             </span>
           </div>
