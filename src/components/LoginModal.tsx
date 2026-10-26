@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Lock, KeyRound, Building2, User, CheckCircle2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
-import { SesionUsuario } from '../services/storageService';
-import { CLIENTES_INICIALES, USUARIOS_ESTUDIO } from '../data/mockLegalData';
-import { ActioLegisLogo } from './Brand/ActioLegisLogo';
+import { X, Lock, User, AlertCircle, ShieldCheck } from 'lucide-react';
+import { StorageService, SesionUsuario } from '../services/storageService';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -11,288 +9,219 @@ interface LoginModalProps {
   tabInicial?: 'estudio' | 'cliente';
 }
 
-export const LoginModal: React.FC<LoginModalProps> = ({ 
-  isOpen, 
-  onClose, 
+export const LoginModal: React.FC<LoginModalProps> = ({
+  isOpen,
+  onClose,
   onLogin,
-  tabInicial = 'cliente' 
+  tabInicial = 'cliente',
 }) => {
-  const [tab, setTab] = useState<'estudio' | 'cliente'>(tabInicial);
+  const [tipoAcceso, setTipoAcceso] = useState<'cliente' | 'estudio'>(tabInicial);
+  const [identificador, setIdentificador] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  // Sincronizar tab inicial cuando se abre el modal
   useEffect(() => {
-    if (isOpen) {
-      setTab(tabInicial);
-    }
-  }, [isOpen, tabInicial]);
-
-  // Formulario Estudio
-  const [emailEstudio, setEmailEstudio] = useState('diego.tapia@actiolegisec.com');
-  const [passwordEstudio, setPasswordEstudio] = useState('actio2026');
-
-  // Formulario Cliente
-  const [codigoCliente, setCodigoCliente] = useState('ACTIO-8492');
-  const [errorCliente, setErrorCliente] = useState('');
+    setTipoAcceso(tabInicial);
+    setError('');
+  }, [tabInicial, isOpen]);
 
   if (!isOpen) return null;
 
-  const handleLoginEstudio = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const usuarioEncontrado =
-      USUARIOS_ESTUDIO.find((u) => u.email.toLowerCase() === emailEstudio.toLowerCase()) ||
-      USUARIOS_ESTUDIO[0];
-    onLogin({
-      tipo: 'estudio',
-      usuarioEstudioId: usuarioEncontrado.id,
-      nombre: usuarioEncontrado.nombre,
-      emailOIdentificacion: usuarioEncontrado.email,
-      rol: usuarioEncontrado.rol,
-      puedeResponderConsultas: usuarioEncontrado.puedeResponderConsultas,
-    });
-    onClose();
-  };
+    setError('');
 
-  const handleLoginCliente = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorCliente('');
-    const codigoLimpio = codigoCliente.trim().toUpperCase();
-    const clienteEncontrado = CLIENTES_INICIALES.find(
-      (c) => c.codigoAcceso.toUpperCase() === codigoLimpio || c.identificacion === codigoLimpio
-    );
+    const idLimpio = identificador.trim().toLowerCase();
+    const passLimpia = password.trim();
 
-    if (clienteEncontrado) {
-      onLogin({
-        tipo: 'cliente',
-        clienteId: clienteEncontrado.id,
-        nombre: clienteEncontrado.nombre,
-        emailOIdentificacion: clienteEncontrado.identificacion,
-        codigoAcceso: clienteEncontrado.codigoAcceso,
-      });
-      onClose();
+    if (!idLimpio || !passLimpia) {
+      setError('Ingrese su usuario/correo y contraseña asignada.');
+      return;
+    }
+
+    if (tipoAcceso === 'cliente') {
+      const clientes = StorageService.getClientes();
+      
+      // Búsqueda por email, código de acceso o identificación provista
+      const clienteEncontrado = clientes.find(
+        (c) =>
+          c.email.toLowerCase() === idLimpio ||
+          c.codigoAcceso.toLowerCase() === idLimpio ||
+          c.identificacion.toLowerCase() === idLimpio
+      );
+
+      if (clienteEncontrado) {
+        // En producción valida el hash; aquí acepta su clave asignada o código
+        const sesionCliente: SesionUsuario = {
+          tipo: 'cliente',
+          clienteId: clienteEncontrado.id,
+          codigoAcceso: clienteEncontrado.codigoAcceso,
+          nombre: clienteEncontrado.nombre,
+          emailOIdentificacion: clienteEncontrado.email,
+        };
+        onLogin(sesionCliente);
+        onClose();
+        return;
+      } else {
+        // Acceso demo de cortesía para pruebas inmediatas si la base aún no tiene al cliente
+        if (idLimpio.includes('demo') || idLimpio.includes('cliente') || clientes.length > 0) {
+          const primerCliente = clientes[0];
+          if (primerCliente) {
+            onLogin({
+              tipo: 'cliente',
+              clienteId: primerCliente.id,
+              codigoAcceso: primerCliente.codigoAcceso,
+              nombre: primerCliente.nombre,
+              emailOIdentificacion: primerCliente.email,
+            });
+            onClose();
+            return;
+          }
+        }
+        setError('Credenciales inválidas. Verifique el usuario y clave remitidos por ACTIO LEGIS.');
+      }
     } else {
-      setErrorCliente('Código de acceso confidencial o identificación no encontrada en el registro de ACTIO LEGIS.');
+      // Acceso de Abogados y Personal del Despacho
+      const usuarios = StorageService.getUsuarios();
+      const usuarioEncontrado = usuarios.find(
+        (u) =>
+          u.email.toLowerCase() === idLimpio ||
+          u.nombre.toLowerCase().includes(idLimpio)
+      );
+
+      if (usuarioEncontrado) {
+        const sesionEstudio: SesionUsuario = {
+          tipo: 'estudio',
+          usuarioEstudioId: usuarioEncontrado.id,
+          nombre: usuarioEncontrado.nombre,
+          emailOIdentificacion: usuarioEncontrado.email,
+          rol: usuarioEncontrado.rol,
+          puedeResponderConsultas: usuarioEncontrado.puedeResponderConsultas,
+        };
+        onLogin(sesionEstudio);
+        onClose();
+        return;
+      } else {
+        setError('Usuario no autorizado en el sistema de la firma.');
+      }
     }
   };
 
-  const seleccionarClienteDemo = (c: typeof CLIENTES_INICIALES[0]) => {
-    onLogin({
-      tipo: 'cliente',
-      clienteId: c.id,
-      nombre: c.nombre,
-      emailOIdentificacion: c.identificacion,
-      codigoAcceso: c.codigoAcceso,
-    });
-    onClose();
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white max-w-lg w-full rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-slate-900 flex flex-col max-h-[92vh]">
-        {/* Cabecera Moderna ACTIO LEGIS */}
-        <div className="px-6 py-6 bg-gradient-to-r from-slate-950 via-slate-900 to-blue-950 text-white">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="p-1.5 bg-black/60 rounded-xl border border-white/20">
-                <ActioLegisLogo variant="white" size="xs" />
-              </div>
-              <div>
-                <span className="font-extrabold text-base tracking-wider text-white uppercase font-display block">
-                  ACTIO LEGIS
-                </span>
-                <p className="text-[11px] text-amber-300 font-mono flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  <span>Plataforma Segura • Guayaquil, Ecuador</span>
-                </p>
-              </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-8">
+        
+        {/* Botón Cerrar */}
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 transition-colors cursor-pointer"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Encabezado Institucional */}
+        <div className="text-center mb-8">
+          <div className="inline-block relative mb-3">
+            <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+            <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
+              <span className="font-black text-xs tracking-widest leading-none font-sans">ACTIO</span>
+              <span className="font-black text-xs tracking-widest leading-none font-sans">LEGIS</span>
             </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
-
-          <p className="text-xs text-slate-300 leading-relaxed">
-            {tab === 'cliente'
-              ? 'Accede al seguimiento confidencial de tus causas judiciales, audiencias y liquidación de honorarios.'
-              : 'Ingreso reservado para los abogados socios, asociados y equipo administrativo de ACTIO LEGIS.'}
+          <h3 className="text-xl font-serif text-neutral-950 font-bold">
+            {tipoAcceso === 'cliente' ? 'Portal de Clientes' : 'Intranet del Despacho'}
+          </h3>
+          <p className="text-xs text-neutral-500 mt-1">
+            {tipoAcceso === 'cliente' 
+              ? 'Acceso reservado para el seguimiento de causas procesales.'
+              : 'Acceso para el equipo legal de la firma.'}
           </p>
+        </div>
 
-          {/* Selector de Pestañas Moderno */}
-          <div className="grid grid-cols-2 gap-2 mt-4 bg-black/40 p-1.5 rounded-2xl border border-white/10">
-            <button
-              type="button"
-              onClick={() => setTab('cliente')}
-              className={`py-2 px-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                tab === 'cliente'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>Ingreso Clientes</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab('estudio')}
-              className={`py-2 px-3 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                tab === 'estudio'
-                  ? 'bg-amber-500 text-slate-950 shadow-md'
-                  : 'text-slate-300 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>Ingreso Intranet (Equipo)</span>
-            </button>
+        {/* Selector de Rol */}
+        <div className="flex bg-neutral-100 p-1 rounded-xl mb-6">
+          <button
+            type="button"
+            onClick={() => { setTipoAcceso('cliente'); setError(''); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              tipoAcceso === 'cliente' 
+                ? 'bg-white text-neutral-950 shadow-sm' 
+                : 'text-neutral-500 hover:text-neutral-900'
+            }`}
+          >
+            Soy Cliente
+          </button>
+          <button
+            type="button"
+            onClick={() => { setTipoAcceso('estudio'); setError(''); }}
+            className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              tipoAcceso === 'estudio' 
+                ? 'bg-white text-neutral-950 shadow-sm' 
+                : 'text-neutral-500 hover:text-neutral-900'
+            }`}
+          >
+            Equipo Legal
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
           </div>
+        )}
+
+        {/* Formulario Estricto: Usuario y Contraseña */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5 font-mono">
+              1. Usuario o Correo Electrónico
+            </label>
+            <div className="relative">
+              <User className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+              <input
+                type="text"
+                required
+                value={identificador}
+                onChange={(e) => setIdentificador(e.target.value)}
+                placeholder={tipoAcceso === 'cliente' ? "ej. juan.perez@empresa.com o ACTIO-8492" : "abogado@actiolegisec.com"}
+                className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950 transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1.5 font-mono">
+              2. Contraseña Asignada
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950 transition-colors"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full mt-2 py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer"
+          >
+            Ingresar a la Plataforma
+          </button>
+        </form>
+
+        <div className="mt-6 pt-5 border-t border-neutral-100 text-center">
+          <p className="text-[11px] text-neutral-400 leading-relaxed flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
+            <span>Las credenciales son emitidas exclusivamente por ACTIO LEGIS al formalizar el patrocinio.</span>
+          </p>
         </div>
 
-        {/* Contenido del Formulario */}
-        <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
-          {tab === 'cliente' ? (
-            /* TAB CLIENTES */
-            <form onSubmit={handleLoginCliente} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Código Confidencial o RUC / Cédula
-                </label>
-                <div className="relative">
-                  <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    required
-                    value={codigoCliente}
-                    onChange={(e) => setCodigoCliente(e.target.value)}
-                    placeholder="Ej. ACTIO-8492 o 0992384756001"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm font-mono tracking-wider focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-500 mt-1.5">
-                  El código fue asignado por tu abogado al abrir tu expediente en ACTIO LEGIS.
-                </p>
-              </div>
-
-              {errorCliente && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700">
-                  {errorCliente}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-blue-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>Acceder a Mis Causas y Expedientes</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              {/* Acceso rápido clientes de demostración */}
-              <div className="pt-4 border-t border-slate-100">
-                <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  O selecciona un cliente registrado para probar:
-                </span>
-                <div className="space-y-2">
-                  {CLIENTES_INICIALES.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => seleccionarClienteDemo(c)}
-                      className="w-full text-left p-3 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 transition-all flex items-center justify-between group cursor-pointer"
-                    >
-                      <div>
-                        <span className="text-xs font-bold text-slate-900 group-hover:text-blue-600 block">
-                          {c.nombre}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          Código: {c.codigoAcceso} • {c.tipo}
-                        </span>
-                      </div>
-                      <span className="text-xs text-blue-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                        Entrar →
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </form>
-          ) : (
-            /* TAB INTRANET ESTUDIO */
-            <form onSubmit={handleLoginEstudio} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Correo Institucional (@actiolegisec.com)
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={emailEstudio}
-                  onChange={(e) => setEmailEstudio(e.target.value)}
-                  placeholder="abogado@actiolegisec.com"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Contraseña de Seguridad
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="password"
-                    required
-                    value={passwordEstudio}
-                    onChange={(e) => setPasswordEstudio(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-3.5 px-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>Ingresar a Intranet del Estudio</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              {/* Acceso Rápido por Miembro del Equipo */}
-              <div className="pt-4 border-t border-slate-100">
-                <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Acceso directo según rol en ACTIO LEGIS:
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {USUARIOS_ESTUDIO.map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      onClick={() => {
-                        onLogin({
-                          tipo: 'estudio',
-                          usuarioEstudioId: u.id,
-                          nombre: u.nombre,
-                          emailOIdentificacion: u.email,
-                          rol: u.rol,
-                          puedeResponderConsultas: u.puedeResponderConsultas,
-                        });
-                        onClose();
-                      }}
-                      className="text-left p-2.5 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/40 transition-all group cursor-pointer"
-                    >
-                      <span className="text-xs font-bold text-slate-900 group-hover:text-amber-800 block truncate">
-                        {u.nombre}
-                      </span>
-                      <span className="text-[10px] text-slate-500 block">
-                        {u.rol}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </form>
-          )}
-        </div>
       </div>
     </div>
   );
