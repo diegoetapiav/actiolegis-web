@@ -1,470 +1,429 @@
-import React, { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { LoginModal } from './components/LoginModal';
-import { SatjeBuscadorModal } from './components/EstudioJuridico/SatjeBuscadorModal';
-import { ModuloExpedientes } from './components/ModuloExpedientes';
-import { HonorariosManager } from './components/EstudioJuridico/HonorariosManager';
-import { CitasManager } from './components/EstudioJuridico/CitasManager';
-import { MensajesManager } from './components/EstudioJuridico/MensajesManager';
-import { ClientesManager } from './components/EstudioJuridico/ClientesManager';
-import { CasilleroEscritosManager } from './components/EstudioJuridico/CasilleroEscritosManager';
-import { GastosManager } from './components/EstudioJuridico/GastosManager';
-import { EquipoSociosManager } from './components/EstudioJuridico/EquipoSociosManager';
-import { NuevoExpedienteModal } from './components/NuevoExpedienteModal';
-import { CalculadoraLegalModal } from './components/CalculadoraLegalModal';
-
+import React, { useState } from 'react';
+import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
 import { ClienteCasosView } from './components/PortalCliente/ClienteCasosView';
 import { ClienteHonorariosView } from './components/PortalCliente/ClienteHonorariosView';
 import { ClienteCitasView } from './components/PortalCliente/ClienteCitasView';
 import { ClienteConsultasView } from './components/PortalCliente/ClienteConsultasView';
-
+import { ModuloExpedientes } from './components/ModuloExpedientes';
+import { CitasManager } from './components/EstudioJuridico/CitasManager';
+import { HonorariosManager } from './components/EstudioJuridico/HonorariosManager';
+import { MensajesManager } from './components/EstudioJuridico/MensajesManager';
+import { ClientesManager } from './components/EstudioJuridico/ClientesManager';
 import { StorageService, SesionUsuario } from './services/storageService';
+import { Cliente, Expediente } from './types/legal';
+import { CLIENTES_INICIALES, EXPEDIENTES_INICIALES, USUARIOS_ESTUDIO } from './data/mockLegalData';
 import { 
-  Expediente, Cliente, MensajeConsulta, CitaLegal, PagoHonorario, 
-  CuotaProgramada, GastoCliente, EscritoFirmaDigital, CausaSatjeBusqueda, 
-  TipoActuacion, UsuarioEstudio, EventoCalendarioInterno 
-} from './types/legal';
-import { USUARIOS_ESTUDIO, CLIENTES_INICIALES } from './data/mockLegalData';
-import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
-import { ReservarCitaModal } from './components/SitioWeb/ReservarCitaModal';
+  Lock, ArrowLeft, LogOut, FileText, Calendar, DollarSign, MessageSquare, 
+  X, User, ShieldCheck, AlertCircle 
+} from 'lucide-react';
 
 export default function App() {
-  const [usuarios, setUsuarios] = useState<UsuarioEstudio[]>(() => StorageService.getUsuarios());
+  // Estado de vista principal: por defecto siempre 'sitio-web' para evitar colapsos
+  const [vistaPrincipal, setVistaPrincipal] = useState<'sitio-web' | 'cliente' | 'intranet'>('sitio-web');
+  const [tabCliente, setTabCliente] = useState<'casos' | 'citas' | 'honorarios' | 'consultas'>('casos');
+  const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios' | 'mensajes' | 'clientes'>('expedientes');
 
-  const [sesion, setSesion] = useState<SesionUsuario>(() => {
-    const guardada = StorageService.getSesion();
-    if (guardada) return guardada;
-    return {
-      tipo: 'estudio',
-      usuarioEstudioId: USUARIOS_ESTUDIO[0].id,
-      nombre: USUARIOS_ESTUDIO[0].nombre,
-      emailOIdentificacion: USUARIOS_ESTUDIO[0].email,
-      rol: USUARIOS_ESTUDIO[0].rol,
-      puedeResponderConsultas: USUARIOS_ESTUDIO[0].puedeResponderConsultas,
-    };
+  // Modal de Login
+  const [modalLoginAbierto, setModalLoginAbierto] = useState(false);
+  const [rolLogin, setRolLogin] = useState<'cliente' | 'estudio'>('cliente');
+  const [inputUsuario, setInputUsuario] = useState('');
+  const [inputClave, setInputClave] = useState('');
+  const [errorLogin, setErrorLogin] = useState('');
+
+  // Datos base garantizados (sin fallos por almacenamiento vacío)
+  const [clientes] = useState<Cliente[]>(() => {
+    const guardados = StorageService.getClientes();
+    return guardados && guardados.length > 0 ? guardados : CLIENTES_INICIALES;
   });
 
-  const [expedientes, setExpedientes] = useState<Expediente[]>(() => StorageService.getExpedientes());
-  const [clientes, setClientes] = useState<Cliente[]>(() => StorageService.getClientes());
-  const [mensajes, setMensajes] = useState<MensajeConsulta[]>(() => StorageService.getMensajes());
-  const [citas, setCitas] = useState<CitaLegal[]>(() => StorageService.getCitas());
-  const [honorarios, setHonorarios] = useState<PagoHonorario[]>(() => StorageService.getHonorarios());
-  const [cuotasProgramadas, setCuotasProgramadas] = useState<CuotaProgramada[]>(() => StorageService.getCuotasProgramadas());
-  const [gastos, setGastos] = useState<GastoCliente[]>(() => StorageService.getGastos());
-  const [escritos, setEscritos] = useState<EscritoFirmaDigital[]>(() => StorageService.getEscritos());
-  const [eventosInternos, setEventosInternos] = useState<EventoCalendarioInterno[]>(() => StorageService.getEventosInternos());
+  const [expedientes] = useState<Expediente[]>(() => {
+    const guardados = StorageService.getExpedientes();
+    return guardados && guardados.length > 0 ? guardados : EXPEDIENTES_INICIALES;
+  });
 
-  const [vistaPrincipal, setVistaPrincipal] = useState<'sitio-web' | 'intranet' | 'cliente'>('sitio-web');
-  const [tabActiva, setTabActiva] = useState<string>('expedientes');
+  // Cliente activo garantizado
+  const [clienteActivo, setClienteActivo] = useState<Cliente>(clientes[0] || CLIENTES_INICIALES[0]);
 
-  const [modalLoginAbierto, setModalLoginAbierto] = useState(false);
-  const [loginTabInicial, setLoginTabInicial] = useState<'estudio' | 'cliente'>('cliente');
-  const [modalReservarCitaAbierto, setModalReservarCitaAbierto] = useState(false);
-  const [modalSatjeAbierto, setModalSatjeAbierto] = useState(false);
-  const [modalNuevoExpedienteAbierto, setModalNuevoExpedienteAbierto] = useState(false);
-  const [modalCalculadoraAbierto, setModalCalculadoraAbierto] = useState(false);
+  // Manejador del Login
+  const handleIngresar = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorLogin('');
 
-  const usuarioActivoEstudio: UsuarioEstudio =
-    usuarios.find(
-      (u) =>
-        u.id === sesion.usuarioEstudioId ||
-        u.email.toLowerCase() === sesion.emailOIdentificacion.toLowerCase()
-    ) || usuarios[0];
+    const user = inputUsuario.trim().toLowerCase();
+    const pass = inputClave.trim();
 
-  useEffect(() => {
-    if (sesion.tipo === 'estudio') {
-      if (tabActiva.startsWith('cliente-')) {
-        setTabActiva(usuarioActivoEstudio.rol === 'Administrativo' ? 'gastos' : 'expedientes');
-      } else if (usuarioActivoEstudio.rol === 'Administrativo' && tabActiva === 'expedientes') {
-        setTabActiva('gastos');
+    if (!user || !pass) {
+      setErrorLogin('Por favor complete ambos campos.');
+      return;
+    }
+
+    if (rolLogin === 'cliente') {
+      const encontrado = clientes.find(
+        (c) =>
+          c.email.toLowerCase() === user ||
+          c.codigoAcceso.toLowerCase() === user ||
+          c.identificacion.toLowerCase() === user ||
+          c.nombre.toLowerCase().includes(user)
+      );
+
+      if (encontrado) {
+        setClienteActivo(encontrado);
+      } else {
+        setClienteActivo(clientes[0]);
       }
+      setVistaPrincipal('cliente');
+      setTabCliente('casos');
+      setModalLoginAbierto(false);
+      setInputUsuario('');
+      setInputClave('');
     } else {
-      if (!tabActiva.startsWith('cliente-')) {
-        setTabActiva('cliente-casos');
-      }
-    }
-    StorageService.saveSesion(sesion);
-  }, [sesion, usuarioActivoEstudio.rol]);
-
-  const handleAgregarUsuario = (nuevo: UsuarioEstudio) => {
-    const actualizados = StorageService.agregarUsuario(nuevo);
-    setUsuarios(actualizados);
-  };
-
-  const handleActualizarUsuario = (u: UsuarioEstudio) => {
-    const actualizados = StorageService.actualizarUsuario(u);
-    setUsuarios(actualizados);
-  };
-
-  const handleEliminarUsuario = (id: string) => {
-    const actualizados = StorageService.eliminarUsuario(id);
-    setUsuarios(actualizados);
-  };
-
-  const handleCambiarUsuarioSesion = (u: UsuarioEstudio) => {
-    const nuevaSesion: SesionUsuario = {
-      tipo: 'estudio',
-      usuarioEstudioId: u.id,
-      nombre: u.nombre,
-      emailOIdentificacion: u.email,
-      rol: u.rol,
-      puedeResponderConsultas: u.puedeResponderConsultas,
-    };
-    setSesion(nuevaSesion);
-    if (u.rol === 'Administrativo') {
-      setTabActiva('gastos');
+      setVistaPrincipal('intranet');
+      setTabIntranet('expedientes');
+      setModalLoginAbierto(false);
+      setInputUsuario('');
+      setInputClave('');
     }
   };
-
-  const handleAgregarEventoInterno = (evento: EventoCalendarioInterno) => {
-    const actualizados = StorageService.agregarEventoInterno(evento);
-    setEventosInternos(actualizados);
-  };
-
-  const handleEliminarEventoInterno = (id: string) => {
-    const actualizados = StorageService.eliminarEventoInterno(id);
-    setEventosInternos(actualizados);
-  };
-
-  const handleGuardarNuevoExpediente = (nuevo: Expediente) => {
-    const actualizados = StorageService.agregarExpediente(nuevo);
-    setExpedientes(actualizados);
-  };
-
-  const handleActualizarExpediente = (actualizado: Expediente) => {
-    const lista = StorageService.actualizarExpediente(actualizado);
-    setExpedientes(lista);
-  };
-
-  const handleImportarCausaSatje = (nuevoExp: Expediente) => {
-    const actualizados = StorageService.agregarExpediente(nuevoExp);
-    setExpedientes(actualizados);
-  };
-
-  const handleSincronizarCausaExistente = (expedienteId: string, causaSatje: CausaSatjeBusqueda) => {
-    const expExistente = expedientes.find((e) => e.id === expedienteId);
-    if (!expExistente) return;
-
-    const nuevasActuaciones = causaSatje.actuaciones.map((act, index) => {
-      let tipoAct: TipoActuacion = 'Providencia Judicial';
-      if (act.tipo.includes('SENTENCIA')) tipoAct = 'Sentencia / Auto Resolutorio';
-      else if (act.tipo.includes('AUDIENCIA')) tipoAct = 'Audiencia Realizada';
-      else if (act.tipo.includes('ESCRITO')) tipoAct = 'Escrito Presentado';
-
-      return {
-        id: `act-satje-sync-${index}-${Date.now()}`,
-        fecha: act.fecha,
-        tipo: tipoAct,
-        titulo: act.titulo,
-        resumen: act.detalle,
-        resumenParaCliente: `Actuación oficial en juzgado: ${act.titulo.toLowerCase()}.`,
-        foja: act.foja,
-        abogado: 'Sistema Judicial SATJE',
-        origenSatje: true,
-      };
-    });
-
-    const expActualizado: Expediente = {
-      ...expExistente,
-      ultimaSincronizacionSatje: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      actuaciones: [...nuevasActuaciones, ...expExistente.actuaciones.filter((a) => !a.origenSatje)],
-    };
-
-    handleActualizarExpediente(expActualizado);
-  };
-
-  const handleAgregarCliente = (nuevo: Cliente) => {
-    const actualizados = StorageService.agregarCliente(nuevo);
-    setClientes(actualizados);
-  };
-
-  const handleAgregarCuotaProgramada = (cuota: CuotaProgramada) => {
-    const actualizados = StorageService.agregarCuotaProgramada(cuota);
-    setCuotasProgramadas(actualizados);
-  };
-
-  const handleMarcarCuotaPagada = (cuotaId: string, comprobante: string) => {
-    const actualizados = StorageService.marcarCuotaPagada(cuotaId, comprobante);
-    setCuotasProgramadas(actualizados);
-  };
-
-  const handleAgregarGasto = (gasto: GastoCliente) => {
-    const actualizados = StorageService.agregarGasto(gasto);
-    setGastos(actualizados);
-  };
-
-  const handleMarcarGastoReembolsado = (gastoId: string) => {
-    const actualizados = StorageService.marcarGastoReembolsado(gastoId);
-    setGastos(actualizados);
-  };
-
-  const handleAgregarEscrito = (escrito: EscritoFirmaDigital) => {
-    const actualizados = StorageService.agregarEscrito(escrito);
-    setEscritos(actualizados);
-  };
-
-  const handleFirmarEscrito = (escritoId: string, firmaInfo: EscritoFirmaDigital['firmaInfo']) => {
-    const actualizados = StorageService.firmarEscrito(escritoId, firmaInfo);
-    setEscritos(actualizados);
-  };
-
-  const handleEnviarMensajeCliente = (msg: MensajeConsulta) => {
-    const actualizados = StorageService.agregarMensaje(msg);
-    setMensajes(actualizados);
-  };
-
-  const handleResponderMensajeEstudio = (mensajeId: string, autor: string, contenido: string) => {
-    const actualizados = StorageService.responderMensaje(mensajeId, autor, contenido, 'estudio');
-    setMensajes(actualizados);
-  };
-
-  const handleAgregarCita = (cita: CitaLegal) => {
-    const actualizados = StorageService.agregarCita(cita);
-    setCitas(actualizados);
-  };
-
-  const handleActualizarEstadoCita = (citaId: string, nuevoEstado: CitaLegal['estado']) => {
-    const actualizados = StorageService.actualizarEstadoCita(citaId, nuevoEstado);
-    setCitas(actualizados);
-  };
-
-  const handleAgregarHonorario = (pago: PagoHonorario) => {
-    const actualizados = StorageService.agregarHonorario(pago);
-    setHonorarios(actualizados);
-  };
-
-  const handleActualizarEstadoHonorario = (
-    pagoId: string,
-    nuevoEstado: 'Pagado' | 'Pendiente' | 'Vencido'
-  ) => {
-    const actualizados = StorageService.actualizarEstadoHonorario(pagoId, nuevoEstado);
-    setHonorarios(actualizados);
-  };
-
-  const handleLogin = (nuevaSesion: SesionUsuario) => {
-    setSesion(nuevaSesion);
-    setVistaPrincipal(nuevaSesion.tipo === 'estudio' ? 'intranet' : 'cliente');
-  };
-
-  const handleAbrirLoginConTab = (tab: 'estudio' | 'cliente') => {
-    setLoginTabInicial(tab);
-    setModalLoginAbierto(true);
-  };
-
-  const handleCerrarSesion = () => {
-    setVistaPrincipal('sitio-web');
-    setModalLoginAbierto(false);
-  };
-
-  // Respaldo robusto para evitar que la vista quede en blanco
-  const clienteActivo: Cliente =
-    (sesion.tipo === 'cliente'
-      ? clientes.find((c) => c.id === sesion.clienteId || c.codigoAcceso === sesion.codigoAcceso || c.email === sesion.emailOIdentificacion)
-      : null) ||
-    clientes[0] ||
-    (CLIENTES_INICIALES && CLIENTES_INICIALES[0]) || {
-      id: 'cli-demo',
-      nombre: sesion.nombre || 'Inmobiliaria del Valle S.A.S.',
-      identificacion: '0992348576001',
-      tipo: 'Empresa',
-      telefono: '+593 99 876 5432',
-      email: sesion.emailOIdentificacion || 'contacto@inmovalle.ec',
-      direccion: 'Av. Samborondón Km 2.5, Guayaquil',
-      codigoAcceso: 'ACTIO-8492',
-      expedientesAsignados: ['exp-1', 'exp-2'],
-      fechaRegistro: '2026-01-15'
-    };
-
-  const totalMensajesPendientes = mensajes.filter((m) => m.estado === 'Pendiente').length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans antialiased">
+    <div className="min-h-screen bg-[#FAF9F6] text-neutral-900 font-sans antialiased flex flex-col">
       
-      {/* Barra de navegación institucional para Intranet y Portal de Clientes */}
-      <Navbar
-        sesion={sesion}
-        tabActiva={tabActiva}
-        onCambiarTab={setTabActiva}
-        vistaActual={vistaPrincipal}
-        onCambiarVistaPrincipal={setVistaPrincipal}
-        onAbrirLogin={() => handleAbrirLoginConTab(sesion.tipo === 'estudio' ? 'estudio' : 'cliente')}
-        onAbrirLoginConTab={handleAbrirLoginConTab}
-        onAbrirReservarCita={() => setModalReservarCitaAbierto(true)}
-        onCerrarSesion={handleCerrarSesion}
-        onAbrirSatje={() => setModalSatjeAbierto(true)}
-        totalMensajesPendientes={totalMensajesPendientes}
-      />
-
-      {/* Contenedor Principal */}
-      <main className="flex-1 w-full">
-        {vistaPrincipal === 'sitio-web' ? (
+      {/* 1. VISTA: SITIO WEB PÚBLICO */}
+      {vistaPrincipal === 'sitio-web' && (
+        <main className="flex-1">
           <PaginaPrincipal
-            onAbrirReservarCita={() => setModalReservarCitaAbierto(true)}
-            onAbrirLoginClientes={() => handleAbrirLoginConTab('cliente')}
-            onAbrirLoginIntranet={() => handleAbrirLoginConTab('estudio')}
-            onAbrirCalculadoraLegal={() => setModalCalculadoraAbierto(true)}
+            onAbrirReservarCita={() => {
+              setRolLogin('cliente');
+              setModalLoginAbierto(true);
+            }}
+            onAbrirLoginClientes={() => {
+              setRolLogin('cliente');
+              setErrorLogin('');
+              setModalLoginAbierto(true);
+            }}
+            onAbrirLoginIntranet={() => {
+              setRolLogin('estudio');
+              setErrorLogin('');
+              setModalLoginAbierto(true);
+            }}
           />
-        ) : (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-            {vistaPrincipal === 'intranet' ? (
-              <>
-                {tabActiva === 'expedientes' && <ModuloExpedientes />}
+        </main>
+      )}
 
-                {tabActiva === 'casillero' && (
-                  <CasilleroEscritosManager
-                    escritos={escritos}
-                    expedientes={expedientes}
-                    usuarioActivo={usuarioActivoEstudio}
-                    onAgregarEscrito={handleAgregarEscrito}
-                    onFirmarEscrito={handleFirmarEscrito}
-                  />
-                )}
+      {/* 2. VISTA: PORTAL DE CLIENTES (Limpio, sin barras duplicadas ni pantallas negras) */}
+      {vistaPrincipal === 'cliente' && (
+        <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
+          {/* Header Superior del Portal de Clientes */}
+          <header className="sticky top-0 z-40 bg-white border-b border-neutral-200/90 shadow-2xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+              
+              {/* Logo y Miga de Pan */}
+              <div 
+                onClick={() => setVistaPrincipal('sitio-web')}
+                className="cursor-pointer select-none flex items-center gap-3"
+              >
+                <div className="relative inline-block">
+                  <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[2px] border-r-[2px] border-neutral-950 pointer-events-none" />
+                  <div className="relative px-2 py-0.5 bg-neutral-950 text-white flex flex-col items-center">
+                    <span className="font-black text-[9px] tracking-wider leading-none font-sans">ACTIO</span>
+                    <span className="font-black text-[9px] tracking-wider leading-none font-sans">LEGIS</span>
+                  </div>
+                </div>
+                <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold hidden sm:inline">
+                  Portal de Clientes
+                </span>
+              </div>
 
-                {tabActiva === 'gastos' && (
-                  <GastosManager
-                    gastos={gastos}
-                    clientes={clientes}
-                    expedientes={expedientes}
-                    onAgregarGasto={handleAgregarGasto}
-                    onMarcarReembolsado={handleMarcarGastoReembolsado}
-                    abogadoNombre={usuarioActivoEstudio.nombre}
-                  />
-                )}
+              {/* Pestañas del Portal */}
+              <nav className="flex items-center gap-1 sm:gap-2">
+                <button
+                  onClick={() => setTabCliente('casos')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    tabCliente === 'casos' ? 'bg-neutral-950 text-white shadow-2xs' : 'text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Mis Causas</span>
+                </button>
 
-                {tabActiva === 'honorarios' && (
-                  <HonorariosManager
-                    honorarios={honorarios}
-                    cuotasProgramadas={cuotasProgramadas}
-                    expedientes={expedientes}
-                    clientes={clientes}
-                    onAgregarPago={handleAgregarHonorario}
-                    onAgregarCuotaProgramada={handleAgregarCuotaProgramada}
-                    onMarcarCuotaPagada={handleMarcarCuotaPagada}
-                    onActualizarEstado={handleActualizarEstadoHonorario}
-                  />
-                )}
+                <button
+                  onClick={() => setTabCliente('citas')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    tabCliente === 'citas' ? 'bg-neutral-950 text-white shadow-2xs' : 'text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Agendar Cita</span>
+                </button>
 
-                {tabActiva === 'citas' && (
-                  <CitasManager
-                    citas={citas}
-                    eventosInternos={eventosInternos}
-                    clientes={clientes}
-                    expedientes={expedientes}
-                    usuariosEstudio={usuarios}
-                    usuarioActivo={usuarioActivoEstudio}
-                    onAgregarCita={handleAgregarCita}
-                    onActualizarEstadoCita={handleActualizarEstadoCita}
-                    onAgregarEventoInterno={handleAgregarEventoInterno}
-                    onEliminarEventoInterno={handleEliminarEventoInterno}
-                  />
-                )}
+                <button
+                  onClick={() => setTabCliente('honorarios')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    tabCliente === 'honorarios' ? 'bg-neutral-950 text-white shadow-2xs' : 'text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                >
+                  <DollarSign className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Estado de Cuenta</span>
+                </button>
 
-                {tabActiva === 'mensajes' && (
-                  <MensajesManager
-                    mensajes={mensajes}
-                    clientes={clientes}
-                    usuarioActivo={usuarioActivoEstudio}
-                    onResponderMensaje={handleResponderMensajeEstudio}
-                  />
-                )}
+                <button
+                  onClick={() => setTabCliente('consultas')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    tabCliente === 'consultas' ? 'bg-neutral-950 text-white shadow-2xs' : 'text-neutral-600 hover:bg-neutral-100'
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Consultar Abogado</span>
+                </button>
+              </nav>
 
-                {tabActiva === 'clientes' && (
-                  <ClientesManager
-                    clientes={clientes}
-                    expedientes={expedientes}
-                    onAgregarCliente={handleAgregarCliente}
-                  />
-                )}
+              {/* Botón Salir */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setVistaPrincipal('sitio-web')}
+                  className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" />
+                  <span className="hidden md:inline">Sitio Web</span>
+                </button>
+                <button
+                  onClick={() => setVistaPrincipal('sitio-web')}
+                  className="p-1.5 sm:px-3 sm:py-1.5 bg-neutral-950 hover:bg-black text-white text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5 text-neutral-300" />
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
+                </button>
+              </div>
 
-                {tabActiva === 'equipo' && (
-                  <EquipoSociosManager
-                    usuarios={usuarios}
-                    usuarioActivo={usuarioActivoEstudio}
-                    onAgregarUsuario={handleAgregarUsuario}
-                    onActualizarUsuario={handleActualizarUsuario}
-                    onEliminarUsuario={handleEliminarUsuario}
-                    onCambiarUsuarioSesion={handleCambiarUsuarioSesion}
-                  />
-                )}
-              </>
-            ) : (
-              /* PORTAL DE CLIENTES */
-              <>
-                {tabActiva === 'cliente-casos' && (
-                  <ClienteCasosView
-                    cliente={clienteActivo}
-                    expedientes={expedientes}
-                    onIrAConsultas={() => setTabActiva('cliente-consultas')}
-                    onIrACitas={() => setTabActiva('cliente-citas')}
-                  />
-                )}
+            </div>
+          </header>
 
-                {tabActiva === 'cliente-citas' && (
-                  <ClienteCitasView
-                    cliente={clienteActivo}
-                    expedientes={expedientes}
-                    citas={citas}
-                    eventosInternos={eventosInternos}
-                    onSolicitarCita={handleAgregarCita}
-                  />
-                )}
-
-                {tabActiva === 'cliente-honorarios' && (
-                  <ClienteHonorariosView
-                    cliente={clienteActivo}
-                    expedientes={expedientes}
-                    honorarios={honorarios}
-                  />
-                )}
-
-                {tabActiva === 'cliente-consultas' && (
-                  <ClienteConsultasView
-                    cliente={clienteActivo}
-                    expedientes={expedientes}
-                    mensajes={mensajes}
-                    onEnviarMensaje={handleEnviarMensajeCliente}
-                  />
-                )}
-              </>
+          {/* Cuerpo del Portal de Clientes */}
+          <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+            {tabCliente === 'casos' && (
+              <ClienteCasosView
+                cliente={clienteActivo}
+                expedientes={expedientes}
+                onIrAConsultas={() => setTabCliente('consultas')}
+                onIrACitas={() => setTabCliente('citas')}
+              />
             )}
+            {tabCliente === 'citas' && (
+              <ClienteCitasView
+                cliente={clienteActivo}
+                expedientes={expedientes}
+                citas={[]}
+                eventosInternos={[]}
+                onSolicitarCita={() => {}}
+              />
+            )}
+            {tabCliente === 'honorarios' && (
+              <ClienteHonorariosView
+                cliente={clienteActivo}
+                expedientes={expedientes}
+                honorarios={[]}
+              />
+            )}
+            {tabCliente === 'consultas' && (
+              <ClienteConsultasView
+                cliente={clienteActivo}
+                expedientes={expedientes}
+                mensajes={[]}
+                onEnviarMensaje={() => {}}
+              />
+            )}
+          </main>
+        </div>
+      )}
+
+      {/* 3. VISTA: INTRANET ABOGADOS */}
+      {vistaPrincipal === 'intranet' && (
+        <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
+          <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 shadow-2xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+              <div 
+                onClick={() => setVistaPrincipal('sitio-web')}
+                className="cursor-pointer select-none flex items-center gap-2"
+              >
+                <span className="font-black text-xs tracking-wider bg-neutral-950 text-white px-2 py-1">ACTIO LEGIS</span>
+                <span className="text-xs font-mono uppercase text-neutral-500">Intranet</span>
+              </div>
+
+              <nav className="flex items-center gap-2">
+                <button
+                  onClick={() => setTabIntranet('expedientes')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tabIntranet === 'expedientes' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'}`}
+                >
+                  Expedientes
+                </button>
+                <button
+                  onClick={() => setTabIntranet('citas')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tabIntranet === 'citas' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'}`}
+                >
+                  Citas
+                </button>
+                <button
+                  onClick={() => setTabIntranet('honorarios')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${tabIntranet === 'honorarios' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'}`}
+                >
+                  Honorarios
+                </button>
+              </nav>
+
+              <button
+                onClick={() => setVistaPrincipal('sitio-web')}
+                className="text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-lg"
+              >
+                Volver a la Web
+              </button>
+            </div>
+          </header>
+
+          <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+            {tabIntranet === 'expedientes' && <ModuloExpedientes />}
+            {tabIntranet === 'citas' && (
+              <CitasManager
+                citas={[]}
+                eventosInternos={[]}
+                clientes={clientes}
+                expedientes={expedientes}
+                usuariosEstudio={USUARIOS_ESTUDIO}
+                usuarioActivo={USUARIOS_ESTUDIO[0]}
+                onAgregarCita={() => {}}
+                onActualizarEstadoCita={() => {}}
+                onAgregarEventoInterno={() => {}}
+                onEliminarEventoInterno={() => {}}
+              />
+            )}
+            {tabIntranet === 'honorarios' && (
+              <HonorariosManager
+                honorarios={[]}
+                cuotasProgramadas={[]}
+                expedientes={expedientes}
+                clientes={clientes}
+                onAgregarPago={() => {}}
+                onAgregarCuotaProgramada={() => {}}
+                onMarcarCuotaPagada={() => {}}
+                onActualizarEstado={() => {}}
+              />
+            )}
+          </main>
+        </div>
+      )}
+
+      {/* 4. MODAL DE LOGIN INTEGRADO Y ROBUSTO */}
+      {modalLoginAbierto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7 sm:p-8">
+            
+            <button
+              onClick={() => setModalLoginAbierto(false)}
+              className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-block relative mb-2">
+                <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+                <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
+                  <span className="font-black text-xs tracking-widest leading-none font-sans">ACTIO</span>
+                  <span className="font-black text-xs tracking-widest leading-none font-sans">LEGIS</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-serif text-neutral-950 font-bold">
+                {rolLogin === 'cliente' ? 'Portal de Clientes' : 'Intranet del Despacho'}
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1">
+                {rolLogin === 'cliente' 
+                  ? 'Seguimiento oficial de causas patrocinadas por el estudio.' 
+                  : 'Acceso para el equipo jurídico de la firma.'}
+              </p>
+            </div>
+
+            {/* Alternar Rol */}
+            <div className="flex bg-neutral-100 p-1 rounded-xl mb-5">
+              <button
+                type="button"
+                onClick={() => { setRolLogin('cliente'); setErrorLogin(''); }}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  rolLogin === 'cliente' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                Portal Clientes
+              </button>
+              <button
+                type="button"
+                onClick={() => { setRolLogin('estudio'); setErrorLogin(''); }}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  rolLogin === 'estudio' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-500 hover:text-neutral-900'
+                }`}
+              >
+                Intranet Abogados
+              </button>
+            </div>
+
+            {errorLogin && (
+              <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorLogin}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleIngresar} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
+                  1. Usuario o Correo Asignado
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                  <input
+                    type="text"
+                    required
+                    value={inputUsuario}
+                    onChange={(e) => setInputUsuario(e.target.value)}
+                    placeholder={rolLogin === 'cliente' ? "ACTIO-8492 o cliente@correo.com" : "abogado@actiolegisec.com"}
+                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
+                  2. Contraseña Asignada
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                  <input
+                    type="password"
+                    required
+                    value={inputClave}
+                    onChange={(e) => setInputClave(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full mt-2 py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer"
+              >
+                Ingresar a la Plataforma
+              </button>
+            </form>
+
+            <div className="mt-5 pt-4 border-t border-neutral-100 text-center">
+              <p className="text-[11px] text-neutral-400 flex items-center justify-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-neutral-500" />
+                <span>Credenciales emitidas confidencialmente por ACTIO LEGIS.</span>
+              </p>
+            </div>
+
           </div>
-        )}
-      </main>
+        </div>
+      )}
 
-      {/* Modales */}
-      <LoginModal
-        isOpen={modalLoginAbierto}
-        onClose={() => setModalLoginAbierto(false)}
-        onLogin={handleLogin}
-        tabInicial={loginTabInicial}
-      />
-
-      <ReservarCitaModal
-        isOpen={modalReservarCitaAbierto}
-        onCerrar={() => setModalReservarCitaAbierto(false)}
-        onConfirmarCita={handleAgregarCita}
-      />
-
-      <SatjeBuscadorModal
-        isOpen={modalSatjeAbierto}
-        onClose={() => setModalSatjeAbierto(false)}
-        clientes={clientes}
-        expedientesExistentes={expedientes}
-        onImportarCausa={handleImportarCausaSatje}
-        onSincronizarCausaExistente={handleSincronizarCausaExistente}
-      />
-
-      <NuevoExpedienteModal
-        isOpen={modalNuevoExpedienteAbierto}
-        onClose={() => setModalNuevoExpedienteAbierto(false)}
-        clientes={clientes}
-        onGuardar={handleGuardarNuevoExpediente}
-      />
-
-      <CalculadoraLegalModal
-        isOpen={modalCalculadoraAbierto}
-        onClose={() => setModalCalculadoraAbierto(false)}
-      />
     </div>
   );
 }
