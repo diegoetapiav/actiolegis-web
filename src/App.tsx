@@ -117,6 +117,9 @@ export default function App() {
   const [modalLogin, setModalLogin] = useState(false);
   const [rolLogin, setRolLogin] = useState<'cliente' | 'estudio'>('cliente');
   
+  // Estado para controlar la alternancia dinámica de Logos (Estudio vs Editorial)
+  const [esEditorial, setEsEditorial] = useState(false);
+
   const [expedientes, setExpedientes] = useState<ExpedienteInterno[]>(CASOS_BASE);
   const [casoActivoId, setCasoActivoId] = useState(CASOS_BASE[0].id);
   
@@ -144,7 +147,7 @@ export default function App() {
     }
   };
 
-  // Motor del Expediente IA: analiza el texto pegado del SATJE o Fiscalía
+  // Motor del Expediente IA
   const handleProcesarConIA = () => {
     if (!textoNotificacionIA.trim()) return;
     setProcesandoIA(true);
@@ -203,28 +206,40 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
-          {/* LOGOTIPO OFICIAL */}
+          {/* LOGOTIPO DINÁMICO (ESTUDIO vs EDITORIAL) */}
           <div 
-            onClick={() => setVista('sitio-web')}
+            onClick={() => { setVista('sitio-web'); setEsEditorial(false); }}
             className="flex items-center gap-3.5 cursor-pointer select-none group"
           >
             <div className="flex flex-col items-start pb-0.5">
-              <div className="relative inline-block py-0.5">
-                <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
-                <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
-                  <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">ACTIO</span>
-                  <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
+              {!esEditorial ? (
+                /* 1. Logo Oficial del Estudio Jurídico (Imagen cargada) */
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="/logo-estudio.png" 
+                    alt="ACTIO LEGIS Consultores Jurídicos" 
+                    className="h-10 w-auto object-contain"
+                  />
                 </div>
-              </div>
-              
-              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-2.5 font-semibold">
+              ) : (
+                /* 2. Logo Oficial de la Editorial (Placa Sólida 3D) */
+                <div className="relative inline-block py-0.5">
+                  <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
+                  <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
+                    <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">ACTIO</span>
+                    <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
+                  </div>
+                </div>
+              )}
+
+              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-2 font-semibold">
                 en servicio del derecho
               </span>
             </div>
 
             <div className="hidden sm:flex flex-col border-l border-neutral-200 pl-3">
               <span className="font-serif text-xs font-bold tracking-tight text-neutral-950">
-                Estudio Jurídico & Litigio
+                {esEditorial ? 'Editorial Jurídico / Blog' : 'Estudio Jurídico & Litigio'}
               </span>
               <span className="text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-mono">
                 Guayaquil • Ecuador
@@ -236,11 +251,11 @@ export default function App() {
           {vista === 'sitio-web' ? (
             <div className="flex items-center gap-3 sm:gap-5">
               <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
-                <a href="#proposito" className="hover:text-neutral-950 transition-colors">Propósito</a>
-                <a href="#socios" className="hover:text-neutral-950 transition-colors">Socios</a>
-                <a href="#practica" className="hover:text-neutral-950 transition-colors">Prácticas</a>
-                <a href="#editorial" className="hover:text-neutral-950 transition-colors">Editorial</a>
-                <a href="#contacto" className="hover:text-neutral-950 transition-colors">Contacto</a>
+                <a href="#proposito" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Propósito</a>
+                <a href="#socios" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Socios</a>
+                <a href="#practica" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Prácticas</a>
+                <a href="#editorial" onClick={() => setEsEditorial(true)} className="hover:text-neutral-950 transition-colors font-bold text-neutral-900">Editorial</a>
+                <a href="#contacto" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Contacto</a>
               </nav>
 
               <button
@@ -277,14 +292,14 @@ export default function App() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setVista('sitio-web')}
+                onClick={() => { setVista('sitio-web'); setEsEditorial(false); }}
                 className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <span>Volver al Sitio Web</span>
               </button>
               <button
                 type="button"
-                onClick={() => setVista('sitio-web')}
+                onClick={() => { setVista('sitio-web'); setEsEditorial(false); }}
                 className="p-2 sm:px-3.5 sm:py-2 bg-neutral-950 hover:bg-black text-white text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5 text-neutral-300" />
@@ -301,7 +316,7 @@ export default function App() {
          ========================================================= */}
       {vista === 'sitio-web' && (
         <main>
-          {/* HERO CENTRADO */}
+          {/* HERO CENTRADO (MARFIL CÁLIDO APLICADO EN EL TEXTO) */}
           <section className="relative pt-20 pb-24 md:pt-32 md:pb-36 border-b border-neutral-200 bg-white">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
               
@@ -345,7 +360,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* PROPÓSITO: FRANJA EN GRIS BERENJENA OSCURO Y ACENTOS EN PLATA */}
+          {/* PROPÓSITO: FRANJA EN GRIS BERENJENA OSCURO (#281F26) */}
           <section id="proposito" className="py-20 md:py-28 border-b border-neutral-800 bg-[#281F26] text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
@@ -480,7 +495,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* EDITORIAL */}
+          {/* EDITORIAL / BLOG */}
           <section id="editorial" className="py-20 md:py-28 border-b border-neutral-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
@@ -531,7 +546,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* CONTACTO: DIRECCIÓN EXACTA Y TELÉFONO OFICIAL */}
+          {/* CONTACTO: DIRECCIÓN EXACTA KENNEDY NORTE */}
           <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="bg-neutral-50 border border-neutral-200 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
@@ -606,11 +621,11 @@ export default function App() {
                     Línea Forense
                   </h4>
                   <ul className="space-y-2 text-neutral-500 font-light">
-                    <li><a href="#proposito" className="hover:text-neutral-950 transition-colors">Propósito & Manifiesto</a></li>
-                    <li><a href="#socios" className="hover:text-neutral-950 transition-colors">Socios: Dr. Diego Tapia & Marcela Dunn</a></li>
-                    <li><a href="#practica" className="hover:text-neutral-950 transition-colors">Defensa Penal Económica & Fraude</a></li>
-                    <li><a href="#practica" className="hover:text-neutral-950 transition-colors">Controversias Societarias</a></li>
-                    <li><a href="#editorial" className="hover:text-neutral-950 transition-colors">Editorial Jurídico ACTIO LEGIS</a></li>
+                    <li><a href="#proposito" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Propósito & Manifiesto</a></li>
+                    <li><a href="#socios" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Socios: Dr. Diego Tapia & Marcela Dunn</a></li>
+                    <li><a href="#practica" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Defensa Penal Económica & Fraude</a></li>
+                    <li><a href="#practica" onClick={() => setEsEditorial(false)} className="hover:text-neutral-950 transition-colors">Controversias Societarias</a></li>
+                    <li><a href="#editorial" onClick={() => setEsEditorial(true)} className="hover:text-neutral-950 transition-colors">Editorial Jurídico ACTIO LEGIS</a></li>
                   </ul>
                 </div>
 
@@ -1136,7 +1151,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL DE LOGIN */}
+      {/* MODAL DE LOGIN COMPARTIDO */}
       {modalLogin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
