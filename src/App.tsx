@@ -685,22 +685,24 @@ export default function App() {
 
               </div>
 
-              {/* Sub-pie */}
+             {/* Sub-pie */}
               <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
                 <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
                 <div className="flex items-center gap-4">
-  <button 
-    type="button"
-    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-    className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
-  >
-    <span>Subir al inicio</span>
-    <ArrowUp className="w-3 h-3" />
-  </button>
-</div>
+                  <button 
+                    type="button"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Subir al inicio</span>
+                    <ArrowUp className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
 
             </div>
-          </footer>
+          </div>
+        </footer>
         </main>
       )}
 
