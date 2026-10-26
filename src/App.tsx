@@ -194,4 +194,93 @@ export function App() {
       tipo: clienteData?.tipo || 'empresa'
     };
     setClienteActivo(seguro);
-    localStorage.setItem('actiolegis_cliente_activo', JSON.stringify(
+    localStorage.setItem('actiolegis_cliente_activo', JSON.stringify(seguro));
+    setVistaActual('cliente-casos');
+  };
+
+  const handleCerrarSesion = () => {
+    setClienteActivo(null);
+    localStorage.removeItem('actiolegis_cliente_activo');
+    setVistaActual('inicio');
+  };
+
+  // Filtrado 100% blindado contra nulos o undefined
+  const expedientesFiltrados = expedientes.filter((exp) => {
+    if (!clienteActivo) return true;
+    const clienteNombreActual = String(clienteActivo?.nombre || '').toLowerCase().trim();
+    const clienteExpediente = String(exp?.cliente || '').toLowerCase().trim();
+
+    // Si ambos son cadenas válidas, evaluamos coincidencia; si no, mostramos los expedientes de cortesía
+    if (!clienteNombreActual || !clienteExpediente) return true;
+    return clienteExpediente.includes(clienteNombreActual) || clienteNombreActual.includes(clienteExpediente);
+  });
+
+  return (
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 flex flex-col font-sans selection:bg-neutral-900 selection:text-white">
+      {/* Navegación Superior */}
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-neutral-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div 
+            onClick={() => setVistaActual(clienteActivo ? 'cliente-casos' : 'inicio')}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-neutral-900 text-white flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+              <Scale className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <span className="text-xl font-bold tracking-tight text-neutral-950 font-serif">ACTIO LEGIS</span>
+              <span className="block text-[10px] tracking-widest text-neutral-400 font-sans uppercase">Estudio Jurídico</span>
+            </div>
+          </div>
+
+          {/* Menú Desktop */}
+          <nav className="hidden md:flex items-center gap-6">
+            {clienteActivo ? (
+              <>
+                <button
+                  onClick={() => setVistaActual('cliente-casos')}
+                  className={`text-xs font-medium px-3.5 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                    vistaActual === 'cliente-casos' 
+                      ? 'bg-neutral-900 text-white' 
+                      : 'text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  Mis Procesos
+                </button>
+
+                <button
+                  onClick={() => setVistaActual('cliente-consultas')}
+                  className={`text-xs font-medium px-3.5 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                    vistaActual === 'cliente-consultas' 
+                      ? 'bg-neutral-900 text-white' 
+                      : 'text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100'
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Consultas al Abogado
+                </button>
+
+                <div className="h-4 w-px bg-neutral-200" />
+
+                <div className="flex items-center gap-2 text-xs text-neutral-700 bg-neutral-100 px-3 py-1.5 rounded-full border border-neutral-200">
+                  <User className="w-3.5 h-3.5 text-neutral-500" />
+                  <span className="font-medium max-w-[140px] truncate">{clienteActivo.nombre}</span>
+                </div>
+
+                <button
+                  onClick={handleCerrarSesion}
+                  title="Cerrar Sesión"
+                  className="p-2 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <>
+                <a href="#servicios" className="text-xs font-medium text-neutral-600 hover:text-neutral-950">Servicios</a>
+                <a href="#despacho" className="text-xs font-medium text-neutral-600 hover:text-neutral-950">El Despacho</a>
+                <a href="#contacto" className="text-xs font-medium text-neutral-600 hover:text-neutral-950">Contacto</a>
+
+                <button
+                  onClick={() => setIsLoginModalOpen
