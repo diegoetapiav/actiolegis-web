@@ -41,7 +41,6 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y rigor dogmático.
             </p>
 
-            {/* Acciones Rápidas */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <button
                 type="button"
@@ -88,7 +87,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          2. FILOSOFÍA Y MANIFIESTO
+          2. PROPÓSITO & FILOSOFÍA DE LA FIRMA
          ========================================================= */}
       <section id="proposito" className="py-20 md:py-28 border-b border-neutral-200/80 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -144,7 +143,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
               </div>
               <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-                Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa técnica ante la Fiscalía General del Estado y diseño de estrategias de prevención de responsabilidad corporativa.
+                Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa técnica ante la Fiscalía General del Estado y diseño de estrategias preventivas de responsabilidad corporativa.
               </p>
               <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
                 contacto@actiolegisec.com • Guayaquil
@@ -242,7 +241,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          5. EDITORIAL JURÍDICO
+          5. EDITORIAL JURÍDICO & DOCTRINA
          ========================================================= */}
       <section id="editorial" className="py-20 md:py-28 border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -299,7 +298,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          6. SECCIÓN DE ATENCIÓN EN DESPACHO (DISEÑO LIMPIO EN MARFIL)
+          6. SECCIÓN DE ATENCIÓN EDITORIAL Y CONTRATACIÓN (FONDO CLARO)
          ========================================================= */}
       <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -340,16 +339,20 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          7. PIE DE PÁGINA EDITORIAL OFICIAL (BLANCO / MARFIL CON PLACA)
+          7. PIE DE PÁGINA EDITORIAL OFICIAL Y DEFINITIVO
+             - LOGO A LA IZQUIERDA (PLACA 3D CON RELIEVE Y SOMBRA)
+             - SLOGAN EXACTO: "EN SERVICIO DEL DERECHO"
+             - COLUMNAS EDITORIALES EN BLANCO/MARFIL Y MÁS CONTENIDO
          ========================================================= */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
         <div className="max-w-6xl mx-auto space-y-12">
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            {/* Columna 1: Logotipo Oficial en Placa 3D y Datos de Sede */}
+            {/* Columna 1: LOGOTIPO A LA IZQUIERDA CON SLOGAN OFICIAL */}
             <div className="space-y-4 md:col-span-1">
               
+              {/* Placa aprobada */}
               <div className="relative inline-block select-none py-1">
                 <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
                 <div className="relative px-4 py-2 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
@@ -362,26 +365,27 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 </div>
               </div>
 
+              {/* Slogan institucional en posición original */}
               <div className="text-[8.5px] uppercase tracking-[0.25em] font-medium font-sans text-neutral-500">
                 en servicio del derecho
               </div>
 
-              <p className="text-neutral-500 text-xs leading-relaxed pt-1">
-                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa forense en servicio del derecho.
+              <p className="text-neutral-500 text-xs leading-relaxed pt-1 font-light">
+                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal, asesoría societaria y defensa forense en servicio del derecho.
               </p>
               
               <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
                 <MapPin className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                <span>Puerto Santa Ana & Malecón, Guayaquil</span>
+                <span>Puerto Santa Ana & Malecón Simón Bolívar, Guayaquil</span>
               </div>
             </div>
 
-            {/* Columna 2: Línea Institucional */}
+            {/* Columna 2: Línea Institucional & Prácticas */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
-                Línea Institucional
+                Línea Forense
               </h4>
-              <ul className="space-y-2 text-neutral-500">
+              <ul className="space-y-2 text-neutral-500 font-light">
                 <li>
                   <a href="#proposito" className="hover:text-neutral-950 transition-colors">
                     Propósito & Manifiesto
@@ -394,7 +398,12 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 </li>
                 <li>
                   <a href="#practica" className="hover:text-neutral-950 transition-colors">
-                    Defensa Penal & Prácticas
+                    Defensa Penal Económica & Fraude
+                  </a>
+                </li>
+                <li>
+                  <a href="#practica" className="hover:text-neutral-950 transition-colors">
+                    Arbitraje & Controversias Societarias
                   </a>
                 </li>
                 <li>
@@ -405,12 +414,12 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </ul>
             </div>
 
-            {/* Columna 3: Plataformas Privadas */}
+            {/* Columna 3: Plataformas & Sistemas Digitales */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Plataforma Privada
               </h4>
-              <ul className="space-y-2 text-neutral-500">
+              <ul className="space-y-2 text-neutral-500 font-light">
                 <li>
                   <button 
                     type="button"
@@ -449,18 +458,23 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                     <ExternalLink className="w-3 h-3 text-neutral-400" />
                   </a>
                 </li>
+                <li>
+                  <span className="text-[11px] text-neutral-400 block pt-1 font-mono">
+                    Sincronización SATJE en tiempo real
+                  </span>
+                </li>
               </ul>
             </div>
 
-            {/* Columna 4: Atención en Guayaquil */}
+            {/* Columna 4: Atención en Despacho Guayaquil */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
-                Atención Guayaquil
+                Sede Guayaquil
               </h4>
-              <div className="space-y-2 text-neutral-500 text-xs">
+              <div className="space-y-2 text-neutral-500 text-xs font-light">
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                  <span className="font-medium text-neutral-800">+593 (4) 259-8800</span>
+                  <span className="font-medium text-neutral-800 font-mono">+593 (4) 259-8800</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
@@ -468,20 +482,23 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 </div>
                 <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
                   Lunes a Viernes: 08:30 – 18:30 <br />
-                  Urgencias en materia penal 24/7
+                  Guardia técnica para urgencias penales 24/7
                 </p>
+                <div className="pt-2 text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
+                  Guayaquil • Ecuador
+                </div>
               </div>
             </div>
 
           </div>
 
-          {/* Sub-pie inferior con enlaces y botón de subir */}
-          <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
+          {/* Sub-pie inferior formal */}
+          <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
             <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
             <div className="flex items-center gap-4">
               <span>Firma Electrónica Válida</span>
               <span>•</span>
-              <span>Sincronización SATJE</span>
+              <span>Ley de Comercio Electrónico</span>
               <span>•</span>
               <button 
                 type="button"
