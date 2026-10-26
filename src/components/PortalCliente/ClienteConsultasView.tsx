@@ -1,163 +1,220 @@
 import React, { useState } from 'react';
-import { Cliente, Expediente } from '../../types/legal';
-import { 
-  Scale, ExternalLink, Calendar, Clock, 
-  MessageSquare, ChevronRight, FileText, Shield
-} from 'lucide-react';
+import { Cliente, Expediente, MensajeConsulta } from '../../types/legal';
+import { MessageSquare, Send, Clock, User, Shield, CheckCircle2 } from 'lucide-react';
 
-interface ClienteCasosViewProps {
-  cliente?: Cliente | null;
-  expedientes?: Expediente[];
-  onIrAConsultas: () => void;
-  onIrACitas: () => void;
+interface ClienteConsultasViewProps {
+  cliente: Cliente;
+  expedientes: Expediente[];
+  mensajes: MensajeConsulta[];
+  onEnviarMensaje: (msg: MensajeConsulta) => void;
 }
 
-const PALETA_TRAMITES = [
-  {
-    fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
-    badgeMateria: 'bg-[#E1EFE7] text-[#1B4D33] border-[#C2DFCF]',
-    barraProgreso: 'bg-[#2E6B4A]',
-    indicadorActivo: 'bg-[#2E6B4A]',
-    detalleFondo: 'bg-[#FAFBF9]',
-  },
-  {
-    fondoCard: 'bg-[#FAF6EE] border-[#EADFCB]',
-    badgeMateria: 'bg-[#F3EBD8] text-[#5C4217] border-[#DFCBB0]',
-    barraProgreso: 'bg-[#8C6424]',
-    indicadorActivo: 'bg-[#8C6424]',
-    detalleFondo: 'bg-[#FCFBF8]',
-  },
-  {
-    fondoCard: 'bg-[#F0F5FA] border-[#CFDFEE]',
-    badgeMateria: 'bg-[#E1EDF7] text-[#19456B] border-[#BFDAF0]',
-    barraProgreso: 'bg-[#255C8F]',
-    indicadorActivo: 'bg-[#255C8F]',
-    detalleFondo: 'bg-[#F7FAFC]',
-  },
-  {
-    fondoCard: 'bg-[#F5F2F9] border-[#DDD3EB]',
-    badgeMateria: 'bg-[#ECE4F5] text-[#422268] border-[#D2C0E8]',
-    barraProgreso: 'bg-[#5B338E]',
-    indicadorActivo: 'bg-[#5B338E]',
-    detalleFondo: 'bg-[#FAF8FC]',
-  }
-];
-
-export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
+export const ClienteConsultasView: React.FC<ClienteConsultasViewProps> = ({
   cliente,
-  expedientes = [],
-  onIrAConsultas,
-  onIrACitas
+  expedientes,
+  mensajes,
+  onEnviarMensaje,
 }) => {
-  const clienteNombre = String(cliente?.nombre || 'Inmobiliaria del Valle S.A.S.').trim();
-  const clienteNombreLower = clienteNombre.toLowerCase();
-  const clienteId = cliente?.id || '';
+  const [asunto, setAsunto] = useState('');
+  const [expedienteSeleccionadoId, setExpedienteSeleccionadoId] = useState(
+    expedientes[0]?.id || ''
+  );
+  const [contenido, setContenido] = useState('');
+  const [enviadoExito, setEnviadoExito] = useState(false);
 
-  // Filtro tolerante a valores nulos o incompletos
-  const misCasos = (expedientes || []).filter((e) => {
-    if (!e) return false;
-    if (clienteId && e.clienteId === clienteId) return true;
-    const expCliente = String(e.cliente || '').toLowerCase();
-    if (!expCliente) return true;
-    return expCliente.includes(clienteNombreLower) || clienteNombreLower.includes(expCliente);
-  });
-
-  const casosParaMostrar: Expediente[] = misCasos.length > 0 ? misCasos : (expedientes.length > 0 ? expedientes : [
-    {
-      id: 'exp-demo-1',
-      clienteId: clienteId || 'cli-1',
-      numProceso: '17230-2024-00482',
-      materia: 'Civil',
-      tipoProceso: 'Prescripción Extraordinaria Adquisitiva de Dominio de Lote Urbano',
-      cliente: clienteNombre,
-      contraparte: 'Herederos de Juan Carlos Peñaherrera y Otros',
-      unidadJudicial: 'Unidad Judicial Civil de Guayaquil',
-      abogadoLider: 'Dr. Diego Tapia',
-      estado: 'En Trámite',
-      etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
-      proximaFechaClave: '2026-10-18',
-      proximasAcciones: 'Entrega de informe pericial planimétrico y observaciones de la actora.',
-      actuaciones: [
-        {
-          id: 'act-1',
-          fecha: '2026-10-08 11:20',
-          tipo: 'Providencia Judicial',
-          titulo: 'Concesión de término fatal para informe pericial',
-          resumen: 'El Juez ordenó la planimetría.',
-          resumenParaCliente: 'El Juez ordenó al perito técnico que entregue el informe de medición del terreno en un plazo de 10 días para continuar.',
-          foja: '142',
-          abogado: 'Dr. Diego Tapia'
-        }
-      ]
-    }
-  ]);
-
-  const [casoSeleccionadoId, setCasoSeleccionadoId] = useState<string>(
-    casosParaMostrar[0]?.id || ''
+  // Filtrar los mensajes de este cliente
+  const misMensajes = mensajes.filter(
+    (m) =>
+      m.clienteId === cliente.id ||
+      m.remitente.toLowerCase().includes(cliente.nombre.toLowerCase())
   );
 
-  const casoActivo = casosParaMostrar.find((c) => c.id === casoSeleccionadoId) || casosParaMostrar[0];
-  const indiceActivo = casosParaMostrar.findIndex((c) => c.id === casoActivo?.id);
-  const colorEstiloActivo = PALETA_TRAMITES[Math.max(0, indiceActivo) % PALETA_TRAMITES.length];
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!asunto.trim() || !contenido.trim()) return;
 
-  const calcularProgresoEtapa = (etapa?: string) => {
-    const et = String(etapa || '').toLowerCase();
-    if (et.includes('sentencia') || et.includes('ejecutoria') || et.includes('concluid')) {
-      return { porcentaje: 100, label: 'Sentencia Definitiva' };
-    }
-    if (et.includes('audiencia') || et.includes('prueba') || et.includes('probatori') || et.includes('juicio')) {
-      return { porcentaje: 65, label: 'Fase Probatoria / Audiencia' };
-    }
-    if (et.includes('califica') || et.includes('contestaci') || et.includes('tramite')) {
-      return { porcentaje: 35, label: 'Calificación & Citación' };
-    }
-    return { porcentaje: 15, label: 'Presentación / Inicio' };
+    const nuevoMensaje: MensajeConsulta = {
+      id: `msg-${Date.now()}`,
+      clienteId: cliente.id,
+      expedienteId: expedienteSeleccionadoId || undefined,
+      remitente: cliente.nombre,
+      tipoRemitente: 'cliente',
+      fecha: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      asunto: asunto.trim(),
+      contenido: contenido.trim(),
+      estado: 'Pendiente',
+      respuestas: [],
+    };
+
+    onEnviarMensaje(nuevoMensaje);
+    setAsunto('');
+    setContenido('');
+    setEnviadoExito(true);
+    setTimeout(() => setEnviadoExito(false), 4000);
   };
 
   return (
-    <div className="space-y-6 font-sans">
-      
-      {/* CABECERA MINIMALISTA (SIN BLOQUE NEGRO) */}
-      <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-2">
-            <Shield className="w-3.5 h-3.5 text-neutral-800" />
-            <span>Código Confidencial: {cliente?.codigoAcceso || 'ACTIO-8492'}</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-serif text-neutral-950 font-normal">
-            Bienvenido/a, <span className="font-semibold">{clienteNombre}</span>
-          </h1>
-
-          <p className="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
-            Este dashboard le permitirá enterarse de las causas judiciales, trámites administrativos o investigaciones patrocinados por ACTIO LEGIS. Cualquier información adicional, no dude en contactar a su abogado patrocinador.
-          </p>
+    <div className="space-y-8 font-sans">
+      {/* Cabecera de la sección */}
+      <div className="bg-white rounded-2xl border border-neutral-200/90 p-6 sm:p-8 shadow-xs">
+        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-500 mb-2">
+          <MessageSquare className="w-4 h-4 text-neutral-900" />
+          <span>Canal Privado de Comunicación</span>
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={onIrACitas}
-            className="px-4 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-medium rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-          >
-            <Calendar className="w-4 h-4 text-neutral-300" />
-            <span>Agendar Cita</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={onIrAConsultas}
-            className="px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-medium rounded-xl transition-all flex items-center gap-2 cursor-pointer"
-          >
-            <MessageSquare className="w-4 h-4 text-neutral-600" />
-            <span>Hacer una Pregunta</span>
-          </button>
-        </div>
+        <h2 className="text-2xl font-serif font-bold text-neutral-950">
+          Consultas Directas con su Abogado
+        </h2>
+        <p className="text-xs sm:text-sm text-neutral-600 mt-1 max-w-2xl leading-relaxed">
+          Plantee inquietudes jurídicas sobre sus expedientes. Su equipo legal revisará y responderá con prontitud técnica.
+        </p>
       </div>
 
-      {/* CONTENIDO PRINCIPAL: TRÁMITES Y DETALLE */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* LISTADO DE TRÁMITES */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="flex items-
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Formulario de nueva consulta */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-neutral-200/90 p-6 shadow-xs">
+          <h3 className="font-serif font-bold text-neutral-950 text-base mb-4">
+            Redactar Nueva Consulta
+          </h3>
+
+          {enviadoExito && (
+            <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+              <span>Su consulta ha sido enviada al despacho exitosamente.</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-1">
+                Expediente o Causa Relacionada
+              </label>
+              <select
+                value={expedienteSeleccionadoId}
+                onChange={(e) => setExpedienteSeleccionadoId(e.target.value)}
+                className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:border-neutral-950"
+              >
+                <option value="">Consulta General (Sin causa específica)</option>
+                {expedientes.map((exp) => (
+                  <option key={exp.id} value={exp.id}>
+                    {exp.numProceso} — {exp.tipoProceso}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-1">
+                Asunto de la Consulta
+              </label>
+              <input
+                type="text"
+                required
+                value={asunto}
+                onChange={(e) => setAsunto(e.target.value)}
+                placeholder="ej. Duda sobre la fecha de audiencia"
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:border-neutral-950"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-1">
+                Detalle del Mensaje
+              </label>
+              <textarea
+                required
+                rows={4}
+                value={contenido}
+                onChange={(e) => setContenido(e.target.value)}
+                placeholder="Escriba aquí los detalles de su inquietud..."
+                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:border-neutral-950 leading-relaxed resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Enviar Consulta</span>
+            </button>
+          </form>
+        </div>
+
+        {/* Historial de consultas */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+              Historial de Mensajes ({misMensajes.length})
+            </h3>
+          </div>
+
+          {misMensajes.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center text-xs text-neutral-500">
+              No registra consultas previas. Utilice el formulario lateral para comunicarse con su abogado patrocinador.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {misMensajes.map((msg) => (
+                <div
+                  key={msg.id}
+                  className="bg-white p-5 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-100 pb-2.5">
+                    <div>
+                      <span className="font-serif font-bold text-neutral-950 text-sm">
+                        {msg.asunto}
+                      </span>
+                      <div className="text-[11px] text-neutral-400 font-mono mt-0.5 flex items-center gap-2">
+                        <Clock className="w-3 h-3" />
+                        <span>{msg.fecha}</span>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md border ${
+                        msg.estado === 'Respondido'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                      }`}
+                    >
+                      {msg.estado}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-neutral-700 leading-relaxed bg-neutral-50 p-3 rounded-xl border border-neutral-100">
+                    {msg.contenido}
+                  </p>
+
+                  {/* Respuestas del equipo legal */}
+                  {msg.respuestas && msg.respuestas.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-neutral-100">
+                      {msg.respuestas.map((resp, i) => (
+                        <div
+                          key={i}
+                          className="bg-[#FAF9F6] p-3 rounded-xl border border-neutral-200/80 text-xs space-y-1"
+                        >
+                          <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-900">
+                            <span className="flex items-center gap-1.5">
+                              <Shield className="w-3 h-3 text-neutral-700" />
+                              {resp.autor} • ACTIO LEGIS
+                            </span>
+                            <span className="text-neutral-400 font-mono text-[10px]">
+                              {resp.fecha}
+                            </span>
+                          </div>
+                          <p className="text-neutral-600 leading-relaxed pt-1">
+                            {resp.contenido}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
