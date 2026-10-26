@@ -141,6 +141,15 @@ export default function App() {
     }
   };
 
+  const abrirPortalCliente = () => {
+    setVista('cliente');
+  };
+
+  const abrirIntranetAbogados = () => {
+    setVista('intranet');
+    setTabIntranet('expedientes');
+  };
+
   const handleProcesarConIA = () => {
     if (!textoNotificacionIA.trim()) return;
     setProcesandoIA(true);
@@ -206,7 +215,7 @@ export default function App() {
           >
             <div className="flex flex-col items-start pb-0.5">
               {vista === 'editorial' ? (
-                /* LOGO DE LA EDITORIAL: Placa Sólida 3D Negra con eslogan separado y espaciado */
+                /* LOGO DE LA EDITORIAL: Placa Sólida 3D Negra */
                 <div className="flex flex-col items-start">
                   <div className="relative inline-block py-0.5">
                     <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
@@ -220,7 +229,7 @@ export default function App() {
                   </span>
                 </div>
               ) : (
-                /* LOGO DEL ESTUDIO JURÍDICO (Sin eslogan duplicado debajo) */
+                /* LOGO DEL ESTUDIO JURÍDICO */
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
@@ -290,8 +299,8 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer"
+              onClick={abrirPortalCliente}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer shadow-2xs"
             >
               <User className="w-3.5 h-3.5 text-neutral-600" />
               <span className="hidden sm:inline">Portal</span> Clientes
@@ -299,8 +308,8 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => { setRolLogin('estudio'); setModalLogin(true); }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer"
+              onClick={abrirIntranetAbogados}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:text-neutral-950 hover:bg-neutral-100 transition-all cursor-pointer"
             >
               <Building2 className="w-3.5 h-3.5 text-neutral-500" />
               <span>Intranet</span>
@@ -357,7 +366,7 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
+                  onClick={abrirPortalCliente}
                   className="px-7 py-3.5 bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-300 text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>Portal de Clientes</span>
@@ -636,7 +645,434 @@ export default function App() {
         </main>
       )}
 
-      {/* FOOTER COMPARTIDO CON LOGO SEGÚN LA VISTA */}
+      {/* =========================================================
+          VISTA 3: PORTAL DE CLIENTES
+         ========================================================= */}
+      {vista === 'cliente' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-2">
+                <Shield className="w-3.5 h-3.5 text-neutral-800" />
+                <span>Código Confidencial: ACTIO-8492</span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-serif text-neutral-950 font-normal">
+                Bienvenido/a, <span className="font-semibold">Inmobiliaria del Valle S.A.S.</span>
+              </h1>
+
+              <p className="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                Este dashboard le permitirá enterarse de las causas judiciales, trámites administrativos o investigaciones patrocinados por ACTIO LEGIS. Cualquier información adicional, no dude en contactar a su abogado patrocinador.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => alert('Cita solicitada. El despacho confirmará la hora a la brevedad.')}
+                className="px-4 py-2.5 bg-neutral-950 hover:bg-neutral-800 text-white text-xs font-medium rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+              >
+                <Calendar className="w-4 h-4 text-neutral-300" />
+                <span>Agendar Cita</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="lg:col-span-4 space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+                  Mis Causas Patrocinadas ({expedientes.length})
+                </h2>
+                <span className="text-[11px] text-neutral-400">Seleccione para ver detalle</span>
+              </div>
+
+              {expedientes.map((caso, index) => {
+                const estilo = PALETA_TRAMITES[index % PALETA_TRAMITES.length];
+                const estaSeleccionado = caso.id === casoActivo.id;
+
+                return (
+                  <div
+                    key={caso.id}
+                    onClick={() => setCasoActivoId(caso.id)}
+                    className={`rounded-2xl p-5 border transition-all cursor-pointer relative ${estilo.fondoCard} ${estaSeleccionado ? 'ring-2 ring-neutral-950 shadow-sm' : 'opacity-90 hover:opacity-100'}`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="font-mono text-xs font-bold text-neutral-900">
+                        {caso.numProceso}
+                      </span>
+                      <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-md border ${estilo.badgeMateria}`}>
+                        {caso.materia}
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif font-semibold text-neutral-950 text-sm leading-snug mb-3 line-clamp-2">
+                      {caso.tipoProceso}
+                    </h3>
+
+                    <div className="pt-2.5 border-t border-neutral-900/10 space-y-1.5">
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="text-neutral-700 font-medium">{caso.etapaProcesalActual}</span>
+                        <span className="font-mono font-bold text-neutral-900">{caso.porcentaje}%</span>
+                      </div>
+                      
+                      <div className="w-full h-1.5 bg-neutral-900/10 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${estilo.barraProgreso}`}
+                          style={{ width: `${caso.porcentaje}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between text-[11px] text-neutral-600">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-neutral-500" />
+                        Próxima: {caso.proximaFechaClave}
+                      </span>
+                      <ChevronRight className={`w-4 h-4 transition-transform ${estaSeleccionado ? 'rotate-90 text-neutral-950' : 'text-neutral-400'}`} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={`lg:col-span-8 rounded-3xl border border-neutral-200 shadow-sm p-6 sm:p-8 space-y-6 ${estiloActivo.detalleFondo}`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-neutral-200">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className={`w-2.5 h-2.5 rounded-full ${estiloActivo.indicadorActivo}`} />
+                    <span className="text-xs font-mono font-bold text-neutral-600">
+                      Causa Judicial: {casoActivo.numProceso}
+                    </span>
+                    <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md border ${estiloActivo.badgeMateria}`}>
+                      {casoActivo.materia}
+                    </span>
+                  </div>
+
+                  <h2 className="text-xl sm:text-2xl font-serif font-bold text-neutral-950">
+                    {casoActivo.tipoProceso}
+                  </h2>
+                  <p className="text-xs text-neutral-600 mt-1">
+                    Demandante: <strong className="text-neutral-900 font-medium">{casoActivo.cliente}</strong> • Contraparte: <strong className="text-neutral-900 font-medium">{casoActivo.contraparte}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 border border-neutral-200 shadow-sm space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
+                      Etapa Procesal Actual
+                    </div>
+                    <div className="text-sm sm:text-base font-serif font-semibold text-neutral-950 mt-0.5">
+                      {casoActivo.etapaProcesalActual}
+                    </div>
+                  </div>
+                  <span className="text-xs font-mono font-bold text-neutral-900">
+                    {casoActivo.porcentaje}% Completado
+                  </span>
+                </div>
+
+                <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-700 ${estiloActivo.barraProgreso}`}
+                    style={{ width: `${casoActivo.porcentaje}%` }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 text-center pt-1 text-[11px]">
+                  <div className="font-medium text-neutral-900">1. Demanda</div>
+                  <div className="font-medium text-neutral-900">2. Citación</div>
+                  <div className="font-bold text-neutral-950">3. Pruebas</div>
+                  <div className="text-neutral-400">4. Sentencia</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-neutral-200 text-xs">
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Juzgado / Unidad</div>
+                  <div className="font-medium text-neutral-900 mt-0.5">{casoActivo.unidadJudicial}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Contraparte</div>
+                  <div className="font-medium text-neutral-900 mt-0.5">{casoActivo.contraparte}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">Abogado Patrocinador</div>
+                  <div className="font-semibold text-neutral-900 mt-0.5">{casoActivo.abogadoLider} • ACTIO LEGIS</div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="text-[11px] font-mono uppercase tracking-wider text-neutral-500 font-semibold flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-neutral-900" />
+                  <span>Historial de Providencias & Resoluciones</span>
+                </h3>
+
+                {casoActivo.actuaciones.map((act) => (
+                  <div key={act.id} className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="font-bold text-neutral-900 font-serif text-sm flex items-center gap-1.5">
+                        {act.titulo}
+                        {act.detectadoPorIA && (
+                          <span className="bg-neutral-950 text-white text-[9px] px-1.5 py-0.5 rounded-md font-mono flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" /> IA
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-neutral-400 font-mono text-[11px]">{act.fecha}</span>
+                    </div>
+                    <div className="bg-neutral-50 rounded-xl p-3 border border-neutral-100 text-xs text-neutral-700 leading-relaxed flex items-start gap-2">
+                      <span className="text-neutral-900 font-bold shrink-0">📌 ¿Qué significa?:</span>
+                      <span>{act.resumenParaCliente}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          VISTA 4: INTRANET DE LITIGANTES & EXPEDIENTE IA
+         ========================================================= */}
+      {vista === 'intranet' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                <Building2 className="w-3.5 h-3.5 text-neutral-900" />
+                <span>Despacho Jurídico • Intranet Forense</span>
+              </div>
+              <h1 className="text-2xl font-serif font-bold text-neutral-950">
+                Panel de Control de Litigantes
+              </h1>
+            </div>
+
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setTabIntranet('expedientes')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  tabIntranet === 'expedientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600 hover:text-neutral-950'
+                }`}
+              >
+                Expedientes & IA
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabIntranet('citas')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  tabIntranet === 'citas' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600 hover:text-neutral-950'
+                }`}
+              >
+                Citas & Audiencias
+              </button>
+              <button
+                type="button"
+                onClick={() => setTabIntranet('honorarios')}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  tabIntranet === 'honorarios' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600 hover:text-neutral-950'
+                }`}
+              >
+                Honorarios
+              </button>
+            </div>
+          </div>
+
+          {tabIntranet === 'expedientes' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              
+              <div className="lg:col-span-5 space-y-4">
+                <div className="bg-neutral-950 text-white rounded-2xl p-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-300">
+                      <Bot className="w-4 h-4 text-emerald-400" />
+                      <span>Expediente IA • Lector Forense</span>
+                    </div>
+                    <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded-md border border-emerald-500/30">
+                      Activo
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-neutral-300 leading-relaxed font-light">
+                    Pegue directamente el texto de la providencia judicial o notificación SATJE. La IA extraerá los términos fatales, actualizará la causa y redactará la explicación para el cliente.
+                  </p>
+
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                      Causa a Actualizar:
+                    </label>
+                    <select
+                      value={casoActivoId}
+                      onChange={(e) => setCasoActivoId(e.target.value)}
+                      className="w-full bg-neutral-900 border border-neutral-700 text-white text-xs rounded-xl p-2.5 focus:outline-none focus:border-neutral-400 font-mono"
+                    >
+                      {expedientes.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.numProceso} — {c.cliente}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-mono uppercase tracking-wider text-neutral-400">
+                      Texto de la Providencia o Notificación:
+                    </label>
+                    <textarea
+                      rows={5}
+                      value={textoNotificacionIA}
+                      onChange={(e) => setTextoNotificacionIA(e.target.value)}
+                      placeholder="Pegue aquí el texto: 'VISTOS: Agréguese al expediente el informe pericial presentado... Se convoca a audiencia de juicio el día 20 de noviembre...'"
+                      className="w-full bg-neutral-900 border border-neutral-700 text-neutral-200 text-xs rounded-xl p-3 focus:outline-none focus:border-neutral-400 font-sans leading-relaxed resize-none"
+                    />
+                  </div>
+
+                  {resultadoIA && (
+                    <div className="p-3 bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 rounded-xl text-xs flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      <span>{resultadoIA}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={procesandoIA || !textoNotificacionIA.trim()}
+                    onClick={handleProcesarConIA}
+                    className="w-full py-3 bg-white hover:bg-neutral-100 disabled:opacity-50 text-neutral-950 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-neutral-900" />
+                    <span>{procesandoIA ? 'Analizando con IA...' : 'Interpretar y Agendar Causa'}</span>
+                  </button>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+                    Causas Patrocinadas ({expedientes.length})
+                  </h3>
+                  <div className="space-y-2">
+                    {expedientes.map((c) => (
+                      <div
+                        key={c.id}
+                        onClick={() => setCasoActivoId(c.id)}
+                        className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
+                          c.id === casoActivoId ? 'border-neutral-950 bg-neutral-50 font-medium' : 'border-neutral-200 hover:bg-neutral-50'
+                        }`}
+                      >
+                        <div className="flex justify-between font-mono text-[11px]">
+                          <span>{c.numProceso}</span>
+                          <span className="font-bold">{c.porcentaje}%</span>
+                        </div>
+                        <div className="text-neutral-700 truncate mt-1">{c.cliente}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-7 bg-white rounded-2xl border border-neutral-200 p-6 space-y-6">
+                <div className="border-b border-neutral-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase text-neutral-400 tracking-wider">
+                      Expediente Judicial Activo
+                    </span>
+                    <h2 className="text-xl font-serif font-bold text-neutral-950">
+                      {casoActivo.numProceso}
+                    </h2>
+                    <p className="text-xs text-neutral-600 mt-0.5">
+                      Cliente: <strong>{casoActivo.cliente}</strong> • {casoActivo.unidadJudicial}
+                    </p>
+                  </div>
+
+                  <span className="px-3 py-1 bg-neutral-100 rounded-lg text-xs font-mono text-neutral-800">
+                    Líder: {casoActivo.abogadoLider}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                    <span className="text-[10px] font-mono uppercase text-neutral-400 block">Etapa Procesal</span>
+                    <strong className="text-neutral-900 mt-0.5 block">{casoActivo.etapaProcesalActual}</strong>
+                  </div>
+                  <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
+                    <span className="text-[10px] font-mono uppercase text-neutral-400 block">Próxima Fecha Clave</span>
+                    <strong className="text-neutral-900 mt-0.5 block">{casoActivo.proximaFechaClave}</strong>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold flex items-center justify-between">
+                    <span>Actuaciones del Proceso ({casoActivo.actuaciones.length})</span>
+                    <span className="text-[10px] text-neutral-400">Actualizado en tiempo real</span>
+                  </h3>
+
+                  <div className="space-y-3">
+                    {casoActivo.actuaciones.map((act) => (
+                      <div key={act.id} className="p-4 rounded-xl border border-neutral-200 space-y-2 bg-neutral-50/50">
+                        <div className="flex justify-between text-xs">
+                          <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                            {act.titulo}
+                            {act.detectadoPorIA && (
+                              <span className="bg-neutral-950 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
+                                Agendado por IA
+                              </span>
+                            )}
+                          </span>
+                          <span className="font-mono text-[11px] text-neutral-400">{act.fecha}</span>
+                        </div>
+                        <p className="text-xs text-neutral-600 leading-relaxed bg-white p-2.5 rounded-lg border border-neutral-200">
+                          {act.resumenParaCliente}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {tabIntranet === 'citas' && (
+            <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center space-y-4">
+              <Calendar className="w-8 h-8 text-neutral-400 mx-auto" />
+              <h3 className="text-lg font-serif font-bold text-neutral-950">Agenda Forense y Audiencias</h3>
+              <p className="text-xs text-neutral-500 max-w-md mx-auto">
+                Próximas comparecencias en la Corte Provincial del Guayas y reuniones en Kennedy Office Center.
+              </p>
+              <div className="max-w-xl mx-auto space-y-2 text-left pt-4">
+                <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-xs flex justify-between items-center">
+                  <div>
+                    <span className="font-bold text-neutral-900 block">Audiencia de Juicio Ordinario</span>
+                    <span className="text-neutral-500">Causa: 17230-2024-00482 • Inmobiliaria del Valle</span>
+                  </div>
+                  <span className="font-mono text-neutral-800 bg-white px-2.5 py-1 rounded-md border border-neutral-200">
+                    18 Octubre • 10:30
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tabIntranet === 'honorarios' && (
+            <div className="bg-white rounded-2xl border border-neutral-200 p-8 text-center space-y-4">
+              <DollarSign className="w-8 h-8 text-neutral-400 mx-auto" />
+              <h3 className="text-lg font-serif font-bold text-neutral-950">Gestión de Honorarios y Contratos</h3>
+              <p className="text-xs text-neutral-500 max-w-md mx-auto">
+                Control de contratos de patrocinio profesional, cuotas de éxito y facturación electrónica.
+              </p>
+            </div>
+          )}
+
+        </div>
+      )}
+
+      {/* FOOTER COMPARTIDO */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
@@ -645,7 +1081,6 @@ export default function App() {
             <div className="space-y-4 md:col-span-1">
               <div className="flex flex-col items-start select-none py-1">
                 {vista === 'editorial' ? (
-                  /* LOGO DE EDITORIAL EN EL FOOTER SI ESTAMOS EN VISTA EDITORIAL */
                   <div className="flex flex-col items-start">
                     <div className="relative inline-block py-0.5">
                       <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
@@ -659,7 +1094,6 @@ export default function App() {
                     </span>
                   </div>
                 ) : (
-                  /* LOGO DE ESTUDIO JURÍDICO EN EL FOOTER EN PORTADA PRINCIPAL */
                   <img 
                     src="/logo-estudio.png" 
                     alt="ACTIO LEGIS Consultores Jurídicos" 
@@ -694,7 +1128,7 @@ export default function App() {
                 <li>
                   <button 
                     type="button"
-                    onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
+                    onClick={abrirPortalCliente}
                     className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
                   >
                     Portal Clientes
@@ -703,7 +1137,7 @@ export default function App() {
                 <li>
                   <button 
                     type="button"
-                    onClick={() => { setRolLogin('estudio'); setModalLogin(true); }}
+                    onClick={abrirIntranetAbogados}
                     className="hover:text-neutral-950 transition-colors text-left cursor-pointer font-medium text-neutral-900"
                   >
                     Intranet Abogados
