@@ -6,7 +6,7 @@ import {
   Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot
 } from 'lucide-react';
 
-// Paleta suave aprobada para el portal de clientes
+// Paleta aprobada para el portal de clientes
 const PALETA_TRAMITES = [
   {
     fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
@@ -150,7 +150,6 @@ export default function App() {
     setProcesandoIA(true);
 
     setTimeout(() => {
-      // Detección heurística de patrones jurídicos en Ecuador
       const texto = textoNotificacionIA;
       let tituloDetectado = 'Providencia Judicial Notificada';
       let resumenGenerado = 'Se agrega al expediente la providencia emitida por el juzgador para conocimiento de las partes.';
@@ -177,7 +176,6 @@ export default function App() {
         detectadoPorIA: true
       };
 
-      // Actualizar el expediente activo con la nueva providencia y fecha
       setExpedientes((prev) =>
         prev.map((exp) => {
           if (exp.id === casoActivo.id) {
@@ -201,11 +199,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER EDITORIAL (CON BOTONES DE PORTAL E INTRANET) */}
+      {/* 1. HEADER EDITORIAL */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           
-          {/* LOGOTIPO CON SLOGAN DESPEGADO DE LA PLACA */}
+          {/* LOGOTIPO OFICIAL */}
           <div 
             onClick={() => setVista('sitio-web')}
             className="flex items-center gap-3.5 cursor-pointer select-none group"
@@ -313,7 +311,7 @@ export default function App() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-neutral-950 tracking-tight leading-[1.15] font-normal max-w-3xl mx-auto">
-                Rigor técnico, litigio estratégico y defensa <span className="italic font-normal text-[#D4C7B5]">en servicio del derecho.</span>
+                Rigor técnico, litigio estratégico y defensa <span className="italic font-normal text-[#CBD5E1]">en servicio del derecho.</span>
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl mx-auto mt-6">
@@ -347,15 +345,15 @@ export default function App() {
             </div>
           </section>
 
-          {/* PROPÓSITO */}
+          {/* PROPÓSITO: FRANJA EN GRIS BERENJENA OSCURO Y ACENTOS EN PLATA */}
           <section id="proposito" className="py-20 md:py-28 border-b border-neutral-800 bg-[#281F26] text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
                 <div className="md:col-span-4 space-y-3">
-                  <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#D4C7B5] font-semibold">
+                  <span className="text-xs font-mono uppercase tracking-[0.2em] text-[#CBD5E1] font-semibold">
                     Filosofía de Litigio
                   </span>  
-                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-950 leading-tight">
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white leading-tight">
                     No ejercemos el derecho en masa. Asumimos causas con compromiso de fondo.
                   </h2>
                 </div>
@@ -397,7 +395,7 @@ export default function App() {
                     Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa ante la Fiscalía General del Estado y diseño de estrategias de prevención de responsabilidad penal empresarial.
                   </p>
                   <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
-                    contacto@actiolegisec.com • Guayaquil
+                    info@actiolegisec.com • Guayaquil
                   </div>
                 </div>
 
@@ -533,7 +531,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* CONTACTO: DIRECCIÓN EXACTA KENNEDY NORTE */}
+          {/* CONTACTO: DIRECCIÓN EXACTA Y TELÉFONO OFICIAL */}
           <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="bg-neutral-50 border border-neutral-200 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
@@ -554,7 +552,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => {
-                      alert('Para coordinar su cita en despacho, contáctenos al +593 (4) 6005080 o al correo info@actiolegisec.com');
+                      alert('Para coordinar su cita en despacho, contáctenos al +593 4 6005080 o al correo info@actiolegisec.com');
                     }}
                     className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
                   >
@@ -616,7 +614,7 @@ export default function App() {
                   </ul>
                 </div>
 
-                {/* Columna 3: Accesos */}
+                {/* Columna 3 */}
                 <div className="space-y-3">
                   <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                     Plataforma Privada
@@ -667,15 +665,15 @@ export default function App() {
                   <div className="space-y-2 text-neutral-500 text-xs font-light">
                     <div className="flex items-center gap-2">
                       <Phone className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                      <span className="font-medium text-neutral-800 font-mono">+593 (4) 259-8800</span>
+                      <span className="font-medium text-neutral-800 font-mono">+593 4 6005080</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Mail className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
                       <span>info@actiolegisec.com</span>
                     </div>
                     <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
-                      Lunes a Viernes: 08:45 – 18:30 <br />
-                      Urgencias en penales falgrantes: 24/7
+                      Lunes a Viernes: 08h45 – 18h00 <br />
+                      Urgencia en casos penales flagrantes: 24/7
                     </p>
                     <div className="pt-2 text-[10px] text-neutral-400 font-mono uppercase tracking-wider">
                       Kennedy Norte • Guayaquil, Ecuador
@@ -685,7 +683,7 @@ export default function App() {
 
               </div>
 
-             {/* Sub-pie */}
+              {/* Sub-pie */}
               <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
                 <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
                 <div className="flex items-center gap-4">
@@ -875,7 +873,7 @@ export default function App() {
                       <span className="font-bold text-neutral-900 font-serif text-sm flex items-center gap-1.5">
                         {act.titulo}
                         {act.detectadoPorIA && (
-                          <span className="bg-neutral-900 text-white text-[9px] px-1.5 py-0.5 rounded-md font-mono flex items-center gap-1">
+                          <span className="bg-neutral-950 text-white text-[9px] px-1.5 py-0.5 rounded-md font-mono flex items-center gap-1">
                             <Sparkles className="w-2.5 h-2.5" /> IA
                           </span>
                         )}
@@ -1015,7 +1013,6 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Resumen de causas en despacho */}
                 <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-3">
                   <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
                     Causas Patrocinadas ({expedientes.length})
@@ -1040,7 +1037,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Lado Derecho: Ficha del Expediente Activo */}
               <div className="lg:col-span-7 bg-white rounded-2xl border border-neutral-200 p-6 space-y-6">
                 <div className="border-b border-neutral-200 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -1071,7 +1067,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Actuaciones con etiqueta IA */}
                 <div className="space-y-3">
                   <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold flex items-center justify-between">
                     <span>Actuaciones del Proceso ({casoActivo.actuaciones.length})</span>
@@ -1141,9 +1136,7 @@ export default function App() {
         </div>
       )}
 
-      {/* =========================================================
-          MODAL DE LOGIN COMPARTIDO (CLIENTE O ABOGADO)
-         ========================================================= */}
+      {/* MODAL DE LOGIN */}
       {modalLogin && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
@@ -1172,7 +1165,6 @@ export default function App() {
               </p>
             </div>
 
-            {/* Alternar Rol */}
             <div className="flex bg-neutral-100 p-1 rounded-xl mb-5">
               <button
                 type="button"
