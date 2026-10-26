@@ -206,26 +206,27 @@ export default function App() {
           >
             <div className="flex flex-col items-start pb-0.5">
               {vista === 'editorial' ? (
-                /* LOGO DE LA EDITORIAL: Placa Sólida 3D Negra */
-                <div className="relative inline-block py-0.5">
-                  <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
-                  <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
-                    <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">ACTIO</span>
-                    <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
+                /* LOGO DE LA EDITORIAL: Placa Sólida 3D Negra con eslogan separado y espaciado */
+                <div className="flex flex-col items-start">
+                  <div className="relative inline-block py-0.5">
+                    <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+                    <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
+                      <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">ACTIO</span>
+                      <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
+                    </div>
                   </div>
+                  <span className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono mt-3 font-semibold">
+                    en servicio del derecho
+                  </span>
                 </div>
               ) : (
-                /* LOGO DEL ESTUDIO JURÍDICO */
+                /* LOGO DEL ESTUDIO JURÍDICO (Sin eslogan duplicado debajo) */
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
                   className="h-20 w-auto object-contain mix-blend-multiply hover:scale-105 transition-transform"
                 />
               )}
-
-              <span className="text-[7.5px] uppercase tracking-[0.28em] text-neutral-500 font-mono mt-1 font-semibold">
-                en servicio del derecho
-              </span>
             </div>
 
             <div className="hidden sm:flex flex-col border-l border-neutral-200 pl-3">
@@ -381,7 +382,7 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
+                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
                   </p>
                   <p>
                     Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados judiciales y tribunales arbitrales.
@@ -635,22 +636,36 @@ export default function App() {
         </main>
       )}
 
-      {/* FOOTER COMPARTIDO CON 4 COLUMNAS */}
+      {/* FOOTER COMPARTIDO CON LOGO SEGÚN LA VISTA */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            {/* Columna 1: Marca & Logo */}
+            {/* Columna 1: Marca & Logo Dinámico */}
             <div className="space-y-4 md:col-span-1">
               <div className="flex flex-col items-start select-none py-1">
-                <img 
-                  src="/logo-estudio.png" 
-                  alt="ACTIO LEGIS Consultores Jurídicos" 
-                  className="h-24 w-auto object-contain mix-blend-multiply"
-                />
-                <span className="text-[8.5px] uppercase tracking-[0.28em] font-medium font-sans text-neutral-500 mt-2">
-                  en servicio del derecho
-                </span>
+                {vista === 'editorial' ? (
+                  /* LOGO DE EDITORIAL EN EL FOOTER SI ESTAMOS EN VISTA EDITORIAL */
+                  <div className="flex flex-col items-start">
+                    <div className="relative inline-block py-0.5">
+                      <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+                      <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
+                        <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">ACTIO</span>
+                        <span className="font-black text-xs tracking-[0.2em] leading-tight font-sans">LEGIS</span>
+                      </div>
+                    </div>
+                    <span className="text-[8px] uppercase tracking-[0.3em] text-neutral-500 font-mono mt-3 font-semibold">
+                      en servicio del derecho
+                    </span>
+                  </div>
+                ) : (
+                  /* LOGO DE ESTUDIO JURÍDICO EN EL FOOTER EN PORTADA PRINCIPAL */
+                  <img 
+                    src="/logo-estudio.png" 
+                    alt="ACTIO LEGIS Consultores Jurídicos" 
+                    className="h-24 w-auto object-contain mix-blend-multiply"
+                  />
+                )}
               </div>
 
               <p className="text-neutral-500 text-xs leading-relaxed pt-1 font-light">
