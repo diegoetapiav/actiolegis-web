@@ -1,8 +1,8 @@
 import React from 'react';
 import { SesionUsuario } from '../services/storageService';
 import { 
-  FileText, DollarSign, Calendar, MessageSquare, 
-  ArrowLeft, LogOut, Shield, Users, Receipt, Briefcase 
+  Scale, Shield, User, LogOut, Calendar, MessageSquare, 
+  ExternalLink, ChevronRight, FileText, ArrowLeft, Building2
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -15,9 +15,8 @@ interface NavbarProps {
   onAbrirLoginConTab: (tab: 'estudio' | 'cliente') => void;
   onAbrirReservarCita: () => void;
   onCerrarSesion: () => void;
-  onAbrirSatje?: () => void;
+  onAbrirSatje: () => void;
   totalMensajesPendientes?: number;
-  paleta?: any;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -26,159 +25,116 @@ export const Navbar: React.FC<NavbarProps> = ({
   onCambiarTab,
   vistaActual,
   onCambiarVistaPrincipal,
+  onAbrirLoginConTab,
+  onAbrirReservarCita,
   onCerrarSesion,
+  onAbrirSatje,
   totalMensajesPendientes = 0,
 }) => {
-  // En la portada pública, la navegación la maneja la cabecera editorial de PaginaPrincipal
-  if (vistaActual === 'sitio-web') {
-    return null;
-  }
-
-  const esEstudio = vistaActual === 'intranet';
-
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 transition-all font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         
-        {/* Identidad de la Barra Interna */}
-        <div className="flex items-center gap-6">
-          <div 
-            onClick={() => onCambiarVistaPrincipal('sitio-web')}
-            className="cursor-pointer select-none flex items-center gap-2 group"
-          >
-            <div className="relative inline-block">
-              <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[2px] border-r-[2px] border-neutral-950" />
-              <div className="relative px-2 py-0.5 bg-neutral-950 text-white flex flex-col items-center">
-                <span className="font-black text-[9px] tracking-wider leading-none">ACTIO</span>
-                <span className="font-black text-[9px] tracking-wider leading-none">LEGIS</span>
-              </div>
+        {/* LOGO OFICIAL ACTIO LEGIS (TIPO PLACA EDITORIAL) */}
+        <div 
+          onClick={() => onCambiarVistaPrincipal('sitio-web')}
+          className="flex items-center gap-3 cursor-pointer select-none group"
+        >
+          <div className="relative inline-block py-1">
+            <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
+            <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center shadow-xs">
+              <span className="font-black text-xs tracking-[0.18em] leading-tight font-sans">ACTIO</span>
+              <span className="font-black text-xs tracking-[0.18em] leading-tight font-sans">LEGIS</span>
             </div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 group-hover:text-neutral-950 transition-colors hidden sm:inline">
-              {esEstudio ? 'Intranet Jurídica' : 'Portal de Clientes'}
-            </span>
           </div>
 
-          {/* Menú de pestañas según el perfil activo */}
-          <nav className="flex items-center gap-1 sm:gap-2">
-            {esEstudio ? (
-              <>
-                <button
-                  onClick={() => onCambiarTab('expedientes')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'expedientes' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <Briefcase className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Expedientes</span>
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('citas')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'citas' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Agenda & Citas</span>
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('honorarios')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'honorarios' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <DollarSign className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Honorarios</span>
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('mensajes')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer relative ${
-                    tabActiva === 'mensajes' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Consultas</span>
-                  {totalMensajesPendientes > 0 && (
-                    <span className="w-2 h-2 rounded-full bg-red-500 absolute top-1 right-1" />
-                  )}
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('clientes')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'clientes' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Clientes</span>
-                </button>
-              </>
-            ) : (
-              /* Menú del Portal de Clientes */
-              <>
-                <button
-                  onClick={() => onCambiarTab('cliente-casos')}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'cliente-casos' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Mis Causas</span>
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('cliente-citas')}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'cliente-citas' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>Agendar Cita</span>
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('cliente-honorarios')}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'cliente-honorarios' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <DollarSign className="w-3.5 h-3.5" />
-                  <span>Estado de Cuenta</span>
-                </button>
-
-                <button
-                  onClick={() => onCambiarTab('cliente-consultas')}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    tabActiva === 'cliente-consultas' ? 'bg-neutral-950 text-white' : 'text-neutral-600 hover:bg-neutral-100'
-                  }`}
-                >
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  <span>Consultar al Abogado</span>
-                </button>
-              </>
-            )}
-          </nav>
+          <div className="flex flex-col border-l border-neutral-200 pl-3">
+            <span className="font-serif text-sm font-bold tracking-tight text-neutral-950">
+              Estudio Jurídico & Litigio
+            </span>
+            <span className="text-[9.5px] uppercase tracking-[0.24em] text-neutral-400 font-mono">
+              Guayaquil • Ecuador
+            </span>
+          </div>
         </div>
 
-        {/* Salir y Regreso a la Portada */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => onCambiarVistaPrincipal('sitio-web')}
-            className="text-xs font-medium text-neutral-600 hover:text-neutral-950 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Sitio Web</span>
-          </button>
+        {/* NAVEGACIÓN EN SITIO WEB PÚBLICO */}
+        {vistaActual === 'sitio-web' && (
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
+            <a href="#proposito" className="hover:text-neutral-950 transition-colors">
+              Propósito
+            </a>
+            <a href="#socios" className="hover:text-neutral-950 transition-colors">
+              Socios
+            </a>
+            <a href="#practica" className="hover:text-neutral-950 transition-colors">
+              Práctica Penal
+            </a>
+            <a href="#editorial" className="hover:text-neutral-950 transition-colors">
+              Editorial
+            </a>
+            <a href="#contacto" className="hover:text-neutral-950 transition-colors">
+              Contacto
+            </a>
+          </nav>
+        )}
 
-          <button
-            onClick={onCerrarSesion}
-            className="text-xs font-semibold text-neutral-900 bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5 text-neutral-500" />
-            <span>Salir</span>
-          </button>
+        {/* BOTONES DE ACCIÓN DERECHA */}
+        <div className="flex items-center gap-3">
+          {vistaActual === 'sitio-web' ? (
+            <>
+              {/* Acceso Clientes */}
+              <button
+                type="button"
+                onClick={() => onAbrirLoginConTab('cliente')}
+                className="hidden sm:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-700 bg-neutral-100/90 hover:bg-neutral-200/90 transition-all cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5 text-neutral-500" />
+                <span>Portal Clientes</span>
+              </button>
+
+              {/* Acceso Intranet Abogados */}
+              <button
+                type="button"
+                onClick={() => onAbrirLoginConTab('estudio')}
+                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Intranet Litigantes</span>
+              </button>
+
+              {/* Botón Principal Agendar Consulta */}
+              <button
+                type="button"
+                onClick={onAbrirReservarCita}
+                className="px-4 sm:px-5 py-2.5 rounded-xl bg-neutral-950 hover:bg-black text-white text-xs font-semibold tracking-wide shadow-xs flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <Calendar className="w-3.5 h-3.5 text-neutral-300" />
+                <span>Agendar Consulta</span>
+              </button>
+            </>
+          ) : (
+            /* BOTONES CUANDO ESTÁ DENTRO DEL PORTAL O INTRANET */
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => onCambiarVistaPrincipal('sitio-web')}
+                className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" />
+                <span className="hidden sm:inline">Volver al Sitio Web</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onCerrarSesion}
+                className="p-2 sm:px-3.5 sm:py-2 bg-neutral-950 hover:bg-black text-white text-xs font-medium rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <LogOut className="w-3.5 h-3.5 text-neutral-300" />
+                <span className="hidden sm:inline">Salir</span>
+              </button>
+            </div>
+          )}
         </div>
 
       </div>
