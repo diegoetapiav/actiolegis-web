@@ -195,7 +195,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER COMPARTIDO (Fondo Blanco Puro y mezcla transparente en Logo) */}
+      {/* 1. HEADER COMPARTIDO */}
       <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-between">
           
@@ -215,7 +215,7 @@ export default function App() {
                   </div>
                 </div>
               ) : (
-                /* LOGO DEL ESTUDIO JURÍDICO (Sin marco recortado) */
+                /* LOGO DEL ESTUDIO JURÍDICO */
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
@@ -381,7 +381,7 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
+                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
                   </p>
                   <p>
                     Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados judiciales y tribunales arbitrales.
@@ -635,14 +635,14 @@ export default function App() {
         </main>
       )}
 
-      {/* FOOTER COMPARTIDO (Logo del Estudio con fusión limpia) */}
+      {/* FOOTER COMPARTIDO CON 4 COLUMNAS */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
+            {/* Columna 1: Marca & Logo */}
             <div className="space-y-4 md:col-span-1">
               <div className="flex flex-col items-start select-none py-1">
-                {/* LOGO DEL ESTUDIO EN EL FOOTER (Sin marco recortado) */}
                 <img 
                   src="/logo-estudio.png" 
                   alt="ACTIO LEGIS Consultores Jurídicos" 
@@ -658,6 +658,57 @@ export default function App() {
               </p>
             </div>
 
+            {/* Columna 2: Nuestra página */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
+                Nuestra página
+              </h4>
+              <ul className="space-y-2 text-neutral-500 font-light">
+                <li><a href="#proposito" onClick={() => setVista('sitio-web')} className="hover:text-neutral-950 transition-colors">Propósito & Manifiesto</a></li>
+                <li><a href="#socios" onClick={() => setVista('sitio-web')} className="hover:text-neutral-950 transition-colors">Quiénes somos</a></li>
+                <li><button type="button" onClick={() => setVista('editorial')} className="hover:text-neutral-950 transition-colors text-left">Editorial Jurídica ACTIO LEGIS</button></li>
+              </ul>
+            </div>
+
+            {/* Columna 3: Enlaces de interés */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
+                Enlaces de interés
+              </h4>
+              <ul className="space-y-2 text-neutral-500 font-light">
+                <li>
+                  <button 
+                    type="button"
+                    onClick={() => { setRolLogin('cliente'); setModalLogin(true); }}
+                    className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
+                  >
+                    Portal Clientes
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    type="button"
+                    onClick={() => { setRolLogin('estudio'); setModalLogin(true); }}
+                    className="hover:text-neutral-950 transition-colors text-left cursor-pointer font-medium text-neutral-900"
+                  >
+                    Intranet Abogados
+                  </button>
+                </li>
+                <li>
+                  <a 
+                    href="https://procesosjudiciales.funcionjudicial.gob.ec/busqueda" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-neutral-950 transition-colors flex items-center gap-1.5"
+                  >
+                    <span>Función Judicial SATJE</span>
+                    <ExternalLink className="w-3 h-3 text-neutral-400" />
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Columna 4: Sede Guayaquil */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Sede Guayaquil
@@ -674,13 +725,28 @@ export default function App() {
                 <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
                   Kennedy Norte, Alfonso Ortiz y José Castillo. Edificio Kennedy Office Center, piso 3, oficina 2.
                 </p>
+                <p className="text-[11px] text-neutral-400 pt-0.5 leading-relaxed">
+                  Lunes a Viernes: 08h45 – 18h00 <br />
+                  Urgencia en casos penales flagrantes: 24/7
+                </p>
               </div>
             </div>
 
           </div>
 
+          {/* Sub-pie */}
           <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
             <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
+            <div className="flex items-center gap-4">
+              <button 
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <span>Subir al inicio</span>
+                <ArrowUp className="w-3 h-3" />
+              </button>
+            </div>
           </div>
         </div>
       </footer>
