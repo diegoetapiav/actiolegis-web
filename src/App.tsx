@@ -25,7 +25,6 @@ import {
   TipoActuacion, UsuarioEstudio, EventoCalendarioInterno 
 } from './types/legal';
 import { USUARIOS_ESTUDIO } from './data/mockLegalData';
-import { ActioLegisLogo } from './components/Brand/ActioLegisLogo';
 import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
 import { ReservarCitaModal } from './components/SitioWeb/ReservarCitaModal';
 import { 
@@ -461,9 +460,24 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
               
               <div className="space-y-4 md:col-span-1">
-                <ActioLegisLogo variant="black" showSlogan={true} size="sm" />
-                <p className="text-neutral-500 text-xs leading-relaxed pt-2">
-                  Firma jurídica boutique en Guayaquil[cite: 12]. Litigio penal estratégico, rigor procesal y defensa en servicio del derecho[cite: 12, 14].
+                {/* LOGO DEFINITIVO EN PIE DE PÁGINA */}
+                <div className="relative inline-block select-none py-1">
+                  <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
+                  <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center">
+                    <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
+                      ACTIO
+                    </span>
+                    <span className="font-black text-sm tracking-[0.12em] leading-tight font-sans">
+                      LEGIS
+                    </span>
+                  </div>
+                </div>
+                <div className="text-[8.5px] uppercase tracking-[0.25em] font-medium font-sans text-neutral-500">
+                  en servicio del derecho
+                </div>
+
+                <p className="text-neutral-500 text-xs leading-relaxed pt-1">
+                  Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa en servicio del derecho.
                 </p>
                 <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
                   <MapPin className="w-3.5 h-3.5 text-neutral-950" />
@@ -478,22 +492,22 @@ export default function App() {
                 <ul className="space-y-2 text-neutral-500">
                   <li>
                     <a href="#proposito" className="hover:text-neutral-950 transition-colors">
-                      Propósito & Manifiesto[cite: 13]
+                      Propósito & Manifiesto
                     </a>
                   </li>
                   <li>
                     <a href="#socios" className="hover:text-neutral-950 transition-colors">
-                      Socios: Diego Tapia & Marcela Dunn[cite: 11, 12]
+                      Socios: Diego Tapia & Marcela Dunn
                     </a>
                   </li>
                   <li>
                     <a href="#practica" className="hover:text-neutral-950 transition-colors">
-                      Defensa Penal & Prácticas[cite: 12]
+                      Defensa Penal & Prácticas
                     </a>
                   </li>
                   <li>
                     <a href="#editorial" className="hover:text-neutral-950 transition-colors">
-                      Editorial Jurídico Actio Legis[cite: 14]
+                      Editorial Jurídico Actio Legis
                     </a>
                   </li>
                 </ul>
