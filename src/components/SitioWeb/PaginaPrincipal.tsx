@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ArrowUpRight, Shield, Scale, BookOpen, ChevronRight, 
-  FileText 
+  FileText, Lock
 } from 'lucide-react';
 
 interface PaginaPrincipalProps {
@@ -15,6 +15,7 @@ interface PaginaPrincipalProps {
 
 export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
   onAbrirReservarCita,
+  onAbrirLoginClientes,
   onAbrirLoginIntranet,
 }) => {
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<number | null>(null);
@@ -62,6 +63,71 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
     <div className="bg-[#FAF9F6] text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
 
       {/* =========================================================
+          BARRA DE NAVEGACIÓN ÚNICA CON SLOGAN OFICIAL
+         ========================================================= */}
+      <header className="sticky top-0 z-50 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-neutral-200/80">
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          
+          {/* Logo Oficial con relieve y Slogan */}
+          <div 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="cursor-pointer select-none flex flex-col"
+          >
+            <div className="relative inline-block w-fit">
+              <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
+              <div className="relative px-3.5 py-1.5 bg-neutral-950 text-white flex flex-col items-center justify-center">
+                <span className="font-black text-xs tracking-[0.12em] leading-tight font-sans">
+                  ACTIO
+                </span>
+                <span className="font-black text-xs tracking-[0.12em] leading-tight font-sans">
+                  LEGIS
+                </span>
+              </div>
+            </div>
+            <span className="text-[7.5px] uppercase tracking-[0.24em] font-semibold text-neutral-600 mt-1">
+              en servicio del derecho
+            </span>
+          </div>
+
+          {/* Menú de Navegación Editorial */}
+          <nav className="hidden md:flex items-center gap-8 text-[12px] font-medium tracking-wider uppercase text-neutral-600">
+            <a href="#proposito" className="hover:text-neutral-950 transition-colors">Propósito</a>
+            <a href="#socios" className="hover:text-neutral-950 transition-colors">Socios</a>
+            <a href="#practica" className="hover:text-neutral-950 transition-colors">Áreas</a>
+            <a href="#editorial" className="hover:text-neutral-950 transition-colors">Editorial</a>
+            <a href="#contacto" className="hover:text-neutral-950 transition-colors">Contacto</a>
+          </nav>
+
+          {/* Botones de Acción */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onAbrirLoginClientes}
+              className="text-[12px] font-semibold text-neutral-700 hover:text-neutral-950 transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Lock className="w-3.5 h-3.5 text-neutral-400" />
+              <span className="hidden sm:inline">Portal Clientes</span>
+            </button>
+
+            <button
+              onClick={onAbrirLoginIntranet}
+              className="text-[12px] font-semibold text-neutral-700 hover:text-neutral-950 transition-colors hidden sm:flex items-center gap-1.5 cursor-pointer"
+            >
+              <Shield className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Intranet</span>
+            </button>
+
+            <button
+              onClick={onAbrirReservarCita}
+              className="text-[12px] font-medium px-4 py-2 bg-neutral-950 hover:bg-neutral-800 text-white rounded-full transition-all shadow-sm cursor-pointer"
+            >
+              Consultar Causa
+            </button>
+          </div>
+
+        </div>
+      </header>
+
+      {/* =========================================================
           HERO SECTION EDITORIAL & MINIMALISTA
          ========================================================= */}
       <section className="pt-16 pb-24 md:pt-24 md:pb-32 border-b border-neutral-200/70 bg-gradient-to-b from-white to-[#FAF9F6]">
@@ -77,7 +143,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           </h1>
 
           <p className="text-lg md:text-xl text-neutral-600 font-light max-w-2xl mx-auto leading-relaxed mb-12">
-            Dirigido por Diego Tapia y Marcela Dunn[cite: 11, 12]. Construimos una defensa de alto estándar que fusiona la profundidad dogmática con la protección sensible de la dignidad humana[cite: 13].
+            Dirigido por Diego Tapia y Marcela Dunn[cite: 6]. Construimos una defensa de alto estándar que fusiona la profundidad dogmática con la protección sensible de la dignidad humana[cite: 7].
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -109,7 +175,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             </div>
             <div>
               <div className="text-xs uppercase font-mono tracking-wider text-neutral-400">Compromiso</div>
-              <div className="text-sm font-medium text-neutral-900 mt-1">En Servicio del Derecho[cite: 14]</div>
+              <div className="text-sm font-medium text-neutral-900 mt-1">En Servicio del Derecho[cite: 8, 17]</div>
             </div>
             <div>
               <div className="text-xs uppercase font-mono tracking-wider text-neutral-400">Transparencia</div>
@@ -129,7 +195,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           </div>
           
           <h2 className="text-2xl sm:text-4xl font-serif text-neutral-950 leading-snug mb-8">
-            «Actio Legis es nuestra huella en el sistema jurídico: defender los derechos fundamentales desde la más rigurosa técnica legal.»[cite: 13]
+            «Actio Legis es nuestra huella en el sistema jurídico: defender los derechos fundamentales desde la más rigurosa técnica legal.»[cite: 7]
           </h2>
 
           <div className="grid md:grid-cols-2 gap-10 text-neutral-600 text-sm leading-relaxed">
@@ -137,7 +203,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               Rechazamos la abogacía masificada y el sensacionalismo procesal. Nos concentramos en un número selecto de casos donde la libertad, el honor o el patrimonio de nuestros patrocinados exigen una estrategia construida a la medida, con fundamentación dogmática intachable ante los tribunales.
             </p>
             <p>
-              Creemos firmemente que la credibilidad de una firma se fundamenta en su capacidad de generar pensamiento jurídico propio[cite: 13, 14]. Por ello, transformamos nuestra experiencia en audiencia en doctrina accesible a través de nuestro editorial independiente[cite: 14].
+              Creemos firmemente que la credibilidad de una firma se fundamenta en su capacidad de generar pensamiento jurídico propio[cite: 7, 8]. Por ello, transformamos nuestra experiencia en audiencia en doctrina accesible a través de nuestro editorial independiente[cite: 8].
             </p>
           </div>
         </div>
@@ -156,7 +222,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               Liderazgo & Visión Jurídica
             </h2>
             <p className="text-sm text-neutral-500 mt-2">
-              El balance entre la precisión dogmática y la comprensión sensible de la causa humana[cite: 13].
+              El balance entre la precisión dogmática y la comprensión sensible de la causa humana[cite: 7].
             </p>
           </div>
 
@@ -174,7 +240,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                   Diego Tapia, Ab.
                 </h3>
                 <p className="text-sm text-neutral-600 leading-relaxed mb-6">
-                  Especializado en litigio penal económico, dogmática procesal y recursos de casación. Su enfoque combina la filosofía del derecho con una meticulosa construcción de la teoría del caso en audiencias complejas[cite: 13].
+                  Especializado en litigio penal económico, dogmática procesal y recursos de casación. Su enfoque combina la filosofía del derecho con una meticulosa construcción de la teoría del caso en audiencias complejas[cite: 7].
                 </p>
               </div>
 
@@ -197,7 +263,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                   Marcela Dunn, Ab.
                 </h3>
                 <p className="text-sm text-neutral-600 leading-relaxed mb-6">
-                  Dedicada a la protección de garantías fundamentales, defensa de personas vulnerables y tutela constitucional[cite: 13]. Su práctica aporta una visión empática, centrada en la dignidad del cliente y el impacto social de la resolución[cite: 13].
+                  Dedicada a la protección de garantías fundamentales, defensa de personas vulnerables y tutela constitucional[cite: 7]. Su práctica aporta una visión empática, centrada en la dignidad del cliente y el impacto social de la resolución[cite: 7].
                 </p>
               </div>
 
@@ -231,7 +297,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 Derecho Penal & Compliance
               </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Patrocinio activo en investigaciones previas, audiencias de juicio y apelaciones en delitos patrimoniales, contra la administración pública y libertades individuales[cite: 12].
+                Patrocinio activo en investigaciones previas, audiencias de juicio y apelaciones en delitos patrimoniales, contra la administración pública y libertades individuales[cite: 6].
               </p>
             </div>
 
@@ -272,7 +338,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 Editorial Jurídico Actio Legis
               </h2>
               <p className="text-sm text-neutral-500 mt-1">
-                Doctrina, análisis crítico de fallos y divulgación en servicio de los Derechos Humanos[cite: 14].
+                Doctrina, análisis crítico de fallos y divulgación en servicio de los Derechos Humanos[cite: 8].
               </p>
             </div>
             
@@ -345,4 +411,35 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
             <button
               onClick={onAbrirReservarCita}
-              className="w-full sm
+              className="w-full sm:w-auto px-8 py-4 bg-white text-neutral-950 font-semibold text-sm rounded-full hover:bg-neutral-100 transition-all cursor-pointer"
+            >
+              Solicitar Reunión en Despacho
+            </button>
+            <button
+              onClick={onAbrirLoginIntranet}
+              className="w-full sm:w-auto px-6 py-4 bg-transparent text-neutral-400 hover:text-white text-xs font-mono tracking-wider uppercase transition-colors cursor-pointer"
+            >
+              Acceso Intranet Abogados
+            </button>
+          </div>
+
+          <div className="pt-12 border-t border-neutral-800 grid sm:grid-cols-3 gap-6 text-left text-xs text-neutral-400">
+            <div>
+              <div className="text-white font-medium mb-1">Oficinas Principales</div>
+              <p>Puerto Santa Ana & Av. Malecón Simón Bolívar, Guayaquil, Ecuador.</p>
+            </div>
+            <div>
+              <div className="text-white font-medium mb-1">Contacto Telefónico</div>
+              <p>+593 (4) 259-8800 • Atención a urgencias procesales 24/7</p>
+            </div>
+            <div>
+              <div className="text-white font-medium mb-1">Despacho Digital</div>
+              <p>contacto@actiolegisec.com • Sincronización SATJE en tiempo real</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  );
+};
