@@ -1,7 +1,8 @@
-Fimport React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { LoginModal } from './components/LoginModal';
-import { SatjeBuscadorModal } from './components/EstudioJuridico/SatjeBuscadorModal';import { ModuloExpedientes } from "./components/ModuloExpedientes";
+import { SatjeBuscadorModal } from './components/EstudioJuridico/SatjeBuscadorModal';
+import { ModuloExpedientes } from './components/ModuloExpedientes';
 import { HonorariosManager } from './components/EstudioJuridico/HonorariosManager';
 import { CitasManager } from './components/EstudioJuridico/CitasManager';
 import { MensajesManager } from './components/EstudioJuridico/MensajesManager';
@@ -24,18 +25,16 @@ import {
   TipoActuacion, UsuarioEstudio, EventoCalendarioInterno 
 } from './types/legal';
 import { USUARIOS_ESTUDIO } from './data/mockLegalData';
-import { Calculator, RotateCcw, ShieldCheck, Scale, ExternalLink, Calendar, MapPin, Phone, Mail, Globe, ArrowUp } from 'lucide-react';
 import { ActioLegisLogo } from './components/Brand/ActioLegisLogo';
 import { PaginaPrincipal } from './components/SitioWeb/PaginaPrincipal';
 import { ReservarCitaModal } from './components/SitioWeb/ReservarCitaModal';
-import { SelectorPaletaRevista } from './components/SitioWeb/SelectorPaletaRevista';
-import { PaletaRevista, PALETAS_REVISTA } from './types/paletasRevista';
+import { 
+  ExternalLink, MapPin, Phone, Mail, Globe, ArrowUp 
+} from 'lucide-react';
 
 export default function App() {
-  // Estado de Usuarios del Despacho
   const [usuarios, setUsuarios] = useState<UsuarioEstudio[]>(() => StorageService.getUsuarios());
 
-  // Estado de Sesión (por defecto inicia con el Dr. Diego Tapia, Socio Director de ACTIO LEGIS)
   const [sesion, setSesion] = useState<SesionUsuario>(() => {
     const guardada = StorageService.getSesion();
     if (guardada) return guardada;
@@ -49,7 +48,6 @@ export default function App() {
     };
   });
 
-  // Datos principales
   const [expedientes, setExpedientes] = useState<Expediente[]>(() => StorageService.getExpedientes());
   const [clientes, setClientes] = useState<Cliente[]>(() => StorageService.getClientes());
   const [mensajes, setMensajes] = useState<MensajeConsulta[]>(() => StorageService.getMensajes());
@@ -60,39 +58,9 @@ export default function App() {
   const [escritos, setEscritos] = useState<EscritoFirmaDigital[]>(() => StorageService.getEscritos());
   const [eventosInternos, setEventosInternos] = useState<EventoCalendarioInterno[]>(() => StorageService.getEventosInternos());
 
-  // Vista Principal: Inicia en el Sitio Web Público de ACTIO LEGIS, con acceso a Intranet y Portal Clientes
   const [vistaPrincipal, setVistaPrincipal] = useState<'sitio-web' | 'intranet' | 'cliente'>('sitio-web');
-
-  // Paleta Cromática de Revista Web Activa (para jugar con las combinaciones que combinan con el logo B&N)
-  const [paletaActiva, setPaletaActiva] = useState<PaletaRevista>(() => {
-    try {
-      const guardada = localStorage.getItem('actio_legis_paleta_guardada');
-      if (guardada) {
-        return JSON.parse(guardada);
-      }
-    } catch {
-      // Ignorar error de parsing
-    }
-    return PALETAS_REVISTA[0];
-  });
-
-  // Sincronizar variables CSS cuando cambia la paleta activa
-  useEffect(() => {
-    if (paletaActiva) {
-      document.documentElement.style.setProperty('--paleta-primario', paletaActiva.hexPrimario);
-      document.documentElement.style.setProperty('--paleta-acento', paletaActiva.hexAcento);
-      document.documentElement.style.setProperty('--paleta-fondo', paletaActiva.hexFondo);
-      document.documentElement.style.setProperty('--paleta-oscuro', paletaActiva.hexOscuro);
-    }
-  }, [paletaActiva]);
-
-  // Accesibilidad y confort visual para jóvenes adultos y adultos mayores (escala tipográfica)
-  const [tamanoTexto, setTamanoTexto] = useState<'normal' | 'grande'>('normal');
-
-  // Navegación interna (para cuando se está en la intranet o portal de cliente)
   const [tabActiva, setTabActiva] = useState<string>('expedientes');
 
-  // Modales
   const [modalLoginAbierto, setModalLoginAbierto] = useState(false);
   const [loginTabInicial, setLoginTabInicial] = useState<'estudio' | 'cliente'>('cliente');
   const [modalReservarCitaAbierto, setModalReservarCitaAbierto] = useState(false);
@@ -100,7 +68,6 @@ export default function App() {
   const [modalNuevoExpedienteAbierto, setModalNuevoExpedienteAbierto] = useState(false);
   const [modalCalculadoraAbierto, setModalCalculadoraAbierto] = useState(false);
 
-  // Usuario activo en el despacho
   const usuarioActivoEstudio: UsuarioEstudio =
     usuarios.find(
       (u) =>
@@ -108,7 +75,6 @@ export default function App() {
         u.email.toLowerCase() === sesion.emailOIdentificacion.toLowerCase()
     ) || usuarios[0];
 
-  // Sincronizar tab al cambiar de tipo de sesión o rol
   useEffect(() => {
     if (sesion.tipo === 'estudio') {
       if (tabActiva.startsWith('cliente-')) {
@@ -124,7 +90,6 @@ export default function App() {
     StorageService.saveSesion(sesion);
   }, [sesion, usuarioActivoEstudio.rol]);
 
-  // Handlers para Usuarios del Estudio (Administrado por Socios)
   const handleAgregarUsuario = (nuevo: UsuarioEstudio) => {
     const actualizados = StorageService.agregarUsuario(nuevo);
     setUsuarios(actualizados);
@@ -155,7 +120,6 @@ export default function App() {
     }
   };
 
-  // Handlers para Calendario Interno de Audiencias
   const handleAgregarEventoInterno = (evento: EventoCalendarioInterno) => {
     const actualizados = StorageService.agregarEventoInterno(evento);
     setEventosInternos(actualizados);
@@ -166,7 +130,6 @@ export default function App() {
     setEventosInternos(actualizados);
   };
 
-  // Handlers para Expedientes
   const handleGuardarNuevoExpediente = (nuevo: Expediente) => {
     const actualizados = StorageService.agregarExpediente(nuevo);
     setExpedientes(actualizados);
@@ -177,7 +140,6 @@ export default function App() {
     setExpedientes(lista);
   };
 
-  // Handlers SATJE
   const handleImportarCausaSatje = (nuevoExp: Expediente) => {
     const actualizados = StorageService.agregarExpediente(nuevoExp);
     setExpedientes(actualizados);
@@ -215,13 +177,11 @@ export default function App() {
     handleActualizarExpediente(expActualizado);
   };
 
-  // Handlers para Clientes
   const handleAgregarCliente = (nuevo: Cliente) => {
     const actualizados = StorageService.agregarCliente(nuevo);
     setClientes(actualizados);
   };
 
-  // Handlers para Cuotas Programadas de la Diferencia
   const handleAgregarCuotaProgramada = (cuota: CuotaProgramada) => {
     const actualizados = StorageService.agregarCuotaProgramada(cuota);
     setCuotasProgramadas(actualizados);
@@ -232,7 +192,6 @@ export default function App() {
     setCuotasProgramadas(actualizados);
   };
 
-  // Handlers para Gastos Procesales
   const handleAgregarGasto = (gasto: GastoCliente) => {
     const actualizados = StorageService.agregarGasto(gasto);
     setGastos(actualizados);
@@ -243,7 +202,6 @@ export default function App() {
     setGastos(actualizados);
   };
 
-  // Handlers para Escritos y Firma Digital
   const handleAgregarEscrito = (escrito: EscritoFirmaDigital) => {
     const actualizados = StorageService.agregarEscrito(escrito);
     setEscritos(actualizados);
@@ -254,7 +212,6 @@ export default function App() {
     setEscritos(actualizados);
   };
 
-  // Handlers para Mensajes
   const handleEnviarMensajeCliente = (msg: MensajeConsulta) => {
     const actualizados = StorageService.agregarMensaje(msg);
     setMensajes(actualizados);
@@ -265,7 +222,6 @@ export default function App() {
     setMensajes(actualizados);
   };
 
-  // Handlers para Citas
   const handleAgregarCita = (cita: CitaLegal) => {
     const actualizados = StorageService.agregarCita(cita);
     setCitas(actualizados);
@@ -276,7 +232,6 @@ export default function App() {
     setCitas(actualizados);
   };
 
-  // Handlers para Honorarios
   const handleAgregarHonorario = (pago: PagoHonorario) => {
     const actualizados = StorageService.agregarHonorario(pago);
     setHonorarios(actualizados);
@@ -290,7 +245,6 @@ export default function App() {
     setHonorarios(actualizados);
   };
 
-  // Sesión y Auth
   const handleLogin = (nuevaSesion: SesionUsuario) => {
     setSesion(nuevaSesion);
     setVistaPrincipal(nuevaSesion.tipo === 'estudio' ? 'intranet' : 'cliente');
@@ -306,22 +260,6 @@ export default function App() {
     setModalLoginAbierto(true);
   };
 
-  const handleReiniciarDatos = () => {
-    if (confirm('¿Desea restaurar los datos iniciales originales de ACTIO LEGIS?')) {
-      StorageService.reiniciarDatos();
-      setExpedientes(StorageService.getExpedientes());
-      setClientes(StorageService.getClientes());
-      setMensajes(StorageService.getMensajes());
-      setCitas(StorageService.getCitas());
-      setHonorarios(StorageService.getHonorarios());
-      setCuotasProgramadas(StorageService.getCuotasProgramadas());
-      setGastos(StorageService.getGastos());
-      setEscritos(StorageService.getEscritos());
-      setUsuarios(StorageService.getUsuarios());
-      setEventosInternos(StorageService.getEventosInternos());
-    }
-  };
-
   const clienteActivo =
     sesion.tipo === 'cliente'
       ? clientes.find((c) => c.id === sesion.clienteId || c.codigoAcceso === sesion.codigoAcceso) || clientes[0]
@@ -330,11 +268,9 @@ export default function App() {
   const totalMensajesPendientes = mensajes.filter((m) => m.estado === 'Pendiente').length;
 
   return (
-    <div 
-      className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans"
-  
-    >
-      {/* Barra de Navegación Principal Institucional ACTIO LEGIS */}
+    <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-neutral-900 font-sans antialiased">
+      
+      {/* Barra de Navegación Editorial */}
       <Navbar
         sesion={sesion}
         tabActiva={tabActiva}
@@ -347,33 +283,27 @@ export default function App() {
         onCerrarSesion={handleCerrarSesion}
         onAbrirSatje={() => setModalSatjeAbierto(true)}
         totalMensajesPendientes={totalMensajesPendientes}
-        paleta={paletaActiva}
       />
 
-      {/* Contenido Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      {/* Contenedor Principal */}
+      <main className="flex-1 w-full">
         {vistaPrincipal === 'sitio-web' ? (
-          // ==================== PÁGINA WEB PÚBLICA PRINCIPAL ACTIO LEGIS ====================
           <PaginaPrincipal
             onAbrirReservarCita={() => setModalReservarCitaAbierto(true)}
             onAbrirLoginClientes={() => handleAbrirLoginConTab('cliente')}
             onAbrirLoginIntranet={() => handleAbrirLoginConTab('estudio')}
             onAbrirCalculadoraLegal={() => setModalCalculadoraAbierto(true)}
-            paleta={paletaActiva}
-            tamanoTexto={tamanoTexto}
           />
         ) : (
-          // ==================== INTRANET / PORTAL PRIVADO ====================
-          <>
-            {/* Barra de contexto interna con botón de regreso al sitio web */}
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-sm">
               <div className="flex items-center gap-3">
-                <span className={`w-3 h-3 rounded-full ${vistaPrincipal === 'intranet' ? 'bg-amber-400' : 'bg-blue-500'}`} />
+                <span className={`w-3 h-3 rounded-full ${vistaPrincipal === 'intranet' ? 'bg-neutral-950' : 'bg-neutral-400'}`} />
                 <div>
-                  <h2 className="font-bold text-slate-900 text-sm">
+                  <h2 className="font-bold text-neutral-900 text-sm">
                     {vistaPrincipal === 'intranet' ? 'Intranet del Despacho • ACTIO LEGIS' : 'Portal de Clientes • Causas & Consultas'}
                   </h2>
-                  <p className="text-xs text-slate-500 font-mono">
+                  <p className="text-xs text-neutral-500 font-mono">
                     {sesion.nombre} • {sesion.rol || 'Cliente Registrado'}
                   </p>
                 </div>
@@ -382,14 +312,14 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setVistaPrincipal('sitio-web')}
-                  className="px-3.5 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                  className="px-3.5 py-2 bg-neutral-950 hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                 >
-                  <Globe className="w-3.5 h-3.5 text-amber-400" />
+                  <Globe className="w-3.5 h-3.5 text-neutral-300" />
                   <span>Volver al Sitio Web Principal</span>
                 </button>
                 <button
                   onClick={() => handleAbrirLoginConTab(vistaPrincipal === 'intranet' ? 'cliente' : 'estudio')}
-                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition-all cursor-pointer"
+                  className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold rounded-xl transition-all cursor-pointer"
                 >
                   Cambiar Rol
                 </button>
@@ -397,11 +327,10 @@ export default function App() {
             </div>
 
             {sesion.tipo === 'estudio' ? (
-              // ==================== VISTAS INTERNAS ESTUDIO JURÍDICO ====================
               <>
                 {tabActiva === 'expedientes' && (
-  <ModuloExpedientes />
-)}
+                  <ModuloExpedientes />
+                )}
 
                 {tabActiva === 'casillero' && (
                   <CasilleroEscritosManager
@@ -481,7 +410,6 @@ export default function App() {
                 )}
               </>
             ) : (
-              // ==================== VISTAS PORTAL PRIVADO CLIENTE ====================
               clienteActivo && (
                 <>
                   {tabActiva === 'cliente-casos' && (
@@ -522,143 +450,174 @@ export default function App() {
                 </>
               )
             )}
-          </>
+          </div>
         )}
       </main>
 
-{/* =========================================================
-          PIE DE PÁGINA EDITORIAL & MINIMALISTA • ACTIO LEGIS
-         ========================================================= */}
-      <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-            
-            {/* Columna 1: Logotipo Oficial y Posicionamiento */}
-            <div className="space-y-4 md:col-span-1">
-              <ActioLegisLogo variant="black" showSlogan={true} size="sm" />
+      {/* Pie de Página Minimalista Blanco/Marfil */}
+      {vistaPrincipal === 'sitio-web' && (
+        <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
               
-              <p className="text-neutral-500 text-xs leading-relaxed pt-2">
-                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa en servicio del derecho.
-              </p>
-
-              <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
-                <MapPin className="w-3.5 h-3.5 text-neutral-950" />
-                <span>Puerto Santa Ana & Malecón, Guayaquil</span>
-              </div>
-            </div>
-
-            {/* Columna 2: Navegación Editorial */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
-                Línea Institucional
-              </h4>
-              <ul className="space-y-2 text-neutral-500">
-                <li>
-                  <a href="#proposito" className="hover:text-neutral-950 transition-colors">
-                    Propósito & Manifiesto
-                  </a>
-                </li>
-                <li>
-                  <a href="#socios" className="hover:text-neutral-950 transition-colors">
-                    Socios: Diego Tapia & Marcela Dunn
-                  </a>
-                </li>
-                <li>
-                  <a href="#practica" className="hover:text-neutral-950 transition-colors">
-                    Defensa Penal & Prácticas
-                  </a>
-                </li>
-                <li>
-                  <a href="#editorial" className="hover:text-neutral-950 transition-colors">
-                    Editorial Jurídico Actio Legis
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Columna 3: Servicios & Plataforma Privada */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
-                Plataforma Privada
-              </h4>
-              <ul className="space-y-2 text-neutral-500">
-                <li>
-                  <button 
-                    onClick={() => handleAbrirLoginConTab('cliente')}
-                    className="hover:text-neutral-950 transition-colors text-left"
-                  >
-                    Portal Clientes (Causas & Pagos)
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => handleAbrirLoginConTab('estudio')}
-                    className="hover:text-neutral-950 transition-colors text-left"
-                  >
-                    Intranet de Litigantes
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setModalReservarCitaAbierto(true)}
-                    className="text-neutral-950 font-medium hover:underline text-left"
-                  >
-                    Agendar Consulta Confidencial
-                  </button>
-                </li>
-                <li>
-                  <a 
-                    href="https://www.funcionjudicial.gob.ec/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-neutral-950 transition-colors flex items-center gap-1.5"
-                  >
-                    <span>Función Judicial SATJE</span>
-                    <ExternalLink className="w-3 h-3 text-neutral-400" />
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Columna 4: Contacto Despacho */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
-                Atención Guayaquil
-              </h4>
-              <div className="space-y-2 text-neutral-500 text-xs">
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-neutral-950" />
-                  <span className="font-medium text-neutral-800">+593 (4) 259-8800</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5 text-neutral-950" />
-                  <span>contacto@actiolegisec.com</span>
-                </div>
-                <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
-                  Lunes a Viernes: 08:30 – 18:30 <br />
-                  Urgencias en materia penal 24/7
+              <div className="space-y-4 md:col-span-1">
+                <ActioLegisLogo variant="black" showSlogan={true} size="sm" />
+                <p className="text-neutral-500 text-xs leading-relaxed pt-2">
+                  Firma jurídica boutique en Guayaquil[cite: 12]. Litigio penal estratégico, rigor procesal y defensa en servicio del derecho[cite: 12, 14].
                 </p>
+                <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
+                  <MapPin className="w-3.5 h-3.5 text-neutral-950" />
+                  <span>Puerto Santa Ana & Malecón, Guayaquil</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
+                  Línea Institucional
+                </h4>
+                <ul className="space-y-2 text-neutral-500">
+                  <li>
+                    <a href="#proposito" className="hover:text-neutral-950 transition-colors">
+                      Propósito & Manifiesto[cite: 13]
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#socios" className="hover:text-neutral-950 transition-colors">
+                      Socios: Diego Tapia & Marcela Dunn[cite: 11, 12]
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#practica" className="hover:text-neutral-950 transition-colors">
+                      Defensa Penal & Prácticas[cite: 12]
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#editorial" className="hover:text-neutral-950 transition-colors">
+                      Editorial Jurídico Actio Legis[cite: 14]
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
+                  Plataforma Privada
+                </h4>
+                <ul className="space-y-2 text-neutral-500">
+                  <li>
+                    <button 
+                      onClick={() => handleAbrirLoginConTab('cliente')}
+                      className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
+                    >
+                      Portal Clientes (Causas & Pagos)
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => handleAbrirLoginConTab('estudio')}
+                      className="hover:text-neutral-950 transition-colors text-left cursor-pointer"
+                    >
+                      Intranet de Litigantes
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => setModalReservarCitaAbierto(true)}
+                      className="text-neutral-950 font-medium hover:underline text-left cursor-pointer"
+                    >
+                      Agendar Consulta Confidencial
+                    </button>
+                  </li>
+                  <li>
+                    <a 
+                      href="https://www.funcionjudicial.gob.ec/" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="hover:text-neutral-950 transition-colors flex items-center gap-1.5"
+                    >
+                      <span>Función Judicial SATJE</span>
+                      <ExternalLink className="w-3 h-3 text-neutral-400" />
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
+                  Atención Guayaquil
+                </h4>
+                <div className="space-y-2 text-neutral-500 text-xs">
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-neutral-950" />
+                    <span className="font-medium text-neutral-800">+593 (4) 259-8800</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-neutral-950" />
+                    <span>contacto@actiolegisec.com</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
+                    Lunes a Viernes: 08:30 – 18:30 <br />
+                    Urgencias en materia penal 24/7
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
+              <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
+              <div className="flex items-center gap-4">
+                <span>Firma Electrónica Válida</span>
+                <span>•</span>
+                <span>Sincronización SATJE</span>
+                <span>•</span>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Subir al inicio</span>
+                  <ArrowUp className="w-3 h-3" />
+                </button>
               </div>
             </div>
-
           </div>
+        </footer>
+      )}
 
-          {/* Barra inferior de copyright y acreditación legal */}
-          <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
-            <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
-            <div className="flex items-center gap-4">
-              <span>Firma Electrónica Válida</span>
-              <span>•</span>
-              <span>Sincronización SATJE</span>
-              <span>•</span>
-              <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="text-neutral-900 font-medium hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                <span>Subir al inicio</span>
-                <ArrowUp className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Modales */}
+      <LoginModal
+        isOpen={modalLoginAbierto}
+        onClose={() => setModalLoginAbierto(false)}
+        onLogin={handleLogin}
+        tabInicial={loginTabInicial}
+      />
+
+      <ReservarCitaModal
+        isOpen={modalReservarCitaAbierto}
+        onCerrar={() => setModalReservarCitaAbierto(false)}
+        onConfirmarCita={handleAgregarCita}
+      />
+
+      <SatjeBuscadorModal
+        isOpen={modalSatjeAbierto}
+        onClose={() => setModalSatjeAbierto(false)}
+        clientes={clientes}
+        expedientesExistentes={expedientes}
+        onImportarCausa={handleImportarCausaSatje}
+        onSincronizarCausaExistente={handleSincronizarCausaExistente}
+      />
+
+      <NuevoExpedienteModal
+        isOpen={modalNuevoExpedienteAbierto}
+        onClose={() => setModalNuevoExpedienteAbierto(false)}
+        clientes={clientes}
+        onGuardar={handleGuardarNuevoExpediente}
+      />
+
+      <CalculadoraLegalModal
+        isOpen={modalCalculadoraAbierto}
+        onClose={() => setModalCalculadoraAbierto(false)}
+      />
+    </div>
+  );
+}
