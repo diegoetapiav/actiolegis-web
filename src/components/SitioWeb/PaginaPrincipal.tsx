@@ -16,7 +16,6 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
   onAbrirReservarCita,
   onAbrirLoginClientes,
   onAbrirLoginIntranet,
-  onAbrirCalculadoraLegal,
 }) => {
   return (
     <div className="font-sans text-neutral-900 bg-[#FAF9F6]">
@@ -39,7 +38,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             </h1>
 
             <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl">
-              ACTIO LEGIS consolida una práctica jurídica de alta exigencia procesal, patrocinando causas penales de complejidad, derecho corporativo y arbitraje bajo estándares de estricta confidencialidad.
+              ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, controversias societarias y arbitraje bajo estándares de estricta reserva y excelencia técnica.
             </p>
 
             {/* Botones de Acción del Hero */}
@@ -77,7 +76,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             </div>
             <div>
               <div className="font-serif text-3xl font-bold text-neutral-950">SATJE</div>
-              <div className="text-xs font-mono uppercase tracking-wider text-neutral-500 mt-1">Sincronización en Línea</div>
+              <div className="text-xs font-mono uppercase tracking-wider text-neutral-500 mt-1">Sincronización Judicial</div>
             </div>
             <div>
               <div className="font-serif text-3xl font-bold text-neutral-950">Boutique</div>
@@ -145,7 +144,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
                 <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
               </div>
               <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-                Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa de ejecutivos ante la Fiscalía General del Estado y diseño de estrategias de prevención de responsabilidad penal de las personas jurídicas.
+                Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa técnica ante la Fiscalía General del Estado y diseño de estrategias preventivas de responsabilidad corporativa.
               </p>
               <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
                 contacto@actiolegisec.com • Guayaquil
@@ -201,7 +200,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               <Scale className="w-5 h-5 text-neutral-950" />
               <h4 className="font-serif font-bold text-base text-neutral-950">Derecho Societario & Mercantil</h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Conflictos entre socios, disolución judicial de compañías, impugnación de actas y litigios contractuales de cuantía indeterminada.
+                Conflictos entre socios, disolución judicial de compañías, impugnación de actas y controversias contractuales mercantiles.
               </p>
             </div>
 
@@ -267,10 +266,10 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
             <article className="bg-white p-6 rounded-2xl border border-neutral-200/90 shadow-2xs space-y-3">
               <span className="text-[10px] font-mono text-neutral-400">Octubre 2026 • Derecho Penal Económico</span>
               <h4 className="font-serif font-bold text-base text-neutral-950">
-                La carga dinámica de la prueba en investigaciones por enriquecimiento ilícito
+                La carga dinámica de la prueba en investigaciones por presuntos delitos contables
               </h4>
               <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                Análisis de las recientes resoluciones de casación respecto al derecho a la no autoincriminación en peritajes contables.
+                Análisis de las recientes resoluciones de casación respecto al derecho a la no autoincriminación en peritajes tributarios.
               </p>
             </article>
 
@@ -300,21 +299,22 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          6. CONTACTO & SEDE INSTITUCIONAL
+          6. SECCIÓN DE CONTACTO Y ATENCIÓN (LIMPIA, CLARA Y ELEGANTE)
          ========================================================= */}
-      <section id="contacto" className="py-20 md:py-28 bg-white border-b border-neutral-200/80">
+      <section id="contacto" className="py-20 md:py-24 bg-white border-b border-neutral-200/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="bg-neutral-950 text-white rounded-3xl p-8 sm:p-12 md:p-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-sm">
+          <div className="bg-[#FAF9F6] border border-neutral-200/90 rounded-3xl p-8 sm:p-12 md:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 shadow-xs">
             
-            <div className="space-y-4 max-w-xl">
-              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-neutral-400">
-                Atención Confidencial
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight leading-tight">
-                Patrocinio forense riguroso para causas decisivas.
+            <div className="space-y-3 max-w-xl">
+              <div className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-neutral-500 font-semibold">
+                <Shield className="w-3.5 h-3.5 text-neutral-900" />
+                <span>Atención Confidencial</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-neutral-950 tracking-tight leading-snug">
+                Confíe su causa a una defensa rigurosa.
               </h2>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
-                Coordine una primera sesión con nuestros socios en nuestras oficinas de Puerto Santa Ana, Guayaquil, o de manera telemática reservada.
+              <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
+                Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Puerto Santa Ana o por vía telemática.
               </p>
             </div>
 
@@ -322,16 +322,16 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               <button
                 type="button"
                 onClick={onAbrirReservarCita}
-                className="px-6 py-3.5 bg-white hover:bg-neutral-100 text-neutral-950 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm text-center cursor-pointer"
+                className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
               >
-                Agendar Consulta
+                Solicitar Reunión en Despacho
               </button>
               <button
                 type="button"
                 onClick={onAbrirLoginClientes}
-                className="px-6 py-3.5 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border border-neutral-700 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all text-center cursor-pointer"
+                className="px-5 py-3.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all text-center cursor-pointer shadow-2xs"
               >
-                Ingreso Portal
+                Portal Clientes
               </button>
             </div>
 
@@ -340,14 +340,14 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
       </section>
 
       {/* =========================================================
-          7. PIE DE PÁGINA EDITORIAL (BLANCO / MARFIL)
+          7. PIE DE PÁGINA EDITORIAL APROBADO (BLANCO / MARFIL)
          ========================================================= */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200/80 py-16 px-6 text-xs">
         <div className="max-w-6xl mx-auto space-y-12">
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            {/* Columna 1: Logo y Misión */}
+            {/* Columna 1: Logo Oficial Tipo Placa y Misión */}
             <div className="space-y-4 md:col-span-1">
               <div className="relative inline-block select-none py-1">
                 <div className="absolute -right-1.5 -bottom-1.5 w-full h-full border-b-[4px] border-r-[4px] border-neutral-950 pointer-events-none" />
@@ -366,7 +366,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </div>
 
               <p className="text-neutral-500 text-xs leading-relaxed pt-1">
-                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa en servicio del derecho.
+                Firma jurídica boutique en Guayaquil. Litigio penal estratégico, rigor procesal y defensa técnica en servicio del derecho.
               </p>
               
               <div className="flex items-center gap-2 text-[11px] text-neutral-800 font-mono pt-1">
@@ -375,7 +375,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </div>
             </div>
 
-            {/* Columna 2: Enlaces Institucionales */}
+            {/* Columna 2: Línea Institucional */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Línea Institucional
@@ -404,7 +404,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </ul>
             </div>
 
-            {/* Columna 3: Accesos a Plataformas */}
+            {/* Columna 3: Plataformas Privadas */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Plataforma Privada
@@ -451,7 +451,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
               </ul>
             </div>
 
-            {/* Columna 4: Contacto Directo */}
+            {/* Columna 4: Atención en Guayaquil */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Atención Guayaquil
@@ -474,7 +474,7 @@ export const PaginaPrincipal: React.FC<PaginaPrincipalProps> = ({
 
           </div>
 
-          {/* Sub-pie legal inferior */}
+          {/* Sub-pie inferior */}
           <div className="pt-8 border-t border-neutral-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400">
             <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
             <div className="flex items-center gap-4">
