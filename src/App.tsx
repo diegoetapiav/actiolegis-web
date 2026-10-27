@@ -404,7 +404,7 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.
+                    En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.
                   </p>
                   <p>
                     Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.
@@ -439,9 +439,6 @@ export default function App() {
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
                     Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas complejas, defensa ante las judicaturas del Estado y diseño de estrategias de prevención de responsabilidad legal empresarial.
                   </p>
-                  <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
-                    diego.tapia@actiolegisec.com • Guayaquil
-                  </div>
                 </div>
 
                 <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
@@ -453,9 +450,6 @@ export default function App() {
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
                     Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias, patrocinio mercantil, patrimonial y litigio en prevención de género.
                   </p>
-                  <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
-                    marceladunnortega@actiolegisec.com • Guayaquil
-                  </div>
                 </div>
               </div>
 
@@ -615,7 +609,7 @@ export default function App() {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto">
                   <button
                     type="button"
-                    onClick={() => alert('Para coordinar su cita en despacho, contáctenos al +593 4 6005080 o al correo diego.tapia@actiolegisec.com')}
+                    onClick={() => alert('Para coordinar su cita en despacho, contáctenos al +593 4 6005080 o al correo info@actiolegisec.com')}
                     className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
                   >
                     Agende su consulta
@@ -640,7 +634,7 @@ export default function App() {
                 <span>Nómina de Abogados ACTIO LEGIS</span>
               </div>
               <h1 className="text-4xl sm:text-5xl font-serif font-bold text-neutral-950 tracking-tight">
-                Nuestro Equipo Forense & Consultores
+                Nuestro Equipo & Consultores
               </h1>
               <p className="text-sm sm:text-base text-neutral-600 max-w-3xl font-light leading-relaxed">
                 Conozca los perfiles profesionales de nuestros abogados litigantes y consultores asociados, especializados en patrocinio judicial de alta exigencia.
@@ -656,7 +650,6 @@ export default function App() {
                 <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
                   Más de 20 años dedicado a la defensa penal técnica, patrocinio en investigaciones complejas ante Fiscalía y formulación de estrategias procesales preventivas.
                 </p>
-                <div className="pt-2 text-xs font-mono text-neutral-400">diego.tapia@actiolegisec.com</div>
               </div>
 
               <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
@@ -666,7 +659,6 @@ export default function App() {
                 <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
                   Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias, patrocinio mercantil y litigio en prevención de género.
                 </p>
-                <div className="pt-2 text-xs font-mono text-neutral-400">marceladunnortega@actiolegisec.com</div>
               </div>
 
               <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
@@ -1188,7 +1180,7 @@ export default function App() {
         </div>
       )}
 
-      {/* FOOTER COMPARTIDO */}
+      {/* FOOTER COMPARTIDO CON CORREO ÚNICO INFO@ACTIOLEGISEC.COM */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
@@ -1285,7 +1277,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                  <span>diego.tapia@actiolegisec.com</span>
+                  <span>info@actiolegisec.com</span>
                 </div>
                 <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
                   Kennedy Norte, Alfonso Ortiz y José Castillo. Edificio Kennedy Office Center, piso 3, oficina 2.
