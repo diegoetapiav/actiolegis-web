@@ -164,12 +164,11 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const fechaSeleccionadaString = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`;
   const eventosDelDia = eventosCalendario.filter(evt => evt.fecha === fechaSeleccionadaString);
 
-  // CARGAR / PARSEAR DATOS ICAL DESDE PROXY
+  // PARSER DE MULTIFORMATO PARA GOOGLE ICAL (PROCESA EVENTOS CON/SIN HORA)
   const cargarEventosDeGoogleICal = async () => {
     setSyncState(true);
     try {
-      // Usar proxy para evitar bloqueos CORS en el navegador
-      const corsProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(GOOGLE_ICAL_URL)}`;
+      const corsProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(GOOGLE_ICAL_URL)}&t=${Date.now()}`;
       const res = await fetch(corsProxyUrl);
       if (res.ok) {
         const text = await res.text();
@@ -181,12 +180,15 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         for (let i = 0; i < lineas.length; i++) {
           const linea = lineas[i].trim();
           if (linea.startsWith('SUMMARY:')) {
-            summary = linea.replace('SUMMARY:', '');
+            summary = linea.replace('SUMMARY:', '').replace(/\\,/g, ',').replace(/\\;/g, ';');
           }
-          if (linea.startsWith('DTSTART;VALUE=DATE:')) {
-            const rawDate = linea.replace('DTSTART;VALUE=DATE:', '');
-            if (rawDate.length >= 8) {
-              dtstart = `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}`;
+          if (linea.startsWith('DTSTART')) {
+            const partes = linea.split(':');
+            if (partes.length >= 2) {
+              const valorFecha = partes[1].trim();
+              if (valorFecha.length >= 8) {
+                dtstart = `${valorFecha.substring(0, 4)}-${valorFecha.substring(4, 6)}-${valorFecha.substring(6, 8)}`;
+              }
             }
           }
           if (linea.startsWith('END:VEVENT')) {
@@ -197,11 +199,11 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                 causa: 'Google Workspace',
                 fecha: dtstart,
                 hora: 'Todo el día',
-                tipo: 'Término Fatal',
+                tipo: summary.toLowerCase().includes('audiencia') ? 'Audiencia' : summary.toLowerCase().includes('reun') ? 'Reunión' : 'Término Fatal',
                 unidadJudicial: 'Sede Judicial Patrocinada',
                 abogado: 'Abg. Diego Tapia Vicuña, Mgs.',
-                estrategia: 'Sincronizado dinámicamente mediante iCal privado.',
-                providenciaVinculada: 'Registro Oficial de Google Calendar'
+                estrategia: 'Sincronizado directamente desde Google Calendar.',
+                providenciaVinculada: 'Registro de Google Calendar ACTIO LEGIS'
               });
             }
             summary = '';
@@ -210,16 +212,15 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         }
 
         if (eventosParseados.length > 0) {
-          // Combinar sin duplicados
           setEventosCalendario(prev => {
-            const existentesIds = new Set(prev.map(e => e.titulo + e.fecha));
-            const nuevos = eventosParseados.filter(e => !existentesIds.has(e.titulo + e.fecha));
+            const llavesExistentes = new Set(prev.map(e => `${e.titulo.trim()}_${e.fecha}`));
+            const nuevos = eventosParseados.filter(e => !llavesExistentes.has(`${e.titulo.trim()}_${e.fecha}`));
             return [...nuevos, ...prev];
           });
         }
       }
     } catch (err) {
-      console.log('Sincronización mediante iCal completada con caché local.');
+      console.log('Utilizando caché local de eventos.');
     } finally {
       setSyncState(false);
     }
@@ -458,7 +459,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* IZQUIERDA: GRILLA DE DÍAS EN FORMATO SOBRIO */}
+            {/* IZQUIERDA: GRILLA DE DÍAS CON PUNTOS EN TODOS LOS DÍAS CON AGENDA */}
             <div className="lg:col-span-7 bg-[#FAF9F6] p-5 rounded-2xl border border-neutral-200 space-y-4">
               
               <div className="flex items-center justify-between border-b border-neutral-200/80 pb-3">
@@ -492,7 +493,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                 <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
               </div>
 
-              {/* GRILLA DÍAS CON PUNTOS MARFIL SOBRIOS (#C5A880) */}
+              {/* GRILLA DÍAS CON PUNTOS MARFIL SOBRIOS (#C5A880) EN TODOS LOS DÍAS OCUPADOS */}
               <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-mono">
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
                   const esSeleccionado = dia === diaSeleccionado;
@@ -514,7 +515,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                     >
                       <span>{dia < 10 ? `0${dia}` : dia}</span>
                       
-                      {/* PUNTO MARFIL EN DÍAS CON AGENDA */}
+                      {/* PUNTO MARFIL EN CUALQUIER DÍA CON EVENTOS REGISTRADOS */}
                       {tieneEventos && (
                         <span className={`w-1.5 h-1.5 rounded-full ${esSeleccionado ? 'bg-[#E2D9C8]' : 'bg-[#C5A880]'}`} />
                       )}
@@ -595,7 +596,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
           </div>
 
-          {/* INFERIOR: MUESTRA TUS ACTIVIDADES REALES SINCRONIZADAS VIA ICAL */}
+          {/* INFERIOR: MUESTRA TUS ACTIVIDADES REALES DEL DÍA SELECCIONADO */}
           <div className="pt-2">
             <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-3">
               <div className="flex justify-between items-center border-b border-neutral-200 pb-2">
