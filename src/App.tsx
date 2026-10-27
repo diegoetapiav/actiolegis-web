@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Shield, Scale, FileText, Calendar, DollarSign, MessageSquare, 
   MapPin, Phone, Mail, ArrowRight, ArrowUp, ExternalLink, 
   ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, 
   Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot, BookOpen, 
-  HeartHandshake, UserCheck, Settings, Edit3, Trash2, Eye, Bell, Check, Key, Link2, Filter
+  HeartHandshake, UserCheck, Settings, Edit3, Trash2, Eye, Bell, Check, Key, Link2, Upload, FileCheck
 } from 'lucide-react';
 
 const PALETA_TRAMITES = [
@@ -39,8 +39,20 @@ export interface UsuarioSistema {
   correo: string;
   rol: RolUsuario;
   codigoCliente?: string;
-  claveCliente?: string;
+  claveAcceso?: string;
   activo: boolean;
+}
+
+export interface RegistroGastoDrive {
+  id: string;
+  causaId: string;
+  cliente: string;
+  monto: string;
+  concepto: string;
+  nombreArchivo: string;
+  rutaDrive: string;
+  fechaSubida: string;
+  usuarioSubida: string;
 }
 
 export interface NotificacionAuditoria {
@@ -88,11 +100,11 @@ interface ExpedienteInterno {
 }
 
 const USUARIOS_BASE: UsuarioSistema[] = [
-  { id: 'usr-admin', nombre: 'Abg. Diego Tapia Vicuña, Mgs.', correo: 'diego.tapia@actiolegisec.com', rol: 'admin', activo: true },
-  { id: 'usr-abg', nombre: 'Abg. Marcela Dunn-Ortega, Mgs.', correo: 'marceladunnortega@actiolegisec.com', rol: 'abogado', activo: true },
-  { id: 'usr-asis', nombre: 'Lcda. María Elena Castro', correo: 'mcastro@actiolegisec.com', rol: 'asistente', activo: true },
-  { id: 'usr-pas', nombre: 'Carlos Mendoza', correo: 'cmendoza@actiolegisec.com', rol: 'pasante', activo: true },
-  { id: 'usr-cli-1', nombre: 'Inmobiliaria del Valle S.A.S.', correo: 'contacto@inmovalle.com', rol: 'cliente', codigoCliente: 'ACTIO-00001', claveCliente: 'cliente123', activo: true },
+  { id: 'usr-admin', nombre: 'Abg. Diego Tapia Vicuña, Mgs.', correo: 'diego.tapia@actiolegisec.com', rol: 'admin', claveAcceso: 'actio2026', activo: true },
+  { id: 'usr-abg', nombre: 'Abg. Marcela Dunn-Ortega, Mgs.', correo: 'marceladunnortega@actiolegisec.com', rol: 'abogado', claveAcceso: 'actio2026', activo: true },
+  { id: 'usr-asis', nombre: 'Lcda. María Elena Castro', correo: 'mcastro@actiolegisec.com', rol: 'asistente', claveAcceso: 'actio2026', activo: true },
+  { id: 'usr-pas', nombre: 'Carlos Mendoza', correo: 'cmendoza@actiolegisec.com', rol: 'pasante', claveAcceso: 'actio2026', activo: true },
+  { id: 'usr-cli-1', nombre: 'Inmobiliaria del Valle S.A.S.', correo: 'contacto@inmovalle.com', rol: 'cliente', codigoCliente: 'ACTIO-00001', claveAcceso: 'cliente123', activo: true },
 ];
 
 const CASOS_BASE: ExpedienteInterno[] = [
@@ -171,13 +183,13 @@ const ARTICULOS_BASE: ArticuloEditorial[] = [
 
 const NOTIFICACIONES_BASE: NotificacionAuditoria[] = [
   { id: 'not-1', fecha: '2026-10-27 08:30', usuario: 'Abg. Marcela Dunn-Ortega, Mgs.', accion: 'Registró nuevo expediente 09281-2025-01129', modulo: 'Intranet Litigios' },
-  { id: 'not-2', fecha: '2026-10-26 16:45', usuario: 'Lcda. María Elena Castro (Asistente)', accion: 'Ingresó comprobante de gastos por $ 320.00 USD', modulo: 'Gestión Gastos' },
+  { id: 'not-2', fecha: '2026-10-26 16:45', usuario: 'Lcda. María Elena Castro (Asistente)', accion: 'Subió comprobante a Drive > GASTOS DE CLIENTES > Inmobiliaria del Valle S.A.S.', modulo: 'Gestión Gastos' },
   { id: 'not-3', fecha: '2026-10-25 11:10', usuario: 'Abg. Diego Tapia Vicuña, Mgs.', accion: 'Aprobó publicación en línea editorial', modulo: 'Consola CMS' }
 ];
 
 export default function App() {
   const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'equipo' | 'cliente' | 'intranet' | 'admin-console'>('sitio-web');
-  const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios' | 'gastos' | 'editorial-borradores'>('expedientes');
+  const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'gastos' | 'editorial-borradores'>('expedientes');
   
   const [modalIngreso, setModalIngreso] = useState<'intranet' | 'cliente' | 'admin' | null>(null);
 
@@ -187,26 +199,37 @@ export default function App() {
   const [expedientes, setExpedientes] = useState<ExpedienteInterno[]>(CASOS_BASE);
   const [articulos, setArticulos] = useState<ArticuloEditorial[]>(ARTICULOS_BASE);
   const [notificaciones, setNotificaciones] = useState<NotificacionAuditoria[]>(NOTIFICACIONES_BASE);
+  const [comprobantesDrive, setComprobantesDrive] = useState<RegistroGastoDrive[]>([]);
   
   const [casoActivoId, setCasoActivoId] = useState(CASOS_BASE[0].id);
   const [textoNotificacionIA, setTextoNotificacionIA] = useState('');
   const [procesandoIA, setProcesandoIA] = useState(false);
   const [resultadoIA, setResultadoIA] = useState<string | null>(null);
 
+  // Formulario Intranet
+  const [correoIntranetInput, setCorreoIntranetInput] = useState('');
+  const [claveIntranetInput, setClaveIntranetInput] = useState('');
+  const [recordarIntranet, setRecordarIntranet] = useState(false);
+
+  // Formulario Portal Clientes
   const [codigoClienteInput, setCodigoClienteInput] = useState('');
   const [claveClienteInput, setClaveClienteInput] = useState('');
 
+  // Formulario Admin
   const [correoAdminInput, setCorreoAdminInput] = useState('diego.tapia@actiolegisec.com');
   const [claveAdminInput, setClaveAdminInput] = useState('');
-  const [claveAdminGuardada, setClaveAdminGuardada] = useState<string | null>(null);
+  const [claveAdminGuardada, setClaveAdminGuardada] = useState<string | null>('admin123');
   const [recordarAdmin, setRecordarAdmin] = useState(false);
 
+  // Formularios Gastos & Comprobantes
+  const [montoGastoInput, setMontoGastoInput] = useState('');
+  const [conceptoGastoInput, setConceptoGastoInput] = useState('');
+  const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
+
+  // Formularios CMS
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoCorreo, setNuevoCorreo] = useState('');
   const [nuevoRol, setNuevoRol] = useState<RolUsuario>('abogado');
-
-  const [montoGastoInput, setMontoGastoInput] = useState('');
-  const [conceptoGastoInput, setConceptoGastoInput] = useState('');
 
   const [nuevoArtTitulo, setNuevoArtTitulo] = useState('');
   const [nuevoArtCat, setNuevoArtCat] = useState('');
@@ -229,34 +252,51 @@ export default function App() {
     setNotificaciones(prev => [nuevaNotif, ...prev]);
   };
 
-  const handleGoogleSSO = () => {
-    const correoSimulado = prompt("Inicie sesión con su cuenta Google (@actiolegisec.com):", "marceladunnortega@actiolegisec.com");
-    if (!correoSimulado) return;
+  // 1. AUTENTICACIÓN INTRANET CON CORREO @actiolegisec.com Y CLAVE INSTITUCIONAL
+  const handleIngresoIntranet = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorLogin(null);
+    const correoLimpio = correoIntranetInput.trim().toLowerCase();
 
-    const correoLimpio = correoSimulado.trim().toLowerCase();
     if (!correoLimpio.endsWith('@actiolegisec.com')) {
-      alert("Acceso denegado: Únicamente se permiten cuentas de Google con dominio @actiolegisec.com");
+      setErrorLogin('Acceso permitido únicamente para correos con dominio @actiolegisec.com');
       return;
     }
 
-    let usr = usuariosSistema.find(u => u.correo.toLowerCase() === correoLimpio);
-    if (!usr) {
-      usr = {
+    const usr = usuariosSistema.find(u => u.correo.toLowerCase() === correoLimpio);
+
+    if (usr) {
+      if (usr.claveAcceso && usr.claveAcceso !== claveIntranetInput) {
+        setErrorLogin('Contraseña institucional incorrecta.');
+        return;
+      }
+      setUsuarioSesion(usr);
+      setModalIngreso(null);
+      setCorreoIntranetInput('');
+      setClaveIntranetInput('');
+      setVista('intranet');
+      registrarAuditoria(usr.nombre, `Autenticado en Intranet (${recordarIntranet ? 'Recuérdame activo' : 'Sesión estándar'})`, 'Autenticación Inst.');
+    } else {
+      // Registro de nuevo integrante del dominio
+      const nuevoIntegrante: UsuarioSistema = {
         id: `usr-${Date.now()}`,
         nombre: correoLimpio.split('@')[0].replace('.', ' ').toUpperCase(),
         correo: correoLimpio,
-        rol: 'abogado',
+        rol: 'pasante',
+        claveAcceso: claveIntranetInput,
         activo: true
       };
-      setUsuariosSistema(prev => [...prev, usr!]);
+      setUsuariosSistema(prev => [...prev, nuevoIntegrante]);
+      setUsuarioSesion(nuevoIntegrante);
+      setModalIngreso(null);
+      setCorreoIntranetInput('');
+      setClaveIntranetInput('');
+      setVista('intranet');
+      registrarAuditoria(nuevoIntegrante.nombre, `Registrado e ingresado a Intranet por autorización @actiolegisec.com`, 'Autenticación Inst.');
     }
-
-    setUsuarioSesion(usr);
-    setModalIngreso(null);
-    setVista('intranet');
-    registrarAuditoria(usr.nombre, `Ingresó a Intranet vía Google Single Sign-On`, 'Google OAuth');
   };
 
+  // 2. INGRESO PORTAL CLIENTES (CÓDIGO SECUENCIAL Y CLAVE)
   const handleIngresoCliente = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
@@ -265,7 +305,7 @@ export default function App() {
     const clienteEncontrado = usuariosSistema.find(u => 
       u.rol === 'cliente' && 
       u.codigoCliente === codLimpio && 
-      u.claveCliente === claveClienteInput
+      u.claveAcceso === claveClienteInput
     );
 
     if (clienteEncontrado) {
@@ -280,6 +320,7 @@ export default function App() {
     }
   };
 
+  // 3. INGRESO CONSOLA ADMINISTRADOR (DIEGO TAPIA)
   const handleIngresoAdmin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
@@ -308,6 +349,46 @@ export default function App() {
     }
   };
 
+  // REGISTRO DE GASTOS Y SUBIDA DE COMPROBANTE A GOOGLE DRIVE DE INFO@ACTIOLEGISEC.COM
+  const handleRegistrarGastoConDrive = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!montoGastoInput) return;
+
+    const fechaActual = new Date();
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const carpetaMesAno = `${fechaActual.getFullYear()}-${meses[fechaActual.getMonth()]}`;
+
+    const nombreArchivoFinal = archivoComprobante ? archivoComprobante.name : 'comprobante_digital.pdf';
+    const rutaEstructuradaDrive = `Google Drive > info@actiolegisec.com > GASTOS DE CLIENTES > ${casoActivo.cliente} > ${carpetaMesAno} > ${nombreArchivoFinal}`;
+
+    const nuevoGastoDrive: RegistroGastoDrive = {
+      id: `gst-${Date.now()}`,
+      causaId: casoActivo.id,
+      cliente: casoActivo.cliente,
+      monto: montoGastoInput,
+      concepto: conceptoGastoInput || 'Gasto operacional judicial',
+      nombreArchivo: nombreArchivoFinal,
+      rutaDrive: rutaEstructuradaDrive,
+      fechaSubida: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      usuarioSubida: usuarioSesion?.nombre || 'Usuario Registrador'
+    };
+
+    setComprobantesDrive(prev => [nuevoGastoDrive, ...prev]);
+
+    setExpedientes(prev => prev.map(exp => {
+      if (exp.id === casoActivo.id) {
+        return { ...exp, gastosRegistrados: `$ ${montoGastoInput} USD` };
+      }
+      return exp;
+    }));
+
+    registrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Subió comprobante "${nombreArchivoFinal}" a ${rutaEstructuradaDrive}`, 'Drive Gastos');
+    setMontoGastoInput('');
+    setConceptoGastoInput('');
+    setArchivoComprobante(null);
+    alert(`¡Gasto y comprobante registrados con éxito!\n\nOrganizado en Drive institucional:\n${rutaEstructuradaDrive}`);
+  };
+
   const handleCrearClienteCMS = (nombreCliente: string, correoCliente: string, claveCliente: string) => {
     const numClientes = usuariosSistema.filter(u => u.rol === 'cliente').length + 1;
     const codigoSecuencial = `ACTIO-${String(numClientes).padStart(5, '0')}`;
@@ -318,30 +399,13 @@ export default function App() {
       correo: correoCliente,
       rol: 'cliente',
       codigoCliente: codigoSecuencial,
-      claveCliente: claveCliente || 'actio2026',
+      claveAcceso: claveCliente || 'cliente123',
       activo: true
     };
 
     setUsuariosSistema(prev => [...prev, nuevoCliente]);
     registrarAuditoria(usuarioSesion?.nombre || 'Administrador', `Registró cliente ${nombreCliente} con código ${codigoSecuencial}`, 'Consola Clientes');
     alert(`Cliente registrado con éxito.\nCódigo generado: ${codigoSecuencial}`);
-  };
-
-  const handleRegistrarGasto = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!montoGastoInput) return;
-
-    setExpedientes(prev => prev.map(exp => {
-      if (exp.id === casoActivo.id) {
-        return { ...exp, gastosRegistrados: `$ ${montoGastoInput} USD` };
-      }
-      return exp;
-    }));
-
-    registrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Registró gasto de $ ${montoGastoInput} USD en causa ${casoActivo.numProceso}`, 'Módulo Gastos');
-    setMontoGastoInput('');
-    setConceptoGastoInput('');
-    alert('Gasto registrado con éxito.');
   };
 
   const handleCrearUsuarioCMS = (e: React.FormEvent) => {
@@ -356,6 +420,7 @@ export default function App() {
         nombre: nuevoNombre,
         correo: nuevoCorreo.trim().toLowerCase(),
         rol: nuevoRol,
+        claveAcceso: 'actio2026',
         activo: true
       };
       setUsuariosSistema(prev => [...prev, nUsr]);
@@ -784,7 +849,7 @@ export default function App() {
         </div>
       )}
 
-      {/* VISTA INTRANET CON NIVELES DE PERMISO Y AUDITORÍA */}
+      {/* VISTA INTRANET */}
       {vista === 'intranet' && usuarioSesion && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -793,7 +858,7 @@ export default function App() {
                 <Building2 className="w-3.5 h-3.5 text-neutral-900" />
                 <span>Intranet • {usuarioSesion.rol.toUpperCase()}</span>
               </div>
-              <h1 className="text-2xl font-serif font-bold text-neutral-950">Intranet Forense ACTIO LEGIS</h1>
+              <h1 className="text-2xl font-serif font-bold text-neutral-950">Intranet ACTIO LEGIS</h1>
             </div>
 
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-xl">
@@ -810,15 +875,17 @@ export default function App() {
             </div>
           </div>
 
-          {/* TAB DE REGISTRO DE GASTOS */}
+          {/* TAB DE REGISTRO DE GASTOS CON COMPROBANTE A GOOGLE DRIVE */}
           {tabIntranet === 'gastos' && (
-            <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-xl mx-auto space-y-4 shadow-sm">
-              <h3 className="text-lg font-serif font-bold text-neutral-950">Registrar Gastos Incurridos en Causa</h3>
-              <p className="text-xs text-neutral-500">Formulario habilitado para asistentes y abogados autorizados.</p>
+            <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-xl mx-auto space-y-5 shadow-sm">
+              <div>
+                <h3 className="text-lg font-serif font-bold text-neutral-950">Registrar Gastos & Subir Comprobante a Drive</h3>
+                <p className="text-xs text-neutral-500 mt-1">Los comprobantes se organizarán automáticamente en la cuenta info@actiolegisec.com bajo la estructura: GASTOS DE CLIENTES {'>'} Cliente {'>'} Año-Mes.</p>
+              </div>
 
-              <form onSubmit={handleRegistrarGasto} className="space-y-3">
+              <form onSubmit={handleRegistrarGastoConDrive} className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Causa Seleccionada:</label>
+                  <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Causa Judicial Seleccionada:</label>
                   <select value={casoActivoId} onChange={e => setCasoActivoId(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs font-mono">
                     {expedientes.map(exp => (
                       <option key={exp.id} value={exp.id}>{exp.numProceso} — {exp.cliente}</option>
@@ -833,15 +900,56 @@ export default function App() {
 
                 <div>
                   <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Concepto / Detalle:</label>
-                  <input type="text" placeholder="Pago de tasa judicial / Título pericial" value={conceptoGastoInput} onChange={e => setConceptoGastoInput(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs" />
+                  <input type="text" placeholder="Pago de tasa judicial / Peritaje técnico" value={conceptoGastoInput} onChange={e => setConceptoGastoInput(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs" />
                 </div>
 
-                <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer">Registrar Gasto en Causa</button>
+                {/* CAMPO ARCHIVO DE COMPROBANTE */}
+                <div className="border-2 border-dashed border-neutral-300 hover:border-neutral-950 rounded-xl p-4 text-center transition-all bg-neutral-50">
+                  <Upload className="w-6 h-6 text-neutral-400 mx-auto mb-2" />
+                  <label className="block text-xs font-semibold text-neutral-800 cursor-pointer">
+                    <span>Adjuntar Comprobante (JPEG, PNG, PDF)</span>
+                    <input 
+                      type="file" 
+                      accept="image/jpeg,image/png,image/jpg,application/pdf"
+                      onChange={(e) => setArchivoComprobante(e.target.files?.[0] || null)}
+                      className="hidden" 
+                    />
+                  </label>
+                  <p className="text-[10px] text-neutral-400 mt-1 font-mono">Formatos admitidos: .pdf, .jpeg, .jpg, .png</p>
+                  {archivoComprobante && (
+                    <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-900 rounded-lg text-xs font-mono">
+                      <FileCheck className="w-3.5 h-3.5" />
+                      <span>{archivoComprobante.name}</span>
+                    </div>
+                  )}
+                </div>
+
+                <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer shadow-xs">
+                  Registrar Gasto & Archivar en Drive
+                </button>
               </form>
+
+              {/* LISTADO DE COMPROBANTES DRIVE SUBIDOS */}
+              {comprobantesDrive.length > 0 && (
+                <div className="pt-4 border-t border-neutral-200 space-y-2">
+                  <h4 className="text-xs font-mono font-bold uppercase text-neutral-500">Historial de Comprobantes Registrados</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {comprobantesDrive.map(item => (
+                      <div key={item.id} className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-[11px] font-mono space-y-0.5">
+                        <div className="flex justify-between font-bold text-neutral-900">
+                          <span>{item.cliente}</span>
+                          <span>$ {item.monto} USD</span>
+                        </div>
+                        <div className="text-neutral-500 truncate">{item.rutaDrive}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* TAB GOOGLE CALENDAR OFICIAL */}
+          {/* TAB GOOGLE CALENDAR OFICIAL EMBEBIDO */}
           {tabIntranet === 'citas' && (
             <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
@@ -851,10 +959,11 @@ export default function App() {
                 </div>
                 <a href="https://calendar.google.com" target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-neutral-950 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5">
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Abrir en Google Calendar</span>
+                  <span>Abrir Pestaña Google</span>
                 </a>
               </div>
 
+              {/* EMBEDDING INTEGRADO EN LA PÁGINA */}
               <div className="border border-neutral-200 rounded-xl overflow-hidden h-[600px] bg-neutral-50">
                 <iframe 
                   src="https://calendar.google.com/calendar/embed?src=actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc%40group.calendar.google.com&ctz=America%2FGuayaquil"
@@ -1061,10 +1170,10 @@ export default function App() {
         </div>
       </footer>
 
-      {/* MODAL 1: INTRANET CON LOGO INSTITUCIONAL */}
+      {/* MODAL 1: INTRANET (CORREO INSTITUCIONAL + CONTRASEÑA CON OPCIÓN RECUÉRDAME) */}
       {modalIngreso === 'intranet' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7 text-center space-y-5">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7 text-left space-y-5">
             <button onClick={() => setModalIngreso(null)} className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 cursor-pointer">
               <X className="w-5 h-5" />
             </button>
@@ -1077,22 +1186,60 @@ export default function App() {
               />
             </div>
 
-            <h3 className="text-xl font-serif text-neutral-950 font-bold">Intranet del Despacho</h3>
-            <p className="text-xs text-neutral-500">Acceso exclusivo para el equipo de abogados, asistentes y pasantes con correo institucional de la firma.</p>
+            <div className="text-center">
+              <h3 className="text-xl font-serif text-neutral-950 font-bold">Intranet del Despacho</h3>
+              <p className="text-xs text-neutral-500 mt-1">Acceso exclusivo para abogados, asistentes y pasantes con correo institucional de la firma.</p>
+            </div>
 
-            <button
-              type="button"
-              onClick={handleGoogleSSO}
-              className="w-full py-3.5 px-4 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 shadow-2xs transition-all cursor-pointer"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-              </svg>
-              <span>Continuar con Google (@actiolegisec.com)</span>
-            </button>
+            <form onSubmit={handleIngresoIntranet} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">Correo Institucional (@actiolegisec.com)</label>
+                <input
+                  type="email"
+                  required
+                  value={correoIntranetInput}
+                  onChange={(e) => setCorreoIntranetInput(e.target.value)}
+                  placeholder="usuario@actiolegisec.com"
+                  className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">Contraseña Institucional</label>
+                <input
+                  type="password"
+                  required
+                  value={claveIntranetInput}
+                  onChange={(e) => setClaveIntranetInput(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="recordarIntranet"
+                  checked={recordarIntranet}
+                  onChange={(e) => setRecordarIntranet(e.target.checked)}
+                  className="rounded border-neutral-300 text-neutral-950 focus:ring-neutral-950"
+                />
+                <label htmlFor="recordarIntranet" className="text-xs text-neutral-600 cursor-pointer">
+                  Recuérdame en este equipo
+                </label>
+              </div>
+
+              {errorLogin && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{errorLogin}</span>
+                </div>
+              )}
+
+              <button type="submit" className="w-full py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl cursor-pointer shadow-xs">
+                Ingresar a Intranet
+              </button>
+            </form>
           </div>
         </div>
       )}
@@ -1191,7 +1338,7 @@ export default function App() {
 
               <div>
                 <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
-                  {!claveAdminGuardada ? 'Registrar Contraseña Inicial' : 'Contraseña de Administrador'}
+                  Contraseña de Administrador
                 </label>
                 <input
                   type="password"
@@ -1224,7 +1371,7 @@ export default function App() {
               )}
 
               <button type="submit" className="w-full py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl cursor-pointer">
-                {!claveAdminGuardada ? 'Registrar Contraseña & Acceder' : 'Ingresar a Consola Admin'}
+                Ingresar a Consola Admin
               </button>
             </form>
           </div>
