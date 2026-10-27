@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  FileText, Calendar, Clock, ChevronRight, Bot, 
+  FileText, Calendar as CalendarIcon, Clock, ChevronRight, Bot, 
   Sparkles, Upload, FileCheck, DollarSign, Building2,
-  Users, Plus, Trash2, BookOpen, CheckCircle2, RefreshCw
+  Users, Plus, Trash2, BookOpen, ExternalLink, ChevronLeft, CalendarDays
 } from 'lucide-react';
 import { UsuarioSistema } from './LoginModal';
 
@@ -45,6 +45,15 @@ export interface RegistroGastoDrive {
   usuarioSubida: string;
 }
 
+interface EventoCalendario {
+  id: string;
+  titulo: string;
+  causa: string;
+  fecha: string;
+  hora: string;
+  tipo: 'Audiencia' | 'Reunión' | 'Término Fatal';
+}
+
 interface ModuloExpedientesProps {
   expedientes: ExpedienteInterno[];
   setExpedientes: React.Dispatch<React.SetStateAction<ExpedienteInterno[]>>;
@@ -54,21 +63,10 @@ interface ModuloExpedientesProps {
   onRegistrarAuditoria: (usuario: string, accion: string, modulo: string) => void;
 }
 
-const PALETA_TRAMITES = [
-  {
-    fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
-    badgeMateria: 'bg-[#E1EFE7] text-[#1B4D33] border-[#C2DFCF]',
-    barraProgreso: 'bg-[#2E6B4A]',
-    indicadorActivo: 'bg-[#2E6B4A]',
-    detalleFondo: 'bg-[#FAFBF9]',
-  },
-  {
-    fondoCard: 'bg-[#FAF6EE] border-[#EADFCB]',
-    badgeMateria: 'bg-[#F3EBD8] text-[#5C4217] border-[#DFCBB0]',
-    barraProgreso: 'bg-[#8C6424]',
-    indicadorActivo: 'bg-[#8C6424]',
-    detalleFondo: 'bg-[#FCFBF8]',
-  }
+const EVENTOS_CALENDARIO_BASE: EventoCalendario[] = [
+  { id: 'evt-1', titulo: 'Audiencia de Juicio Ordinario', causa: '17230-2024-00482', fecha: '2026-10-28', hora: '10:00 AM', tipo: 'Audiencia' },
+  { id: 'evt-2', titulo: 'Entrega de Informe Pericial Contable', causa: '09281-2025-01129', fecha: '2026-11-05', hora: '15:00 PM', tipo: 'Término Fatal' },
+  { id: 'evt-3', titulo: 'Reunión con Directiva de Inmobiliaria del Valle', causa: '17230-2024-00482', fecha: '2026-11-08', hora: '11:30 AM', tipo: 'Reunión' }
 ];
 
 export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
@@ -83,7 +81,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const [textoNotificacionIA, setTextoNotificacionIA] = useState('');
   const [procesandoIA, setProcesandoIA] = useState(false);
 
-  // Estados Gastos & Barra de Progreso
+  // Estados Gastos
   const [montoGastoInput, setMontoGastoInput] = useState('');
   const [conceptoGastoInput, setConceptoGastoInput] = useState('');
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
@@ -100,36 +98,26 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
       rutaDrive: 'Drive > info@actiolegisec.com > GASTOS DE CLIENTES > Inmobiliaria del Valle S.A.S. > 2026-Octubre > factura_perito.pdf',
       fechaSubida: '2026-10-15 10:30',
       usuarioSubida: 'Lcda. María Elena Castro'
-    },
-    {
-      id: 'gst-2',
-      causaId: 'exp-1',
-      cliente: 'Inmobiliaria del Valle S.A.S.',
-      monto: 150,
-      estado: 'Pendiente',
-      concepto: 'Tasa judicial COGEP',
-      nombreArchivo: 'recibo_tasa.jpg',
-      rutaDrive: 'Drive > info@actiolegisec.com > GASTOS DE CLIENTES > Inmobiliaria del Valle S.A.S. > 2026-Octubre > recibo_tasa.jpg',
-      fechaSubida: '2026-10-20 14:10',
-      usuarioSubida: 'Abg. Marcela Dunn-Ortega'
     }
   ]);
 
-  // Directorio de Clientes (Admin / Abogado)
+  // Clientes
   const [listaClientes, setListaClientes] = useState<{ id: string; nombre: string; correo: string; codigo: string }[]>([
-    { id: 'cli-1', nombre: 'Inmobiliaria del Valle S.A.S.', correo: 'contacto@inmovalle.com', codigo: 'ACTIO-00001' },
-    { id: 'cli-2', nombre: 'Corporación Mercantil GYE', correo: 'legal@corpmec.ec', codigo: 'ACTIO-00002' }
+    { id: 'cli-1', nombre: 'Inmobiliaria del Valle S.A.S.', correo: 'contacto@inmovalle.com', codigo: 'ACTIO-00001' }
   ]);
   const [nuevoNombreCliente, setNuevoNombreCliente] = useState('');
   const [nuevoCorreoCliente, setNuevoCorreoCliente] = useState('');
 
-  // Borradores Editorial
+  // Editorial
   const [tituloArticulo, setTituloArticulo] = useState('');
   const [resumenArticulo, setResumenArticulo] = useState('');
 
+  // Calendario Integrado
+  const [modoEmbedGoogle, setModoEmbedGoogle] = useState(false);
+  const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>(EVENTOS_CALENDARIO_BASE);
+
   const casoActivo = expedientes.find((c) => c.id === casoActivoId) || expedientes[0];
 
-  // Cálculo de Barra de Gastos vs. Reembolsados
   const totalGastos = comprobantesDrive.reduce((acc, curr) => acc + curr.monto, 0);
   const totalReembolsados = comprobantesDrive.filter(g => g.estado === 'Pagado' || g.estado === 'Reembolsado').reduce((acc, curr) => acc + curr.monto, 0);
   const porcentajeReembolsado = totalGastos > 0 ? Math.round((totalReembolsados / totalGastos) * 100) : 0;
@@ -284,7 +272,106 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         </div>
       </div>
 
-      {/* TAB: DIRECTORIO DE CLIENTES (ADMIN & ABOGADOS) */}
+      {/* TAB 1: CALENDARIO OFICIAL INTEGRADO DENTRO DE LA TARJETA PÁGINA (SIN VENTANAS SALIENTES) */}
+      {tabIntranet === 'citas' && (
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
+            <div>
+              <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
+                <CalendarDays className="w-5 h-5 text-neutral-900" />
+                <span>Google Calendar Institucional ACTIO LEGIS</span>
+              </h3>
+              <p className="text-xs font-mono text-neutral-500">ID Oficial: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button 
+                type="button" 
+                onClick={() => setModoEmbedGoogle(!modoEmbedGoogle)}
+                className="px-3.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-mono rounded-lg transition-colors cursor-pointer"
+              >
+                {modoEmbedGoogle ? 'Ver Vista de Lista & Agenda' : 'Cargar iFrame Directo Google'}
+              </button>
+            </div>
+          </div>
+
+          {!modoEmbedGoogle ? (
+            /* VISTA DE AGENDA Y CALENDARIO INTERNO SIN ERRORES DE POP-UP */
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-8 bg-neutral-50 p-6 rounded-2xl border border-neutral-200 space-y-4">
+                <div className="flex justify-between items-center font-serif font-bold text-neutral-950 text-base">
+                  <span>Agenda Mensual de Audiencias & Diligencias</span>
+                  <span className="text-xs font-mono text-neutral-500">Zona Horaria: Guayaquil (GMT-5)</span>
+                </div>
+
+                <div className="grid grid-cols-7 gap-2 text-center font-mono text-[11px] text-neutral-400 font-bold border-b border-neutral-200 pb-2">
+                  <div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
+                </div>
+
+                <div className="grid grid-cols-7 gap-2 text-center text-xs font-mono">
+                  <div className="p-3 bg-white border border-neutral-200 rounded-xl">26</div>
+                  <div className="p-3 bg-white border border-neutral-200 rounded-xl">27</div>
+                  <div className="p-3 bg-neutral-950 text-white font-bold rounded-xl ring-2 ring-neutral-950">28</div>
+                  <div className="p-3 bg-white border border-neutral-200 rounded-xl">29</div>
+                  <div className="p-3 bg-white border border-neutral-200 rounded-xl">30</div>
+                  <div className="p-3 bg-neutral-100 text-neutral-400 rounded-xl">31</div>
+                  <div className="p-3 bg-neutral-100 text-neutral-400 rounded-xl">01</div>
+                </div>
+
+                <div className="p-4 bg-white rounded-xl border border-neutral-200 text-xs space-y-2">
+                  <div className="flex justify-between items-center font-bold text-neutral-900 border-b border-neutral-100 pb-2">
+                    <span>Causas Agendadas en Google Calendar</span>
+                    <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Sincronizado</span>
+                  </div>
+                  {eventosCalendario.map(evt => (
+                    <div key={evt.id} className="p-3 bg-neutral-50 rounded-lg flex justify-between items-center">
+                      <div>
+                        <strong className="text-neutral-900 block font-serif">{evt.titulo}</strong>
+                        <span className="text-neutral-500 text-[11px]">Causa: {evt.causa}</span>
+                      </div>
+                      <span className="font-mono text-neutral-800 bg-white px-2.5 py-1 rounded border text-[11px] font-semibold">
+                        {evt.fecha} • {evt.hora}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 bg-neutral-950 text-white p-6 rounded-2xl space-y-4 shadow-sm">
+                <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider block">Sincronización Workspace</span>
+                <h4 className="font-serif font-bold text-lg">Google Calendar Oficial</h4>
+                <p className="text-xs text-neutral-300 leading-relaxed font-light">
+                  Todos los señalamientos de audiencias y fechas fatales ingresados por la IA o los abogados se reflejan automáticamente en el calendario compartido de la firma.
+                </p>
+                <a 
+                  href="https://calendar.google.com/calendar/u/0/r" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full py-3 bg-white text-neutral-950 text-xs font-semibold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-neutral-100 transition-all"
+                >
+                  <span>Abrir Google Calendar Externo</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+          ) : (
+            /* VISTA DE IFRAME EMBEBIDO DIRECTO */
+            <div className="w-full border border-neutral-200 rounded-2xl overflow-hidden bg-neutral-50 h-[650px] shadow-inner">
+              <iframe 
+                src="https://calendar.google.com/calendar/embed?src=actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc%40group.calendar.google.com&ctz=America%2FGuayaquil"
+                style={{ border: 0 }} 
+                width="100%" 
+                height="100%" 
+                frameBorder="0" 
+                scrolling="no"
+                title="Google Calendar Oficial ACTIO LEGIS"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB 2: DIRECTORIO DE CLIENTES */}
       {tabIntranet === 'clientes' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm">
           <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
@@ -322,7 +409,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         </div>
       )}
 
-      {/* TAB: REDACTAR BORRADOR EDITORIAL */}
+      {/* TAB 3: REDACTAR BORRADOR EDITORIAL */}
       {tabIntranet === 'editorial-borradores' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-4 shadow-sm">
           <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
@@ -334,12 +421,12 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
           <form onSubmit={handleEnviarEditorial} className="space-y-3">
             <input type="text" placeholder="Título del artículo" required value={tituloArticulo} onChange={e => setTituloArticulo(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-3 text-xs" />
             <textarea rows={6} placeholder="Escriba el ensayo o criterio jurídico aquí..." required value={resumenArticulo} onChange={e => setResumenArticulo(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-3 text-xs resize-none" />
-            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer">Enviar a Revisión de la Administración</button>
+            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold uppercase tracking-wider cursor-pointer">Enviar a Revisión de la Administración</button>
           </form>
         </div>
       )}
 
-      {/* TAB: GASTOS CON BARRA DE PROGRESO DE REEMBOLSOS */}
+      {/* TAB 4: GASTOS CON BARRA DE PROGRESO DE REEMBOLSOS */}
       {tabIntranet === 'gastos' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-6 shadow-sm">
           <div>
@@ -347,7 +434,6 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
             <p className="text-xs text-neutral-500 mt-1">Archivado automático en info@actiolegisec.com en la carpeta GASTOS DE CLIENTES.</p>
           </div>
 
-          {/* BARRA DE PROGRESO: GASTOS VS REEMBOLSADOS */}
           <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 space-y-2">
             <div className="flex justify-between text-xs font-mono font-bold">
               <span>Estado de Reembolsos de Gastos:</span>
@@ -391,36 +477,12 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
               </label>
             </div>
 
-            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer">Registrar Gasto en Drive</button>
+            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold uppercase tracking-wider cursor-pointer">Registrar Gasto en Drive</button>
           </form>
         </div>
       )}
 
-      {/* TAB: GOOGLE CALENDAR OFICIAL INTEGRADOR */}
-      {tabIntranet === 'citas' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4 shadow-sm w-full">
-          <div className="flex justify-between items-center border-b border-neutral-200 pb-3">
-            <div>
-              <h3 className="text-lg font-serif font-bold text-neutral-950">Google Calendar Institucional ACTIO LEGIS</h3>
-              <p className="text-xs font-mono text-neutral-500">ID: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
-            </div>
-          </div>
-
-          <div className="w-full border border-neutral-200 rounded-2xl overflow-hidden bg-neutral-50 h-[650px]">
-            <iframe 
-              src="https://calendar.google.com/calendar/embed?src=actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc%40group.calendar.google.com&ctz=America%2FGuayaquil"
-              style={{ border: 0 }} 
-              width="100%" 
-              height="100%" 
-              frameBorder="0" 
-              scrolling="no"
-              title="Google Calendar ACTIO LEGIS"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* TAB: EXPEDIENTES & MOTOR IA */}
+      {/* TAB 5: EXPEDIENTES & MOTOR IA */}
       {tabIntranet === 'expedientes' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-5 space-y-4">
