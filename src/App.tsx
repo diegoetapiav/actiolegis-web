@@ -3,7 +3,7 @@ import {
   Shield, Scale, FileText, Calendar, DollarSign, MessageSquare, 
   MapPin, Phone, Mail, ArrowRight, ArrowUp, ExternalLink, 
   ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, 
-  Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot, BookOpen
+  Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot, BookOpen, HeartHandshake, UserCheck
 } from 'lucide-react';
 
 const PALETA_TRAMITES = [
@@ -63,7 +63,7 @@ const CASOS_BASE: ExpedienteInterno[] = [
     cliente: 'Inmobiliaria del Valle S.A.S.',
     contraparte: 'Herederos de Juan Carlos Peñaherrera y Otros',
     unidadJudicial: 'Unidad Judicial Civil de Guayaquil',
-    abogadoLider: 'Dr. Diego Tapia',
+    abogadoLider: 'Abg. Mgs. Diego Tapia Vicuña',
     etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
     porcentaje: 65,
     proximaFechaClave: '2026-10-18',
@@ -93,7 +93,7 @@ const CASOS_BASE: ExpedienteInterno[] = [
     cliente: 'Inmobiliaria del Valle S.A.S.',
     contraparte: 'Fiscalía General del Estado',
     unidadJudicial: 'Fiscalía Provincial del Guayas',
-    abogadoLider: 'Dr. Diego Tapia & Marcela Dunn',
+    abogadoLider: 'Abg. Mgs. Diego Tapia Vicuña & Abg. Mgs. Marcela Dunn-Ortega',
     etapaProcesalActual: 'Calificación & Diligencias Previas',
     porcentaje: 35,
     proximaFechaClave: '2026-11-05',
@@ -111,7 +111,7 @@ const CASOS_BASE: ExpedienteInterno[] = [
 ];
 
 export default function App() {
-  const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'cliente' | 'intranet'>('sitio-web');
+  const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'equipo' | 'cliente' | 'intranet'>('sitio-web');
   const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios'>('expedientes');
   const [modalLogin, setModalLogin] = useState(false);
   const [rolLogin, setRolLogin] = useState<'cliente' | 'estudio'>('cliente');
@@ -255,7 +255,7 @@ export default function App() {
 
           {/* NAVEGACIÓN PRINCIPAL */}
           <div className="flex items-center gap-3 sm:gap-5">
-            {vista === 'sitio-web' || vista === 'editorial' ? (
+            {vista === 'sitio-web' || vista === 'editorial' || vista === 'equipo' ? (
               <>
                 <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
                   <button 
@@ -275,9 +275,9 @@ export default function App() {
                   <a 
                     href="#socios" 
                     onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} 
-                    className="hover:text-neutral-950 transition-colors"
+                    className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'equipo' ? 'text-neutral-950 font-bold' : ''}`}
                   >
-                    Socios
+                    Nuestro Equipo
                   </a>
                   <a 
                     href="#practica" 
@@ -353,7 +353,7 @@ export default function App() {
               
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-neutral-50 border border-neutral-200 shadow-2xs text-[11px] font-mono uppercase tracking-[0.2em] text-neutral-600 mb-8 mx-auto">
                 <span className="w-2 h-2 rounded-full bg-neutral-950" />
-                <span>Firma Forense Boutique • Guayaquil, Ecuador</span>
+                <span>Despacho de litigantes • Guayaquil, Ecuador</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif text-neutral-950 tracking-tight leading-[1.15] font-normal max-w-3xl mx-auto">
@@ -361,7 +361,7 @@ export default function App() {
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-600 font-light leading-relaxed max-w-2xl mx-auto mt-6">
-                ACTIO LEGIS consolida una práctica forense de alta exigencia procesal, patrocinando causas penales de complejidad, civiles y controversias societarias bajo estándares de estricta reserva y ética profesional.
+                ACTIO LEGIS consolida una práctica jurídica de alta exigencia procesal, patrocinando juicios y trámites judiciales o administrativos, manejo de casos de complejidad y controversias de distintas índoles bajo estándares de estricta reserva y ética profesional.
               </p>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-8">
@@ -373,7 +373,7 @@ export default function App() {
                   }}
                   className="px-7 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <span>Agendar Consulta Confidencial</span>
+                  <span>Agende una consulta</span>
                   <ArrowRight className="w-4 h-4 text-neutral-300" />
                 </button>
 
@@ -404,40 +404,40 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personally por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
+                    En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.
                   </p>
                   <p>
-                    Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados judiciales y tribunales arbitrales.
+                    Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.
                   </p>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* SOCIOS */}
+          {/* NUESTRO EQUIPO */}
           <section id="socios" className="py-20 md:py-28 border-b border-neutral-200 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
                 <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500 font-semibold">
-                  Socios Directores
+                  Nuestro Equipo
                 </span>
                 <h2 className="text-3xl font-serif font-bold text-neutral-950">
-                  Liderazgo Forense & Criterio Jurídico
+                  Liderazgo & Criterio Jurídico
                 </h2>
                 <p className="text-xs sm:text-sm text-neutral-600 font-light">
-                  Trayectoria académica y práctica de litigio penal estratégico en las judicaturas del Ecuador.
+                  Trayectoria académica y práctica de litigio en las judicaturas del Ecuador.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socio Principal</span>
-                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Dr. Diego Tapia</h3>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socio Fundador</span>
+                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Diego Tapia Vicuña</h3>
                     <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-                    Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas penales complejas, defensa ante la Fiscalía General del Estado y diseño de estrategias de prevención de responsabilidad penal empresarial.
+                    Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas complejas, defensa ante las judicaturas del Estado y diseño de estrategias de prevención de responsabilidad legal empresarial.
                   </p>
                   <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
                     info@actiolegisec.com • Guayaquil
@@ -446,22 +446,35 @@ export default function App() {
 
                 <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socia Directora</span>
-                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Ab. Marcela Dunn</h3>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socia Fundadora</span>
+                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Marcela Dunn-Ortega</h3>
                     <p className="text-xs font-mono text-neutral-500">Derecho Corporativo, Cumplimiento & Litigio Civil</p>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-                    Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias y patrocinio judicial en litigios patrimoniales y mercantiles ante cortes provinciales y centros de arbitraje.
+                    Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias y patrocinio judicial en litigios patrimoniales y mercantiles ante cortes provinciales.
                   </p>
                   <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
                     mdunn@actiolegisec.com • Guayaquil
                   </div>
                 </div>
               </div>
+
+              {/* Botón para ver el resto del equipo */}
+              <div className="mt-12 text-center">
+                <button
+                  type="button"
+                  onClick={() => setVista('equipo')}
+                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-950 text-xs font-mono uppercase tracking-wider rounded-xl transition-all cursor-pointer font-semibold"
+                >
+                  <span>Ver el resto del equipo</span>
+                  <ArrowRight className="w-4 h-4 text-neutral-700" />
+                </button>
+              </div>
+
             </div>
           </section>
 
-          {/* PRÁCTICAS */}
+          {/* PRÁCTICAS CON ÁREAS ADICIONALES */}
           <section id="practica" className="py-20 md:py-28 border-b border-neutral-200 bg-neutral-50/40">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="max-w-xl mb-14 space-y-3">
@@ -483,10 +496,34 @@ export default function App() {
                 </div>
 
                 <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
+                  <FileText className="w-5 h-5 text-neutral-950" />
+                  <h4 className="font-serif font-bold text-base text-neutral-950">Derecho Civil</h4>
+                  <p className="text-xs text-neutral-600 font-light leading-relaxed">
+                    Prescripción extraordinaria de dominio, saneamiento predial, contratos de trascendencia patrimonial y acciones ordinarias.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
                   <Scale className="w-5 h-5 text-neutral-950" />
                   <h4 className="font-serif font-bold text-base text-neutral-950">Derecho Societario & Mercantil</h4>
                   <p className="text-xs text-neutral-600 font-light leading-relaxed">
                     Conflictos entre accionistas, disolución judicial, impugnación de asambleas y litigios contractuales complejos.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
+                  <HeartHandshake className="w-5 h-5 text-neutral-950" />
+                  <h4 className="font-serif font-bold text-base text-neutral-950">Derecho de Menores y Menores Infractores</h4>
+                  <p className="text-xs text-neutral-600 font-light leading-relaxed">
+                    Defensa técnica especializada en juzgados de la niñez, adolescencia y medidas socioeducativas en materia penal juvenil.
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-neutral-200 bg-white space-y-3">
+                  <UserCheck className="w-5 h-5 text-neutral-950" />
+                  <h4 className="font-serif font-bold text-base text-neutral-950">Prevención en Violencia de Género</h4>
+                  <p className="text-xs text-neutral-600 font-light leading-relaxed">
+                    Patrocinio, medidas de protección inmediatas y protocolos institucionales de prevención de violencia de género.
                   </p>
                 </div>
 
@@ -507,7 +544,7 @@ export default function App() {
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
                   <span className="text-xs font-mono uppercase tracking-[0.2em] text-neutral-500 font-semibold">
-                    Doctrina & Criterios
+                    Criterios jurídicos
                   </span>
                   <h2 className="text-3xl font-serif font-bold text-neutral-950 mt-1">
                     Publicaciones Recientes
@@ -571,7 +608,7 @@ export default function App() {
                     Confíe su causa a una defensa rigurosa.
                   </h2>
                   <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
-                    Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica en nuestras oficinas de Kennedy Norte, Guayaquil.
+                    Analizamos la viabilidad procesal de su situación jurídica con estricta reserva y prontitud técnica.
                   </p>
                 </div>
 
@@ -581,7 +618,7 @@ export default function App() {
                     onClick={() => alert('Para coordinar su cita en despacho, contáctenos al +593 4 6005080 o al correo info@actiolegisec.com')}
                     className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
                   >
-                    Solicitar Reunión en Despacho
+                    Agende su consulta
                   </button>
                 </div>
               </div>
@@ -591,7 +628,73 @@ export default function App() {
       )}
 
       {/* =========================================================
-          VISTA 2: EDITORIAL JURÍDICO (PÁGINA DEDICADA)
+          VISTA 2: NUESTRO EQUIPO COMPLETO (PÁGINA DEDICADA)
+         ========================================================= */}
+      {vista === 'equipo' && (
+        <main className="py-16 md:py-24 bg-neutral-50/50 min-h-[80vh]">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
+            
+            <div className="border-b border-neutral-200 pb-10 space-y-4 text-center md:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-neutral-950 text-white text-[10px] font-mono uppercase tracking-[0.2em]">
+                <Users className="w-3 h-3 text-neutral-300" />
+                <span>Nómina de Abogados ACTIO LEGIS</span>
+              </div>
+              <h1 className="text-4xl sm:text-5xl font-serif font-bold text-neutral-950 tracking-tight">
+                Nuestro Equipo Forense & Consultores
+              </h1>
+              <p className="text-sm sm:text-base text-neutral-600 max-w-3xl font-light leading-relaxed">
+                Conozca los perfiles profesionales de nuestros abogados litigantes y consultores asociados, especializados en patrocinio judicial de alta exigencia.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              
+              <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
+                <span className="text-[10px] font-mono uppercase text-neutral-400">Socio Fundador</span>
+                <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Diego Tapia Vicuña</h3>
+                <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
+                <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
+                  Más de 20 años dedicado a la defensa penal técnica, patrocinio en investigaciones complejas ante Fiscalía y formulación de estrategias procesales preventivas.
+                </p>
+                <div className="pt-2 text-xs font-mono text-neutral-400">info@actiolegisec.com</div>
+              </div>
+
+              <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
+                <span className="text-[10px] font-mono uppercase text-neutral-400">Socia Fundadora</span>
+                <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Marcela Dunn-Ortega</h3>
+                <p className="text-xs font-mono text-neutral-500">Derecho Corporativo, Cumplimiento & Litigio Civil</p>
+                <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
+                  Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias y patrocinio mercantil y patrimonial.
+                </p>
+                <div className="pt-2 text-xs font-mono text-neutral-400">mdunn@actiolegisec.com</div>
+              </div>
+
+              <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
+                <span className="text-[10px] font-mono uppercase text-neutral-400">Abogado Asociado Senior</span>
+                <h3 className="text-xl font-serif font-bold text-neutral-950">Abg. Javier Morales R.</h3>
+                <p className="text-xs font-mono text-neutral-500">Derecho Civil & Procedimiento COGEP</p>
+                <p className="text-xs text-neutral-600 font-light leading-relaxed">
+                  Litigante enfocado en juicio ordinarios, prescripciones adquisitivas y ejecución de títulos crediticios y contratos solemnes.
+                </p>
+              </div>
+
+              <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
+                <span className="text-[10px] font-mono uppercase text-neutral-400">Abogada Asociada</span>
+                <h3 className="text-xl font-serif font-bold text-neutral-950">Abg. Andrea Solórzano P.</h3>
+                <p className="text-xs font-mono text-neutral-500">Derecho de Menores & Prevención de Violencia</p>
+                <p className="text-xs text-neutral-600 font-light leading-relaxed">
+                  Defensora técnica especializada en juzgados de niñez, adolescentes infractores y procesos de medidas de protección.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </main>
+      )}
+
+      {/* =========================================================
+          VISTA 3: EDITORIAL JURÍDICO (PÁGINA DEDICADA)
          ========================================================= */}
       {vista === 'editorial' && (
         <main className="py-16 md:py-24 bg-neutral-50/50 min-h-[80vh]">
@@ -603,10 +706,10 @@ export default function App() {
                 <span>Editorial Jurídico ACTIO LEGIS</span>
               </div>
               <h1 className="text-4xl sm:text-5xl font-serif font-bold text-neutral-950 tracking-tight">
-                Doctrina, Criterios & Jurisprudencia
+                Criterios jurídicos & Doctrina
               </h1>
               <p className="text-sm sm:text-base text-neutral-600 max-w-3xl font-light leading-relaxed">
-                Plataforma de análisis académico y técnico sobre la jurisprudencia vinculante de la Corte Nacional de Justicia, reformas procesales y tendencias en el litigio penal, civil y comercial en Ecuador.
+                Plataforma de análisis académico y técnico sobre la jurisprudencia vinculante de la Corte Nacional de Justicia, reformas procesales y tendencias en el litigio en Ecuador.
               </p>
             </div>
 
@@ -659,7 +762,7 @@ export default function App() {
       )}
 
       {/* =========================================================
-          VISTA 3: PORTAL DE CLIENTES
+          VISTA 4: PORTAL DE CLIENTES
          ========================================================= */}
       {vista === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -850,7 +953,7 @@ export default function App() {
       )}
 
       {/* =========================================================
-          VISTA 4: INTRANET DE LITIGANTES & EXPEDIENTE IA
+          VISTA 5: INTRANET DE LITIGANTES & EXPEDIENTE IA
          ========================================================= */}
       {vista === 'intranet' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
