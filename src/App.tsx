@@ -1211,7 +1211,7 @@ export default function App() {
               </div>
 
               <p className="text-neutral-500 text-xs leading-relaxed pt-1 font-light">
-                Firma jurídica boutique en Guayaquil. Litigio penal y civil estratégicos, rigor procesal y asesoría corporativa.
+                Estudio jurídico en Guayaquil. Litigio penal y civil estratégicos, rigor procesal y asesoría corporativa.
               </p>
             </div>
 
