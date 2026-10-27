@@ -245,7 +245,7 @@ export default function App() {
 
             <div className="hidden sm:flex flex-col border-l border-neutral-200 pl-3">
               <span className="font-serif text-xs font-bold tracking-tight text-neutral-950">
-                {vista === 'editorial' ? 'Editorial Jurídico' : 'Estudio Jurídico & Litigio'}
+                {vista === 'editorial' ? 'Editorial Jurídico' : 'Estudio Jurídico Boutique'}
               </span>
               <span className="text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-mono">
                 Guayaquil • Ecuador
@@ -323,7 +323,6 @@ export default function App() {
                 </button>
               </>
             ) : (
-              /* BOTÓN CERRAR SESIÓN EN VISTAS PRIVADAS */
               <div className="flex items-center gap-3">
                 <span className="hidden md:inline text-xs font-mono text-neutral-500">
                   {vista === 'cliente' ? 'Sesión: Cliente Registrado' : 'Sesión: Abogado Litigante'}
@@ -405,7 +404,7 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
+                    En un entorno forense sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personally por sus socios directores, formulando teorías del caso sostenidas en dogmática penal sólida y recopilación probatoria rigurosa.
                   </p>
                   <p>
                     Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados judiciales y tribunales arbitrales.
