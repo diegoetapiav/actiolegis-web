@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Shield, Scale, FileText, Calendar, DollarSign, MessageSquare, 
   MapPin, Phone, Mail, ArrowRight, ArrowUp, ExternalLink, 
@@ -38,6 +38,8 @@ export interface UsuarioSistema {
   nombre: string;
   correo: string;
   rol: RolUsuario;
+  codigoCliente?: string;
+  claveCliente?: string;
   activo: boolean;
 }
 
@@ -86,10 +88,11 @@ interface ExpedienteInterno {
 }
 
 const USUARIOS_BASE: UsuarioSistema[] = [
-  { id: 'usr-1', nombre: 'Abg. Diego Tapia Vicuña, Mgs.', correo: 'diego.tapia@actiolegisec.com', rol: 'admin', activo: true },
-  { id: 'usr-2', nombre: 'Abg. Marcela Dunn-Ortega, Mgs.', correo: 'marceladunnortega@actiolegisec.com', rol: 'abogado', activo: true },
-  { id: 'usr-3', nombre: 'Lcda. María Elena Castro', correo: 'mcastro@actiolegisec.com', rol: 'asistente', activo: true },
-  { id: 'usr-4', nombre: 'Carlos Mendoza', correo: 'cmendoza@actiolegisec.com', rol: 'pasante', activo: true },
+  { id: 'usr-admin', nombre: 'Abg. Diego Tapia Vicuña, Mgs.', correo: 'diego.tapia@actiolegisec.com', rol: 'admin', activo: true },
+  { id: 'usr-abg', nombre: 'Abg. Marcela Dunn-Ortega, Mgs.', correo: 'marceladunnortega@actiolegisec.com', rol: 'abogado', activo: true },
+  { id: 'usr-asis', nombre: 'Lcda. María Elena Castro', correo: 'mcastro@actiolegisec.com', rol: 'asistente', activo: true },
+  { id: 'usr-pas', nombre: 'Carlos Mendoza', correo: 'cmendoza@actiolegisec.com', rol: 'pasante', activo: true },
+  { id: 'usr-cli-1', nombre: 'Inmobiliaria del Valle S.A.S.', correo: 'contacto@inmovalle.com', rol: 'cliente', codigoCliente: 'ACTIO-00001', claveCliente: 'cliente123', activo: true },
 ];
 
 const CASOS_BASE: ExpedienteInterno[] = [
@@ -175,8 +178,10 @@ const NOTIFICACIONES_BASE: NotificacionAuditoria[] = [
 export default function App() {
   const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'equipo' | 'cliente' | 'intranet' | 'admin-console'>('sitio-web');
   const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios' | 'gastos' | 'editorial-borradores'>('expedientes');
-  const [modalLogin, setModalLogin] = useState(false);
   
+  // Control de Modales
+  const [modalIngreso, setModalIngreso] = useState<'intranet' | 'cliente' | 'admin' | null>(null);
+
   const [usuarioSesion, setUsuarioSesion] = useState<UsuarioSistema | null>(null);
 
   const [usuariosSistema, setUsuariosSistema] = useState<UsuarioSistema[]>(USUARIOS_BASE);
@@ -189,11 +194,17 @@ export default function App() {
   const [procesandoIA, setProcesandoIA] = useState(false);
   const [resultadoIA, setResultadoIA] = useState<string | null>(null);
 
-  // Formulario de Ingreso Directo por Correo Institucional
-  const [inputCorreoInst, setInputCorreoInst] = useState('');
-  const [errorLogin, setErrorLogin] = useState<string | null>(null);
+  // Formulario Portal Clientes
+  const [codigoClienteInput, setCodigoClienteInput] = useState('');
+  const [claveClienteInput, setClaveClienteInput] = useState('');
 
-  // Formularios
+  // Formulario Admin
+  const [correoAdminInput, setCorreoAdminInput] = useState('diego.tapia@actiolegisec.com');
+  const [claveAdminInput, setClaveAdminInput] = useState('');
+  const [claveAdminGuardada, setClaveAdminGuardada] = useState<string | null>(null);
+  const [recordarAdmin, setRecordarAdmin] = useState(false);
+
+  // Formularios CMS
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoCorreo, setNuevoCorreo] = useState('');
   const [nuevoRol, setNuevoRol] = useState<RolUsuario>('abogado');
@@ -204,6 +215,8 @@ export default function App() {
   const [nuevoArtTitulo, setNuevoArtTitulo] = useState('');
   const [nuevoArtCat, setNuevoArtCat] = useState('');
   const [nuevoArtResumen, setNuevoArtResumen] = useState('');
+
+  const [errorLogin, setErrorLogin] = useState<string | null>(null);
 
   const casoActivo = expedientes.find((c) => c.id === casoActivoId) || expedientes[0];
   const indiceActivo = expedientes.findIndex((c) => c.id === casoActivo?.id);
@@ -220,47 +233,107 @@ export default function App() {
     setNotificaciones(prev => [nuevaNotif, ...prev]);
   };
 
-  // INGRESO DIRECTO POR CORREO INSTITUCIONAL SIN CONTRASEÑA
-  const handleIngresoPorCorreo = (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorLogin(null);
-    const correoLimpio = inputCorreoInst.trim().toLowerCase();
+  // 1. INGRESO INTRANET (GOOGLE SSO @actiolegisec.com)
+  const handleGoogleSSO = () => {
+    const correoSimulado = prompt("Inicie sesión con su cuenta Google (@actiolegisec.com):", "marceladunnortega@actiolegisec.com");
+    if (!correoSimulado) return;
 
-    const usrEncontrado = usuariosSistema.find(u => u.correo.toLowerCase() === correoLimpio);
+    const correoLimpio = correoSimulado.trim().toLowerCase();
+    if (!correoLimpio.endsWith('@actiolegisec.com')) {
+      alert("Acceso denegado: Únicamente se permiten cuentas de Google con dominio @actiolegisec.com");
+      return;
+    }
 
-    if (usrEncontrado) {
-      if (!usrEncontrado.activo) {
-        setErrorLogin('Este usuario se encuentra inactivo. Consulte con la administración.');
-        return;
-      }
-      setUsuarioSesion(usrEncontrado);
-      setModalLogin(false);
-      setInputCorreoInst('');
-      
-      if (usrEncontrado.rol === 'admin') {
-        setVista('admin-console');
-      } else {
-        setVista('intranet');
-      }
-      registrarAuditoria(usrEncontrado.nombre, `Ingresó al sistema autorizando correo ${usrEncontrado.correo}`, 'Acceso Directo');
-    } else if (correoLimpio.endsWith('@actiolegisec.com')) {
-      // Auto-registro para correos de la firma
-      const nuevoIntegrante: UsuarioSistema = {
+    let usr = usuariosSistema.find(u => u.correo.toLowerCase() === correoLimpio);
+    if (!usr) {
+      usr = {
         id: `usr-${Date.now()}`,
         nombre: correoLimpio.split('@')[0].replace('.', ' ').toUpperCase(),
         correo: correoLimpio,
-        rol: 'pasante',
+        rol: 'abogado',
         activo: true
       };
-      setUsuariosSistema(prev => [...prev, nuevoIntegrante]);
-      setUsuarioSesion(nuevoIntegrante);
-      setModalLogin(false);
-      setInputCorreoInst('');
-      setVista('intranet');
-      registrarAuditoria(nuevoIntegrante.nombre, `Registrado e ingresado por autorización de dominio @actiolegisec.com`, 'Auto-Acceso');
-    } else {
-      setErrorLogin('Correo no registrado o no perteneciente al dominio institucional @actiolegisec.com');
+      setUsuariosSistema(prev => [...prev, usr!]);
     }
+
+    setUsuarioSesion(usr);
+    setModalIngreso(null);
+    setVista('intranet');
+    registrarAuditoria(usr.nombre, `Ingresó a Intranet vía Google Single Sign-On`, 'Google OAuth');
+  };
+
+  // 2. INGRESO PORTAL CLIENTES (CÓDIGO Y CLAVE)
+  const handleIngresoCliente = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorLogin(null);
+    const codLimpio = codigoClienteInput.trim().toUpperCase();
+
+    const clienteEncontrado = usuariosSistema.find(u => 
+      u.rol === 'cliente' && 
+      u.codigoCliente === codLimpio && 
+      u.claveCliente === claveClienteInput
+    );
+
+    if (clienteEncontrado) {
+      setUsuarioSesion(clienteEncontrado);
+      setModalIngreso(null);
+      setCodigoClienteInput('');
+      setClaveClienteInput('');
+      setVista('cliente');
+      registrarAuditoria(clienteEncontrado.nombre, `Ingresó al Portal de Clientes con código ${codLimpio}`, 'Portal Clientes');
+    } else {
+      setErrorLogin('Código de cliente o contraseña incorrectos. Verifique sus datos.');
+    }
+  };
+
+  // 3. INGRESO CONSOLA ADMINISTRADOR (CORREO Y CLAVE DIEGOP TAPIA)
+  const handleIngresoAdmin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorLogin(null);
+
+    if (correoAdminInput.trim().toLowerCase() !== 'diego.tapia@actiolegisec.com') {
+      setErrorLogin('Acceso restringido únicamente para diego.tapia@actiolegisec.com');
+      return;
+    }
+
+    if (!claveAdminGuardada) {
+      // Primer ingreso: Establece la clave
+      setClaveAdminGuardada(claveAdminInput);
+      const adminUsr = usuariosSistema.find(u => u.correo === 'diego.tapia@actiolegisec.com')!;
+      setUsuarioSesion(adminUsr);
+      setModalIngreso(null);
+      setVista('admin-console');
+      registrarAuditoria(adminUsr.nombre, 'Registró contraseña inicial de Administrador e ingresó', 'Consola Admin');
+      alert('¡Contraseña de Administrador registrada con éxito!');
+    } else if (claveAdminInput === claveAdminGuardada) {
+      const adminUsr = usuariosSistema.find(u => u.correo === 'diego.tapia@actiolegisec.com')!;
+      setUsuarioSesion(adminUsr);
+      setModalIngreso(null);
+      setVista('admin-console');
+      registrarAuditoria(adminUsr.nombre, 'Ingresó a la Consola de Administración', 'Consola Admin');
+    } else {
+      setErrorLogin('Contraseña de Administrador incorrecta.');
+    }
+  };
+
+  // CREACIÓN DE CLIENTES CON CÓDIGO SECUENCIAL DE 5 DÍGITOS (ACTIO-00001)
+  const handleCrearClienteCMS = (nombreCliente: string, correoCliente: string, claveCliente: string) => {
+    const numClientes = usuariosSistema.filter(u => u.rol === 'cliente').length + 1;
+    const codigoSecuencial = `ACTIO-${String(numClientes).padStart(5, '0')}`;
+
+    const nuevoCliente: UsuarioSistema = {
+      id: `usr-cli-${Date.now()}`,
+      nombre: nombreCliente,
+      correo: correoCliente,
+      rol: 'cliente',
+      codigoCliente: codigoSecuencial,
+      claveCliente: claveCliente || 'actio2026',
+      activo: true
+    };
+
+    setUsuariosSistema(prev => [...prev, nuevoCliente]);
+    registrarAuditoria(usuarioSesion?.nombre || 'Administrador', `Registró cliente ${nombreCliente} con código ${codigoSecuencial}`, 'Consola Clientes');
+    alert(`Cliente registrado con éxito.\nCódigo generado: ${codigoSecuencial}`);
   };
 
   const handleRegistrarGasto = (e: React.FormEvent) => {
@@ -269,10 +342,7 @@ export default function App() {
 
     setExpedientes(prev => prev.map(exp => {
       if (exp.id === casoActivo.id) {
-        return {
-          ...exp,
-          gastosRegistrados: `$ ${montoGastoInput} USD`
-        };
+        return { ...exp, gastosRegistrados: `$ ${montoGastoInput} USD` };
       }
       return exp;
     }));
@@ -280,23 +350,27 @@ export default function App() {
     registrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Registró gasto de $ ${montoGastoInput} USD en causa ${casoActivo.numProceso}`, 'Módulo Gastos');
     setMontoGastoInput('');
     setConceptoGastoInput('');
-    alert('Gasto registrado con éxito en la causa judicial.');
+    alert('Gasto registrado con éxito.');
   };
 
   const handleCrearUsuarioCMS = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevoNombre || !nuevoCorreo) return;
 
-    const nUsr: UsuarioSistema = {
-      id: `usr-${Date.now()}`,
-      nombre: nuevoNombre,
-      correo: nuevoCorreo.trim().toLowerCase(),
-      rol: nuevoRol,
-      activo: true
-    };
+    if (nuevoRol === 'cliente') {
+      handleCrearClienteCMS(nuevoNombre, nuevoCorreo, 'cliente123');
+    } else {
+      const nUsr: UsuarioSistema = {
+        id: `usr-${Date.now()}`,
+        nombre: nuevoNombre,
+        correo: nuevoCorreo.trim().toLowerCase(),
+        rol: nuevoRol,
+        activo: true
+      };
+      setUsuariosSistema(prev => [...prev, nUsr]);
+      registrarAuditoria(usuarioSesion?.nombre || 'Administrador', `Añadió integrante ${nuevoNombre} como ${nuevoRol.toUpperCase()}`, 'Consola CMS');
+    }
 
-    setUsuariosSistema(prev => [...prev, nUsr]);
-    registrarAuditoria(usuarioSesion?.nombre || 'Administrador', `Añadió usuario ${nuevoNombre} como ${nuevoRol.toUpperCase()}`, 'Consola CMS');
     setNuevoNombre('');
     setNuevoCorreo('');
   };
@@ -417,10 +491,10 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex items-center gap-2 sm:gap-3">
             {vista === 'sitio-web' || vista === 'editorial' || vista === 'equipo' ? (
               <>
-                <nav className="hidden lg:flex items-center gap-7 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600">
+                <nav className="hidden lg:flex items-center gap-6 text-xs font-mono uppercase tracking-[0.15em] text-neutral-600 mr-2">
                   <button type="button" onClick={() => setVista('sitio-web')} className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'sitio-web' ? 'text-neutral-950 font-bold' : ''}`}>Inicio</button>
                   <a href="#proposito" onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} className="hover:text-neutral-950 transition-colors">Propósito</a>
                   <a href="#socios" onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} className={`hover:text-neutral-950 transition-colors cursor-pointer ${vista === 'equipo' ? 'text-neutral-950 font-bold' : ''}`}>Nuestro Equipo</a>
@@ -429,13 +503,32 @@ export default function App() {
                   <a href="#contacto" onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} className="hover:text-neutral-950 transition-colors">Contacto</a>
                 </nav>
 
+                {/* 3 ACCESOS DIVERSIFICADOS */}
                 <button
                   type="button"
-                  onClick={() => setModalLogin(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer shadow-2xs"
+                  onClick={() => { setErrorLogin(null); setModalIngreso('intranet'); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-800 bg-neutral-100 hover:bg-neutral-200 transition-all cursor-pointer shadow-2xs"
                 >
-                  <User className="w-3.5 h-3.5 text-neutral-600" />
-                  <span>Acceso Institucional</span>
+                  <Building2 className="w-3.5 h-3.5 text-neutral-600" />
+                  <span>Intranet</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setErrorLogin(null); setModalIngreso('cliente'); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-900 border border-neutral-300 hover:bg-neutral-50 transition-all cursor-pointer shadow-2xs"
+                >
+                  <User className="w-3.5 h-3.5 text-neutral-700" />
+                  <span className="hidden sm:inline">Portal</span> Clientes
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => { setErrorLogin(null); setModalIngreso('admin'); }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-neutral-950 hover:bg-black transition-all cursor-pointer shadow-2xs"
+                >
+                  <Settings className="w-3.5 h-3.5 text-neutral-300" />
+                  <span className="hidden md:inline">Consola</span> Admin
                 </button>
               </>
             ) : (
@@ -501,7 +594,7 @@ export default function App() {
 
                 <button
                   type="button"
-                  onClick={() => setModalLogin(true)}
+                  onClick={() => { setErrorLogin(null); setModalIngreso('cliente'); }}
                   className="px-7 py-3.5 bg-white hover:bg-neutral-50 text-neutral-900 border border-neutral-300 text-xs uppercase tracking-[0.15em] font-semibold rounded-xl shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>Portal de Clientes</span>
@@ -520,7 +613,7 @@ export default function App() {
                   <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white leading-tight">No ejercemos el derecho en masa. Asumimos causas con compromiso de fondo.</h2>
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
-                  <p>En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.</p>
+                  <p>En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.</p>
                   <p>Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.</p>
                 </div>
               </div>
@@ -607,22 +700,23 @@ export default function App() {
                 <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
                   <h3 className="text-sm font-mono uppercase font-bold text-neutral-950 flex items-center gap-2">
                     <Users className="w-4 h-4 text-neutral-900" />
-                    <span>Nómina de Usuarios & Facultades ({usuariosSistema.length})</span>
+                    <span>Nómina de Usuarios & Clientes ({usuariosSistema.length})</span>
                   </h3>
                 </div>
 
                 <form onSubmit={handleCrearUsuarioCMS} className="bg-neutral-50 p-4 rounded-xl border border-neutral-200 space-y-3">
-                  <span className="text-xs font-mono font-bold text-neutral-900 block">Registrar Nuevo Integrante</span>
+                  <span className="text-xs font-mono font-bold text-neutral-900 block">Registrar Nuevo Integrante o Cliente</span>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <input type="text" placeholder="Nombre completo" required value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} className="bg-white border border-neutral-300 rounded-lg p-2 text-xs" />
-                    <input type="email" placeholder="correo@actiolegisec.com" required value={nuevoCorreo} onChange={e => setNuevoCorreo(e.target.value)} className="bg-white border border-neutral-300 rounded-lg p-2 text-xs" />
+                    <input type="email" placeholder="correo@ejemplo.com" required value={nuevoCorreo} onChange={e => setNuevoCorreo(e.target.value)} className="bg-white border border-neutral-300 rounded-lg p-2 text-xs" />
                     <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as RolUsuario)} className="bg-white border border-neutral-300 rounded-lg p-2 text-xs font-mono">
                       <option value="abogado">1. Abogado (Fuerte)</option>
                       <option value="asistente">2. Asistente</option>
                       <option value="pasante">3. Pasante</option>
+                      <option value="cliente">4. Cliente (Genera Código ACTIO-XXXXX)</option>
                     </select>
                   </div>
-                  <button type="submit" className="px-4 py-2 bg-neutral-950 text-white text-xs rounded-lg font-semibold cursor-pointer">Añadir Usuario a Intranet</button>
+                  <button type="submit" className="px-4 py-2 bg-neutral-950 text-white text-xs rounded-lg font-semibold cursor-pointer">Registrar en Sistema</button>
                 </form>
 
                 <div className="space-y-2">
@@ -630,9 +724,9 @@ export default function App() {
                     <div key={usr.id} className="p-3 border border-neutral-200 rounded-xl flex items-center justify-between text-xs bg-white">
                       <div>
                         <div className="font-bold text-neutral-900">{usr.nombre}</div>
-                        <div className="text-neutral-500 font-mono text-[11px]">{usr.correo}</div>
+                        <div className="text-neutral-500 font-mono text-[11px]">{usr.correo} {usr.codigoCliente && `• Código: ${usr.codigoCliente}`}</div>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-md font-mono text-[10px] uppercase font-bold ${usr.rol === 'admin' ? 'bg-purple-100 text-purple-900' : usr.rol === 'abogado' ? 'bg-blue-100 text-blue-900' : usr.rol === 'asistente' ? 'bg-emerald-100 text-emerald-900' : 'bg-neutral-100 text-neutral-800'}`}>
+                      <span className={`px-2.5 py-1 rounded-md font-mono text-[10px] uppercase font-bold ${usr.rol === 'admin' ? 'bg-purple-100 text-purple-900' : usr.rol === 'abogado' ? 'bg-blue-100 text-blue-900' : usr.rol === 'cliente' ? 'bg-amber-100 text-amber-900' : 'bg-neutral-100 text-neutral-800'}`}>
                         {usr.rol}
                       </span>
                     </div>
@@ -707,7 +801,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
                 <Building2 className="w-3.5 h-3.5 text-neutral-900" />
-                <span>Panel de Litigantes • {usuarioSesion.rol.toUpperCase()}</span>
+                <span>Intranet • {usuarioSesion.rol.toUpperCase()}</span>
               </div>
               <h1 className="text-2xl font-serif font-bold text-neutral-950">Intranet Forense ACTIO LEGIS</h1>
             </div>
@@ -726,7 +820,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* TAB DE REGISTRO DE GASTOS (ASISTENTES Y ABOGADOS) */}
+          {/* TAB DE REGISTRO DE GASTOS */}
           {tabIntranet === 'gastos' && (
             <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-xl mx-auto space-y-4 shadow-sm">
               <h3 className="text-lg font-serif font-bold text-neutral-950">Registrar Gastos Incurridos en Causa</h3>
@@ -819,7 +913,6 @@ export default function App() {
                 <h3 className="font-serif font-bold text-lg text-neutral-950">Causa: {casoActivo.numProceso}</h3>
                 <p className="text-xs text-neutral-600">Cliente: {casoActivo.cliente} • Patrocinador: {casoActivo.abogadoLider}</p>
                 
-                {/* REVISIÓN DE HONORARIOS RESTRINGIDA SEGÚN ROL */}
                 <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200 font-mono text-xs space-y-1">
                   <div className="flex justify-between items-center">
                     <span>Honorarios Fijados:</span>
@@ -829,14 +922,65 @@ export default function App() {
                     <span>Gastos Acumulados:</span>
                     <strong className="text-neutral-900">{casoActivo.gastosRegistrados}</strong>
                   </div>
-                  {usuarioSesion.rol === 'asistente' && (
-                    <span className="text-[10px] text-amber-700 font-sans block pt-1">Nota: Vista de solo lectura para asistentes.</span>
-                  )}
                 </div>
               </div>
             </div>
           )}
 
+        </div>
+      )}
+
+      {/* VISTA PORTAL DE CLIENTES PROTEGIDO */}
+      {vista === 'cliente' && usuarioSesion?.rol === 'cliente' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-neutral-100 text-[11px] font-mono uppercase tracking-wider text-neutral-600 mb-2">
+                <Shield className="w-3.5 h-3.5 text-neutral-800" />
+                <span>Código Confidencial: {usuarioSesion.codigoCliente}</span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-serif text-neutral-950 font-normal">
+                Bienvenido/a, <span className="font-semibold">{usuarioSesion.nombre}</span>
+              </h1>
+
+              <p className="text-xs sm:text-sm text-neutral-600 mt-2 leading-relaxed">
+                Este dashboard privado le permite conocer el avance exacto de las causas judiciales patrocinadas por ACTIO LEGIS.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="lg:col-span-4 space-y-3">
+              {expedientes.map((caso, index) => {
+                const estilo = PALETA_TRAMITES[index % PALETA_TRAMITES.length];
+                const estaSeleccionado = caso.id === casoActivo.id;
+
+                return (
+                  <div
+                    key={caso.id}
+                    onClick={() => setCasoActivoId(caso.id)}
+                    className={`rounded-2xl p-5 border transition-all cursor-pointer relative ${estilo.fondoCard} ${estaSeleccionado ? 'ring-2 ring-neutral-950 shadow-sm' : 'opacity-90 hover:opacity-100'}`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="font-mono text-xs font-bold text-neutral-900">{caso.numProceso}</span>
+                      <span className={`text-[10px] uppercase font-semibold px-2 py-0.5 rounded-md border ${estilo.badgeMateria}`}>{caso.materia}</span>
+                    </div>
+
+                    <h3 className="font-serif font-semibold text-neutral-950 text-sm leading-snug mb-3 line-clamp-2">{caso.tipoProceso}</h3>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={`lg:col-span-8 rounded-3xl border border-neutral-200 shadow-sm p-6 sm:p-8 space-y-6 ${estiloActivo.detalleFondo}`}>
+              <h2 className="text-xl sm:text-2xl font-serif font-bold text-neutral-950">{casoActivo.tipoProceso}</h2>
+              <div className="p-4 bg-white rounded-xl border border-neutral-200 text-xs space-y-2">
+                <div>Etapa Procesal: <strong>{casoActivo.etapaProcesalActual}</strong></div>
+                <div>Próxima Fecha Clave: <strong>{casoActivo.proximaFechaClave}</strong></div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -908,8 +1052,9 @@ export default function App() {
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">Enlaces de interés</h4>
               <ul className="space-y-2 text-neutral-500 font-light">
-                <li><button type="button" onClick={() => setModalLogin(true)} className="hover:text-neutral-950 text-left">Portal Clientes</button></li>
-                <li><button type="button" onClick={() => setModalLogin(true)} className="hover:text-neutral-950 text-left font-medium text-neutral-900">Intranet Abogados</button></li>
+                <li><button type="button" onClick={() => { setErrorLogin(null); setModalIngreso('intranet'); }} className="hover:text-neutral-950 text-left font-medium text-neutral-900">Intranet Abogados</button></li>
+                <li><button type="button" onClick={() => { setErrorLogin(null); setModalIngreso('cliente'); }} className="hover:text-neutral-950 text-left">Portal Clientes</button></li>
+                <li><button type="button" onClick={() => { setErrorLogin(null); setModalIngreso('admin'); }} className="hover:text-neutral-950 text-left font-bold text-neutral-950">Consola Administrador</button></li>
                 <li><a href="https://procesosjudiciales.funcionjudicial.gob.ec/busqueda" target="_blank" rel="noopener noreferrer" className="hover:text-neutral-950 flex items-center gap-1.5"><span>Función Judicial SATJE</span><ExternalLink className="w-3 h-3 text-neutral-400" /></a></li>
               </ul>
             </div>
@@ -926,40 +1071,78 @@ export default function App() {
         </div>
       </footer>
 
-      {/* MODAL DE INGRESO DIRECTO POR CORREO INSTITUCIONAL */}
-      {modalLogin && (
+      {/* MODAL 1: INTRANET (GOOGLE SSO @actiolegisec.com) */}
+      {modalIngreso === 'intranet' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7 text-center space-y-5">
+            <button onClick={() => setModalIngreso(null)} className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 cursor-pointer">
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="inline-block relative">
+              <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+              <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
+                <span className="font-black text-xs tracking-widest font-sans">ACTIO</span>
+                <span className="font-black text-xs tracking-widest font-sans">LEGIS</span>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-serif text-neutral-950 font-bold">Intranet del Despacho</h3>
+            <p className="text-xs text-neutral-500">Acceso exclusivo para el equipo de abogados, asistentes y pasantes con correo institucional de la firma.</p>
+
+            <button
+              type="button"
+              onClick={handleGoogleSSO}
+              className="w-full py-3.5 px-4 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 shadow-2xs transition-all cursor-pointer"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continuar con Google (@actiolegisec.com)</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: PORTAL CLIENTES (CÓDIGO SECUENCIAL ACTIO-XXXXX + CLAVE) */}
+      {modalIngreso === 'cliente' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
-            <button onClick={() => setModalLogin(false)} className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 cursor-pointer">
+            <button onClick={() => setModalIngreso(null)} className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 cursor-pointer">
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center mb-6">
-              <div className="inline-block relative mb-2">
-                <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
-                <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
-                  <span className="font-black text-xs tracking-widest leading-none font-sans">ACTIO</span>
-                  <span className="font-black text-xs tracking-widest leading-none font-sans">LEGIS</span>
-                </div>
-              </div>
-              <h3 className="text-xl font-serif text-neutral-950 font-bold">Ingreso por Correo Autorizado</h3>
-              <p className="text-xs text-neutral-500 mt-1">Ingrese su correo institucional (@actiolegisec.com) para autorizar su sesión en la plataforma.</p>
+              <h3 className="text-xl font-serif text-neutral-950 font-bold">Portal de Clientes</h3>
+              <p className="text-xs text-neutral-500 mt-1">Ingrese con el código confidencial asignado por su abogado patrocinador.</p>
             </div>
 
-            <form onSubmit={handleIngresoPorCorreo} className="space-y-4">
+            <form onSubmit={handleIngresoCliente} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">Correo Institucional / Registrado</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
-                  <input
-                    type="email"
-                    required
-                    value={inputCorreoInst}
-                    onChange={(e) => setInputCorreoInst(e.target.value)}
-                    placeholder="usuario@actiolegisec.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
-                  />
-                </div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">Código de Cliente (Ej. ACTIO-00001)</label>
+                <input
+                  type="text"
+                  required
+                  value={codigoClienteInput}
+                  onChange={(e) => setCodigoClienteInput(e.target.value)}
+                  placeholder="ACTIO-00001"
+                  className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950 uppercase font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">Contraseña de Acceso</label>
+                <input
+                  type="password"
+                  required
+                  value={claveClienteInput}
+                  onChange={(e) => setClaveClienteInput(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                />
               </div>
 
               {errorLogin && (
@@ -969,8 +1152,82 @@ export default function App() {
                 </div>
               )}
 
-              <button type="submit" className="w-full py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl cursor-pointer shadow-xs">
-                Autorizar Ingreso a la Plataforma
+              <button type="submit" className="w-full py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl cursor-pointer">
+                Ingresar al Portal Privado
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: CONSOLA DE ADMINISTRADOR (DIEGO TAPIA CON CONTRASEÑA Y RECORDAR USUARIO) */}
+      {modalIngreso === 'admin' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
+            <button onClick={() => setModalIngreso(null)} className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-900 cursor-pointer">
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-block relative mb-2">
+                <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
+                <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
+                  <span className="font-black text-xs tracking-widest font-sans">ACTIO</span>
+                  <span className="font-black text-xs tracking-widest font-sans">LEGIS</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-serif text-neutral-950 font-bold">Consola Administrador Principal</h3>
+              <p className="text-xs text-neutral-500 mt-1">Acceso con privilegios de control total CMS.</p>
+            </div>
+
+            <form onSubmit={handleIngresoAdmin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">Correo de Administrador</label>
+                <input
+                  type="email"
+                  required
+                  value={correoAdminInput}
+                  onChange={(e) => setCorreoAdminInput(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
+                  {!claveAdminGuardada ? 'Registrar Contraseña Inicial' : 'Contraseña de Administrador'}
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={claveAdminInput}
+                  onChange={(e) => setClaveAdminInput(e.target.value)}
+                  placeholder="••••••••••••"
+                  className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="recordarAdmin"
+                  checked={recordarAdmin}
+                  onChange={(e) => setRecordarAdmin(e.target.checked)}
+                  className="rounded border-neutral-300 text-neutral-950 focus:ring-neutral-950"
+                />
+                <label htmlFor="recordarAdmin" className="text-xs text-neutral-600 cursor-pointer">
+                  Recordar este usuario en el navegador
+                </label>
+              </div>
+
+              {errorLogin && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{errorLogin}</span>
+                </div>
+              )}
+
+              <button type="submit" className="w-full py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl cursor-pointer">
+                {!claveAdminGuardada ? 'Registrar Contraseña & Acceder' : 'Ingresar a Consola Admin'}
               </button>
             </form>
           </div>
