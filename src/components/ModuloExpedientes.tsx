@@ -164,66 +164,76 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const fechaSeleccionadaString = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`;
   const eventosDelDia = eventosCalendario.filter(evt => evt.fecha === fechaSeleccionadaString);
 
-  // PARSER DE MULTIFORMATO PARA GOOGLE ICAL (PROCESA EVENTOS CON/SIN HORA)
+  // CONECTOR ROBUSTO CON RETRY MULTI-PROXY CONTRA BLOQUEOS CORS
   const cargarEventosDeGoogleICal = async () => {
     setSyncState(true);
-    try {
-      const corsProxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(GOOGLE_ICAL_URL)}&t=${Date.now()}`;
-      const res = await fetch(corsProxyUrl);
-      if (res.ok) {
-        const text = await res.text();
-        const lineas = text.split('\n');
-        const eventosParseados: EventoCalendario[] = [];
-        let summary = '';
-        let dtstart = '';
+    const proxies = [
+      `https://corsproxy.io/?${encodeURIComponent(GOOGLE_ICAL_URL)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(GOOGLE_ICAL_URL)}`
+    ];
 
-        for (let i = 0; i < lineas.length; i++) {
-          const linea = lineas[i].trim();
-          if (linea.startsWith('SUMMARY:')) {
-            summary = linea.replace('SUMMARY:', '').replace(/\\,/g, ',').replace(/\\;/g, ';');
-          }
-          if (linea.startsWith('DTSTART')) {
-            const partes = linea.split(':');
-            if (partes.length >= 2) {
-              const valorFecha = partes[1].trim();
-              if (valorFecha.length >= 8) {
-                dtstart = `${valorFecha.substring(0, 4)}-${valorFecha.substring(4, 6)}-${valorFecha.substring(6, 8)}`;
+    let exito = false;
+
+    for (const urlProxy of proxies) {
+      if (exito) break;
+      try {
+        const res = await fetch(urlProxy);
+        if (res.ok) {
+          const text = await res.text();
+          const lineas = text.split('\n');
+          const eventosParseados: EventoCalendario[] = [];
+          let summary = '';
+          let dtstart = '';
+
+          for (let i = 0; i < lineas.length; i++) {
+            const linea = lineas[i].trim();
+            if (linea.startsWith('SUMMARY:')) {
+              summary = linea.replace('SUMMARY:', '').replace(/\\,/g, ',').replace(/\\;/g, ';');
+            }
+            if (linea.startsWith('DTSTART')) {
+              const partes = linea.split(':');
+              if (partes.length >= 2) {
+                const valorFecha = partes[1].trim();
+                if (valorFecha.length >= 8) {
+                  dtstart = `${valorFecha.substring(0, 4)}-${valorFecha.substring(4, 6)}-${valorFecha.substring(6, 8)}`;
+                }
               }
             }
-          }
-          if (linea.startsWith('END:VEVENT')) {
-            if (summary && dtstart) {
-              eventosParseados.push({
-                id: `ical-${Math.random()}`,
-                titulo: summary,
-                causa: 'Google Workspace',
-                fecha: dtstart,
-                hora: 'Todo el día',
-                tipo: summary.toLowerCase().includes('audiencia') ? 'Audiencia' : summary.toLowerCase().includes('reun') ? 'Reunión' : 'Término Fatal',
-                unidadJudicial: 'Sede Judicial Patrocinada',
-                abogado: 'Abg. Diego Tapia Vicuña, Mgs.',
-                estrategia: 'Sincronizado directamente desde Google Calendar.',
-                providenciaVinculada: 'Registro de Google Calendar ACTIO LEGIS'
-              });
+            if (linea.startsWith('END:VEVENT')) {
+              if (summary && dtstart) {
+                eventosParseados.push({
+                  id: `ical-${Math.random()}`,
+                  titulo: summary,
+                  causa: 'Google Workspace',
+                  fecha: dtstart,
+                  hora: 'Todo el día',
+                  tipo: summary.toLowerCase().includes('audiencia') ? 'Audiencia' : summary.toLowerCase().includes('reun') ? 'Reunión' : 'Término Fatal',
+                  unidadJudicial: 'Sede Judicial Patrocinada',
+                  abogado: 'Abg. Diego Tapia Vicuña, Mgs.',
+                  estrategia: 'Sincronizado dinámicamente mediante iCal privado.',
+                  providenciaVinculada: 'Registro de Google Calendar ACTIO LEGIS'
+                });
+              }
+              summary = '';
+              dtstart = '';
             }
-            summary = '';
-            dtstart = '';
+          }
+
+          if (eventosParseados.length > 0) {
+            setEventosCalendario(prev => {
+              const llavesExistentes = new Set(prev.map(e => `${e.titulo.trim()}_${e.fecha}`));
+              const nuevos = eventosParseados.filter(e => !llavesExistentes.has(`${e.titulo.trim()}_${e.fecha}`));
+              return [...nuevos, ...prev];
+            });
+            exito = true;
           }
         }
-
-        if (eventosParseados.length > 0) {
-          setEventosCalendario(prev => {
-            const llavesExistentes = new Set(prev.map(e => `${e.titulo.trim()}_${e.fecha}`));
-            const nuevos = eventosParseados.filter(e => !llavesExistentes.has(`${e.titulo.trim()}_${e.fecha}`));
-            return [...nuevos, ...prev];
-          });
-        }
+      } catch (err) {
+        // Continúa al siguiente proxy si este falla
       }
-    } catch (err) {
-      console.log('Utilizando caché local de eventos.');
-    } finally {
-      setSyncState(false);
     }
+
+    setSyncState(false);
   };
 
   useEffect(() => {
