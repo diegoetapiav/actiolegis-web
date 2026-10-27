@@ -193,7 +193,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
-      {/* CABECERA INTRANET SIN LA PALABRA "FORENSE" */}
+      {/* CABECERA INTRANET */}
       <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
@@ -305,29 +305,31 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         </div>
       )}
 
-      {/* TAB 2: GOOGLE CALENDAR EMBEBIDO DENTRO DE LA PÁGINA */}
+      {/* TAB 2: GOOGLE CALENDAR DENTRO DEL CONTENEDOR DE LA PÁGINA (SIN SALTAR COMO POP-UP) */}
       {tabIntranet === 'citas' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4 shadow-sm">
-          <div>
-            <h3 className="text-lg font-serif font-bold text-neutral-950">Google Calendar Institucional ACTIO LEGIS</h3>
-            <p className="text-xs font-mono text-neutral-500">ID: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4 shadow-sm w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 pb-3">
+            <div>
+              <h3 className="text-lg font-serif font-bold text-neutral-950">Google Calendar Institucional ACTIO LEGIS</h3>
+              <p className="text-xs font-mono text-neutral-500">ID Causa: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
+            </div>
           </div>
 
-          <div className="border border-neutral-200 rounded-xl overflow-hidden h-[650px] bg-neutral-50">
+          <div className="w-full border border-neutral-200 rounded-2xl overflow-hidden bg-neutral-50 h-[700px] shadow-inner relative">
             <iframe 
-              src="https://calendar.google.com/calendar/embed?src=actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc%40group.calendar.google.com&ctz=America%2FGuayaquil"
+              src="https://calendar.google.com/calendar/embed?height=700&wkst=1&ctz=America%2FGuayaquil&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&src=YWN0aW9sZWdpc2VjLmNvbV9mZzRmaWhoYm01ZjRvZHFmaGQ0cGJnZmR0Y0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23039BE5"
               style={{ border: 0 }} 
               width="100%" 
               height="100%" 
               frameBorder="0" 
               scrolling="no"
-              title="Calendario Oficial ACTIO LEGIS"
+              title="Google Calendar Oficial ACTIO LEGIS"
             />
           </div>
         </div>
       )}
 
-      {/* TAB 3: EXPEDIENTES, PROVIDENCIAS & MOTOR IA RESTAURADO */}
+      {/* TAB 3: EXPEDIENTES, PROVIDENCIAS & MOTOR IA */}
       {tabIntranet === 'expedientes' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-5 space-y-4">
