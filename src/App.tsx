@@ -179,7 +179,6 @@ export default function App() {
   const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'equipo' | 'cliente' | 'intranet' | 'admin-console'>('sitio-web');
   const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'honorarios' | 'gastos' | 'editorial-borradores'>('expedientes');
   
-  // Control de Modales
   const [modalIngreso, setModalIngreso] = useState<'intranet' | 'cliente' | 'admin' | null>(null);
 
   const [usuarioSesion, setUsuarioSesion] = useState<UsuarioSistema | null>(null);
@@ -194,17 +193,14 @@ export default function App() {
   const [procesandoIA, setProcesandoIA] = useState(false);
   const [resultadoIA, setResultadoIA] = useState<string | null>(null);
 
-  // Formulario Portal Clientes
   const [codigoClienteInput, setCodigoClienteInput] = useState('');
   const [claveClienteInput, setClaveClienteInput] = useState('');
 
-  // Formulario Admin
   const [correoAdminInput, setCorreoAdminInput] = useState('diego.tapia@actiolegisec.com');
   const [claveAdminInput, setClaveAdminInput] = useState('');
   const [claveAdminGuardada, setClaveAdminGuardada] = useState<string | null>(null);
   const [recordarAdmin, setRecordarAdmin] = useState(false);
 
-  // Formularios CMS
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoCorreo, setNuevoCorreo] = useState('');
   const [nuevoRol, setNuevoRol] = useState<RolUsuario>('abogado');
@@ -233,7 +229,6 @@ export default function App() {
     setNotificaciones(prev => [nuevaNotif, ...prev]);
   };
 
-  // 1. INGRESO INTRANET (GOOGLE SSO @actiolegisec.com)
   const handleGoogleSSO = () => {
     const correoSimulado = prompt("Inicie sesión con su cuenta Google (@actiolegisec.com):", "marceladunnortega@actiolegisec.com");
     if (!correoSimulado) return;
@@ -262,7 +257,6 @@ export default function App() {
     registrarAuditoria(usr.nombre, `Ingresó a Intranet vía Google Single Sign-On`, 'Google OAuth');
   };
 
-  // 2. INGRESO PORTAL CLIENTES (CÓDIGO Y CLAVE)
   const handleIngresoCliente = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
@@ -286,7 +280,6 @@ export default function App() {
     }
   };
 
-  // 3. INGRESO CONSOLA ADMINISTRADOR (CORREO Y CLAVE DIEGOP TAPIA)
   const handleIngresoAdmin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
@@ -297,7 +290,6 @@ export default function App() {
     }
 
     if (!claveAdminGuardada) {
-      // Primer ingreso: Establece la clave
       setClaveAdminGuardada(claveAdminInput);
       const adminUsr = usuariosSistema.find(u => u.correo === 'diego.tapia@actiolegisec.com')!;
       setUsuarioSesion(adminUsr);
@@ -316,7 +308,6 @@ export default function App() {
     }
   };
 
-  // CREACIÓN DE CLIENTES CON CÓDIGO SECUENCIAL DE 5 DÍGITOS (ACTIO-00001)
   const handleCrearClienteCMS = (nombreCliente: string, correoCliente: string, claveCliente: string) => {
     const numClientes = usuariosSistema.filter(u => u.rol === 'cliente').length + 1;
     const codigoSecuencial = `ACTIO-${String(numClientes).padStart(5, '0')}`;
@@ -503,7 +494,6 @@ export default function App() {
                   <a href="#contacto" onClick={() => { if (vista !== 'sitio-web') setVista('sitio-web'); }} className="hover:text-neutral-950 transition-colors">Contacto</a>
                 </nav>
 
-                {/* 3 ACCESOS DIVERSIFICADOS */}
                 <button
                   type="button"
                   onClick={() => { setErrorLogin(null); setModalIngreso('intranet'); }}
@@ -1071,7 +1061,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* MODAL 1: INTRANET (GOOGLE SSO @actiolegisec.com) */}
+      {/* MODAL 1: INTRANET CON LOGO INSTITUCIONAL */}
       {modalIngreso === 'intranet' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7 text-center space-y-5">
@@ -1079,12 +1069,12 @@ export default function App() {
               <X className="w-5 h-5" />
             </button>
 
-            <div className="inline-block relative">
-              <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
-              <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
-                <span className="font-black text-xs tracking-widest font-sans">ACTIO</span>
-                <span className="font-black text-xs tracking-widest font-sans">LEGIS</span>
-              </div>
+            <div className="flex justify-center">
+              <img 
+                src="/logo-estudio.png" 
+                alt="ACTIO LEGIS Consultores Jurídicos" 
+                className="h-16 w-auto object-contain mix-blend-multiply"
+              />
             </div>
 
             <h3 className="text-xl font-serif text-neutral-950 font-bold">Intranet del Despacho</h3>
@@ -1107,7 +1097,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 2: PORTAL CLIENTES (CÓDIGO SECUENCIAL ACTIO-XXXXX + CLAVE) */}
+      {/* MODAL 2: PORTAL CLIENTES CON LOGO INSTITUCIONAL */}
       {modalIngreso === 'cliente' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
@@ -1116,6 +1106,13 @@ export default function App() {
             </button>
 
             <div className="text-center mb-6">
+              <div className="flex justify-center mb-3">
+                <img 
+                  src="/logo-estudio.png" 
+                  alt="ACTIO LEGIS Consultores Jurídicos" 
+                  className="h-16 w-auto object-contain mix-blend-multiply"
+                />
+              </div>
               <h3 className="text-xl font-serif text-neutral-950 font-bold">Portal de Clientes</h3>
               <p className="text-xs text-neutral-500 mt-1">Ingrese con el código confidencial asignado por su abogado patrocinador.</p>
             </div>
@@ -1160,7 +1157,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: CONSOLA DE ADMINISTRADOR (DIEGO TAPIA CON CONTRASEÑA Y RECORDAR USUARIO) */}
+      {/* MODAL 3: CONSOLA DE ADMINISTRADOR CON LOGO INSTITUCIONAL */}
       {modalIngreso === 'admin' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
@@ -1169,12 +1166,12 @@ export default function App() {
             </button>
 
             <div className="text-center mb-6">
-              <div className="inline-block relative mb-2">
-                <div className="absolute -right-1 -bottom-1 w-full h-full border-b-[3px] border-r-[3px] border-neutral-950 pointer-events-none" />
-                <div className="relative px-3 py-1 bg-neutral-950 text-white flex flex-col items-center">
-                  <span className="font-black text-xs tracking-widest font-sans">ACTIO</span>
-                  <span className="font-black text-xs tracking-widest font-sans">LEGIS</span>
-                </div>
+              <div className="flex justify-center mb-3">
+                <img 
+                  src="/logo-estudio.png" 
+                  alt="ACTIO LEGIS Consultores Jurídicos" 
+                  className="h-16 w-auto object-contain mix-blend-multiply"
+                />
               </div>
               <h3 className="text-xl font-serif text-neutral-950 font-bold">Consola Administrador Principal</h3>
               <p className="text-xs text-neutral-500 mt-1">Acceso con privilegios de control total CMS.</p>
