@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   FileText, Calendar as CalendarIcon, Clock, ChevronRight, Bot, 
   Sparkles, Upload, FileCheck, DollarSign, Building2,
-  Users, Plus, Trash2, BookOpen, ExternalLink, ChevronLeft, CalendarDays, RefreshCw
+  Users, Plus, Trash2, BookOpen, ExternalLink, ChevronLeft, CalendarDays, RefreshCw, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { UsuarioSistema } from './LoginModal';
 
@@ -52,6 +52,10 @@ interface EventoCalendario {
   fecha: string; // Formato YYYY-MM-DD
   hora: string;
   tipo: 'Audiencia' | 'Reunión' | 'Término Fatal';
+  unidadJudicial?: string;
+  abogado?: string;
+  estrategia?: string;
+  providenciaVinculada?: string;
 }
 
 interface ModuloExpedientesProps {
@@ -64,9 +68,30 @@ interface ModuloExpedientesProps {
 }
 
 const EVENTOS_CALENDARIO_BASE: EventoCalendario[] = [
-  { id: 'evt-1', titulo: 'Audiencia de Juicio Ordinario', causa: '17230-2024-00482', fecha: '2026-10-28', hora: '10:00 AM', tipo: 'Audiencia' },
-  { id: 'evt-2', titulo: 'Entrega de Informe Pericial Contable', causa: '09281-2025-01129', fecha: '2026-11-05', hora: '15:00 PM', tipo: 'Término Fatal' },
-  { id: 'evt-3', titulo: 'Reunión con Directiva de Inmobiliaria del Valle', causa: '17230-2024-00482', fecha: '2026-11-08', hora: '11:30 AM', tipo: 'Reunión' }
+  { 
+    id: 'evt-1', 
+    titulo: 'Audiencia de Juicio Ordinario', 
+    causa: '17230-2024-00482', 
+    fecha: '2026-10-28', 
+    hora: '10:00 AM', 
+    tipo: 'Audiencia',
+    unidadJudicial: 'Unidad Judicial Civil de Guayaquil',
+    abogado: 'Abg. Diego Tapia Vicuña, Mgs.',
+    estrategia: 'Presentación de informe pericial técnico y alegatos de prueba documental.',
+    providenciaVinculada: 'Resolución de fecha 2026-10-08 (Término Pericial)'
+  },
+  { 
+    id: 'evt-2', 
+    titulo: 'Entrega de Informe Pericial Contable', 
+    causa: '09281-2025-01129', 
+    fecha: '2026-11-05', 
+    hora: '15:00 PM', 
+    tipo: 'Término Fatal',
+    unidadJudicial: 'Fiscalía Provincial del Guayas',
+    abogado: 'Abg. Marcela Dunn-Ortega, Mgs.',
+    estrategia: 'Apertura de caja de valores e inspección de libros contables.',
+    providenciaVinculada: 'Notificación de impulso fiscal #482'
+  }
 ];
 
 export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
@@ -112,11 +137,12 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const [tituloArticulo, setTituloArticulo] = useState('');
   const [resumenArticulo, setResumenArticulo] = useState('');
 
-  // Calendario Interactivo Dinámico
-  const [mesActualIndex, setMesActualIndex] = useState(9); // 9 = Octubre (0-indexed)
+  // Calendario Sobrio
+  const [mesActualIndex, setMesActualIndex] = useState(9); // Octubre (0-indexed)
   const [anoActual, setAnoActual] = useState(2026);
   const [diaSeleccionado, setDiaSeleccionado] = useState(28);
   const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>(EVENTOS_CALENDARIO_BASE);
+  const [eventoExpandidoId, setEventoExpandidoId] = useState<string | null>('evt-1');
   const [syncState, setSyncState] = useState(false);
 
   // Formulario nuevo evento
@@ -132,10 +158,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const totalReembolsados = comprobantesDrive.filter(g => g.estado === 'Pagado' || g.estado === 'Reembolsado').reduce((acc, curr) => acc + curr.monto, 0);
   const porcentajeReembolsado = totalGastos > 0 ? Math.round((totalReembolsados / totalGastos) * 100) : 0;
 
-  // FECHA ACTUAL SELECCIONADA EN FORMATO YYYY-MM-DD
   const fechaSeleccionadaString = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`;
-
-  // EVENTOS FILTRADOS ESTRICTAMENTE POR LA FECHA SELECCIONADA
   const eventosDelDia = eventosCalendario.filter(evt => evt.fecha === fechaSeleccionadaString);
 
   const handleNavegarMes = (direccion: 'anterior' | 'siguiente') => {
@@ -174,13 +197,17 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
       causa: casoActivo?.numProceso || 'General',
       fecha: fechaSeleccionadaString,
       hora: nuevaHoraEvento,
-      tipo: nuevoTipoEvento
+      tipo: nuevoTipoEvento,
+      unidadJudicial: casoActivo?.unidadJudicial || 'Sede Judicial Guayaquil',
+      abogado: usuarioSesion?.nombre || 'Abogado Patrocinador',
+      estrategia: 'Diligencia registrada manualmente desde la Intranet.',
+      providenciaVinculada: 'Notificación procesal en curso'
     };
 
     setEventosCalendario(prev => [nEvt, ...prev]);
     onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Agendó evento "${nuevoTituloEvento}" para el ${fechaSeleccionadaString}`, 'Google Calendar');
     setNuevoTituloEvento('');
-    alert(`Evento guardado en el calendario para el ${fechaSeleccionadaString} a las ${nuevaHoraEvento}`);
+    alert(`Evento agendado con éxito para el ${fechaSeleccionadaString}`);
   };
 
   const handleRegistrarGastoConDrive = (e: React.FormEvent) => {
@@ -270,7 +297,11 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         causa: casoActivo.numProceso,
         fecha: fechaSeleccionadaString,
         hora: '09:00 AM',
-        tipo: 'Término Fatal'
+        tipo: 'Término Fatal',
+        unidadJudicial: casoActivo.unidadJudicial,
+        abogado: casoActivo.abogadoLider,
+        estrategia: 'Cumplimiento de providencia procesal según término de ley.',
+        providenciaVinculada: 'Ingresada automáticamente mediante motor IA'
       };
 
       setEventosCalendario(prev => [nuevoEvento, ...prev]);
@@ -289,7 +320,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
       {/* CABECERA INTRANET */}
-      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
             <Building2 className="w-3.5 h-3.5 text-neutral-900"/>
@@ -298,11 +329,11 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
           <h1 className="text-2xl font-serif font-bold text-neutral-950">Intranet ACTIO LEGIS</h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 bg-neutral-100 p-1 rounded-xl">
+        <div className="flex flex-wrap items-center gap-2 bg-neutral-100/70 p-1 rounded-xl">
           <button 
             type="button" 
             onClick={() => setTabIntranet('expedientes')} 
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'expedientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${tabIntranet === 'expedientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
           >
             Expedientes & IA
           </button>
@@ -310,7 +341,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
           <button 
             type="button" 
             onClick={() => setTabIntranet('clientes')} 
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'clientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${tabIntranet === 'clientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
           >
             Directorio Clientes
           </button>
@@ -318,7 +349,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
           <button 
             type="button" 
             onClick={() => setTabIntranet('citas')} 
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'citas' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${tabIntranet === 'citas' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
           >
             Google Calendar Inst.
           </button>
@@ -326,7 +357,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
           <button 
             type="button" 
             onClick={() => setTabIntranet('gastos')} 
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'gastos' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${tabIntranet === 'gastos' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
           >
             Registrar Gastos
           </button>
@@ -335,7 +366,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
             <button 
               type="button" 
               onClick={() => setTabIntranet('editorial-borradores')} 
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'editorial-borradores' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all ${tabIntranet === 'editorial-borradores' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
             >
               Redactar Editorial
             </button>
@@ -343,16 +374,16 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         </div>
       </div>
 
-      {/* TAB 1: CALENDARIO DE PANTALLA COMPLETA CON EVENTOS FILTRADOS Y BADGES DE COLORES */}
+      {/* TAB 1: CALENDARIO DE DOS COLUMNAS ELEGANTE CON DETALLES EXPANDIBLES */}
       {tabIntranet === 'citas' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm w-full">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-xs w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
             <div>
               <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
                 <CalendarDays className="w-5 h-5 text-neutral-900"/>
                 <span>Google Calendar Institucional ACTIO LEGIS</span>
               </h3>
-              <p className="text-xs font-mono text-neutral-500">ID Oficial: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
+              <p className="text-xs font-mono text-neutral-500">ID: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
             </div>
 
             <button 
@@ -367,43 +398,42 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* PANEL PRINCIPAL DE GRILLA DE DÍAS */}
-            <div className="lg:col-span-8 bg-neutral-50 p-6 rounded-2xl border border-neutral-200 space-y-5">
+            {/* IZQUIERDA: GRILLA DE DÍAS EN FORMATO SOBRIO MEDIO ANCHO */}
+            <div className="lg:col-span-7 bg-[#FAF9F6] p-5 rounded-2xl border border-neutral-200 space-y-4">
               
-              {/* NAVEGADOR DE MESES */}
-              <div className="flex items-center justify-between border-b border-neutral-200 pb-3">
+              <div className="flex items-center justify-between border-b border-neutral-200/80 pb-3">
                 <div className="flex items-center gap-3">
                   <button 
                     type="button" 
                     onClick={() => handleNavegarMes('anterior')}
-                    className="p-1.5 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-100 text-neutral-800 cursor-pointer"
+                    className="p-1.5 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-100 text-neutral-800 cursor-pointer shadow-2xs"
                   >
                     <ChevronLeft className="w-4 h-4"/>
                   </button>
-                  <span className="font-serif font-bold text-lg text-neutral-950">
+                  <span className="font-serif font-bold text-base text-neutral-950">
                     {NOMBRES_MESES[mesActualIndex]} {anoActual}
                   </span>
                   <button 
                     type="button" 
                     onClick={() => handleNavegarMes('siguiente')}
-                    className="p-1.5 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-100 text-neutral-800 cursor-pointer"
+                    className="p-1.5 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-100 text-neutral-800 cursor-pointer shadow-2xs"
                   >
                     <ChevronRight className="w-4 h-4"/>
                   </button>
                 </div>
 
-                <span className="text-xs font-mono text-neutral-500 bg-white px-3 py-1 rounded-md border border-neutral-200 font-bold">
-                  Día Seleccionado: {diaSeleccionado} {NOMBRES_MESES[mesActualIndex]} {anoActual}
+                <span className="text-[11px] font-mono text-neutral-600 bg-white px-2.5 py-1 rounded-md border border-neutral-200 font-bold">
+                  Selección: {diaSeleccionado} {NOMBRES_MESES[mesActualIndex]}
                 </span>
               </div>
 
-              {/* DÍAS DE LA SEMANA */}
-              <div className="grid grid-cols-7 gap-2 text-center font-mono text-[11px] text-neutral-400 font-bold">
-                <div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
+              {/* ENCABEZADOS DÍAS */}
+              <div className="grid grid-cols-7 gap-1.5 text-center font-mono text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+                <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
               </div>
 
-              {/* GRILLA DE DÍAS CON PUNTOS DE COLOR PARA DÍAS CON EVENTOS */}
-              <div className="grid grid-cols-7 gap-2 text-center text-xs font-mono">
+              {/* GRILLA DÍAS CON PUNTOS MARFIL SOBRIOS (#C5A880) */}
+              <div className="grid grid-cols-7 gap-1.5 text-center text-xs font-mono">
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
                   const esSeleccionado = dia === diaSeleccionado;
                   const fechaDiaStr = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
@@ -414,70 +444,36 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                       key={dia} 
                       type="button"
                       onClick={() => setDiaSeleccionado(dia)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer relative flex flex-col items-center justify-center gap-1 ${
+                      className={`p-2.5 rounded-xl border transition-all cursor-pointer relative flex flex-col items-center justify-center gap-0.5 ${
                         esSeleccionado 
-                          ? 'bg-neutral-950 text-white font-bold ring-2 ring-neutral-950 shadow-xs' 
+                          ? 'bg-[#281F26] text-white font-bold border-[#281F26] shadow-xs' 
                           : tieneEventos
-                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950 font-bold'
-                          : 'bg-white border-neutral-200 text-neutral-800 hover:border-neutral-400'
+                          ? 'bg-[#F2EFE9] border-neutral-300 text-neutral-950 font-bold'
+                          : 'bg-white border-neutral-200 text-neutral-700 hover:border-neutral-400'
                       }`}
                     >
                       <span>{dia < 10 ? `0${dia}` : dia}</span>
                       
-                      {/* INDICADOR VISUAL DE EVENTO (PUNTO O BADGE DE COLOR) */}
+                      {/* PUNTO MARFIL EN DÍAS CON AGENDA */}
                       {tieneEventos && (
-                        <span className={`w-1.5 h-1.5 rounded-full ${esSeleccionado ? 'bg-emerald-400' : 'bg-emerald-700'}`} />
+                        <span className={`w-1.5 h-1.5 rounded-full ${esSeleccionado ? 'bg-[#E2D9C8]' : 'bg-[#C5A880]'}`} />
                       )}
                     </button>
                   );
                 })}
               </div>
 
-              {/* MUESTRA ÚNICAMENTE LOS EVENTOS DEL DÍA SELECCIONADO */}
-              <div className="p-4 bg-white rounded-xl border border-neutral-200 space-y-3">
-                <div className="flex justify-between items-center border-b border-neutral-100 pb-2">
-                  <span className="font-serif font-bold text-xs text-neutral-950">
-                    Eventos Agendados para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]} de {anoActual}
-                  </span>
-                  <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold">
-                    Google Sincronizado
-                  </span>
-                </div>
-
-                {eventosDelDia.length > 0 ? (
-                  eventosDelDia.map(evt => (
-                    <div key={evt.id} className="p-3 bg-neutral-50 rounded-xl flex items-center justify-between text-xs border border-neutral-200">
-                      <div>
-                        <strong className="text-neutral-900 font-serif block text-sm">{evt.titulo}</strong>
-                        <span className="text-neutral-500 font-mono text-[11px]">Causa Judicial: {evt.causa}</span>
-                      </div>
-                      <div className="text-right">
-                        <span className={`px-2.5 py-1 rounded-md font-mono text-[11px] font-bold block ${
-                          evt.tipo === 'Término Fatal' ? 'bg-rose-100 text-rose-900 border border-rose-200' : 'bg-white border border-neutral-200 text-neutral-800'
-                        }`}>
-                          {evt.hora} • {evt.tipo}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="p-4 text-center font-mono text-xs text-neutral-400">
-                    No existen audiencias ni diligencias agendadas para la fecha seleccionada ({fechaSeleccionadaString}).
-                  </div>
-                )}
-              </div>
-
             </div>
 
-            {/* FORMULARIO PARA AGENDAR CITAS EN LA FECHA ACTIVA */}
-            <div className="lg:col-span-4 bg-neutral-950 text-white p-6 rounded-2xl space-y-5 shadow-sm">
+            {/* DERECHA: FORMULARIO SOBRIO EN CAJA HUESO */}
+            <div className="lg:col-span-5 bg-[#FAF9F6] border border-neutral-200 p-5 rounded-2xl space-y-4">
               <div>
-                <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-1">
+                <span className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest block mb-0.5">
                   Google Workspace Conectado
                 </span>
-                <h4 className="font-serif font-bold text-xl">Nueva Cita o Diligencia</h4>
-                <p className="text-xs text-neutral-300 leading-relaxed font-light mt-1">
-                  Agendar para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]} de {anoActual}:
+                <h4 className="font-serif font-bold text-base text-neutral-950">Agendar Nueva Cita</h4>
+                <p className="text-xs text-neutral-600 font-light mt-0.5">
+                  Fijar para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]} de {anoActual}:
                 </p>
               </div>
 
@@ -485,17 +481,17 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                 <input 
                   type="text" 
                   required 
-                  placeholder="Detalle de audiencia o reunión" 
+                  placeholder="Detalle de la audiencia o diligencia" 
                   value={nuevoTituloEvento} 
                   onChange={e => setNuevoTituloEvento(e.target.value)} 
-                  className="w-full bg-white border border-neutral-300 rounded-xl p-2.5 text-xs font-sans" 
+                  className="w-full bg-white border border-neutral-300 rounded-xl p-2.5 text-xs font-sans focus:outline-none focus:border-neutral-950" 
                 />
 
                 <div className="grid grid-cols-2 gap-2">
                   <select 
                     value={nuevaHoraEvento} 
                     onChange={e => setNuevaHoraEvento(e.target.value)}
-                    className="bg-white border border-neutral-300 rounded-xl p-2 text-xs font-mono"
+                    className="bg-white border border-neutral-300 rounded-xl p-2 text-xs font-mono focus:outline-none focus:border-neutral-950"
                   >
                     <option value="09:00 AM">09:00 AM</option>
                     <option value="10:00 AM">10:00 AM</option>
@@ -507,7 +503,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                   <select 
                     value={nuevoTipoEvento} 
                     onChange={e => setNuevoTipoEvento(e.target.value as any)}
-                    className="bg-white border border-neutral-300 rounded-xl p-2 text-xs font-mono"
+                    className="bg-white border border-neutral-300 rounded-xl p-2 text-xs font-mono focus:outline-none focus:border-neutral-950"
                   >
                     <option value="Audiencia">Audiencia</option>
                     <option value="Reunión">Reunión</option>
@@ -517,32 +513,121 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
                 <button 
                   type="submit" 
-                  className="w-full py-3 bg-white text-neutral-950 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer hover:bg-neutral-100 transition-all font-mono"
+                  className="w-full py-2.5 bg-[#281F26] hover:bg-black text-white font-semibold text-xs uppercase tracking-wider rounded-xl cursor-pointer transition-all font-mono"
                 >
-                  Agendar Cita en Calendario
+                  Agendar en Calendario
                 </button>
               </form>
 
-              <div className="pt-3 border-t border-neutral-800">
+              <div className="pt-2 border-t border-neutral-200">
                 <a 
                   href="https://calendar.google.com/calendar/u/0/r" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-neutral-900 border border-neutral-700 text-neutral-300 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-neutral-800 transition-all font-mono"
+                  className="w-full py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-neutral-100 transition-all font-mono"
                 >
-                  <span>Abrir Google Calendar en Navegador</span>
-                  <ExternalLink className="w-3.5 h-3.5"/>
+                  <span>Abrir Google Calendar Externo</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-neutral-500"/>
                 </a>
               </div>
             </div>
 
           </div>
+
+          {/* INFERIOR: EVENTOS DEL DÍA CON DESPLEGABLE COMPLETO DE DETALLES */}
+          <div className="pt-2">
+            <div className="p-4 bg-[#FAF9F6] rounded-2xl border border-neutral-200 space-y-3">
+              <div className="flex justify-between items-center border-b border-neutral-200 pb-2">
+                <span className="font-serif font-bold text-xs text-neutral-950">
+                  Diligencias Agendadas ({eventosDelDia.length}) — {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]} de {anoActual}
+                </span>
+                <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
+                  Google Sincronizado
+                </span>
+              </div>
+
+              {eventosDelDia.length > 0 ? (
+                eventosDelDia.map(evt => {
+                  const esExpandido = eventoExpandidoId === evt.id;
+                  return (
+                    <div key={evt.id} className="bg-white rounded-xl border border-neutral-200 overflow-hidden shadow-2xs transition-all">
+                      <div 
+                        onClick={() => setEventoExpandidoId(esExpandido ? null : evt.id)}
+                        className="p-3.5 flex items-center justify-between cursor-pointer hover:bg-neutral-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-1 rounded text-[10px] font-mono uppercase font-bold ${
+                            evt.tipo === 'Término Fatal' ? 'bg-rose-100 text-rose-900 border border-rose-200' : 'bg-neutral-100 text-neutral-900 border border-neutral-200'
+                          }`}>
+                            {evt.tipo}
+                          </span>
+                          <div>
+                            <strong className="text-neutral-950 font-serif text-sm block">{evt.titulo}</strong>
+                            <span className="text-neutral-500 font-mono text-[11px]">Causa: {evt.causa}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-mono font-bold text-neutral-800">{evt.hora}</span>
+                          {esExpandido ? <ChevronUp className="w-4 h-4 text-neutral-500"/> : <ChevronDown className="w-4 h-4 text-neutral-500"/>}
+                        </div>
+                      </div>
+
+                      {/* DESPLEGABLE CON INFORMACIÓN DETALLADA PROCESAL */}
+                      {esExpandido && (
+                        <div className="p-4 bg-neutral-50/80 border-t border-neutral-200 text-xs space-y-3 font-sans">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-neutral-700">
+                            <div>
+                              <span className="font-mono text-[10px] uppercase text-neutral-400 block">Unidad Judicial:</span>
+                              <strong className="text-neutral-900">{evt.unidadJudicial || 'Unidad Judicial de Guayaquil'}</strong>
+                            </div>
+                            <div>
+                              <span className="font-mono text-[10px] uppercase text-neutral-400 block">Abogado Patrocinador:</span>
+                              <strong className="text-neutral-900">{evt.abogado || 'Abg. Diego Tapia Vicuña, Mgs.'}</strong>
+                            </div>
+                          </div>
+
+                          <div>
+                            <span className="font-mono text-[10px] uppercase text-neutral-400 block">Detalles & Estrategia Procesal:</span>
+                            <p className="text-neutral-600 bg-white p-2.5 rounded-lg border border-neutral-200 leading-relaxed mt-0.5">
+                              {evt.estrategia || 'Diligencia registrada y vinculada a la causa judicial patrocinada por el despacho.'}
+                            </p>
+                          </div>
+
+                          <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200">
+                            <span className="text-[11px] font-mono text-neutral-500">
+                              Providencia: {evt.providenciaVinculada || 'Resolución notificada en casillero judicial'}
+                            </span>
+
+                            <a 
+                              href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(evt.titulo)}&dates=${evt.fecha.replace(/-/g, '')}T090000Z/${evt.fecha.replace(/-/g, '')}T100000Z&details=${encodeURIComponent(evt.causa)}`}
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-[#281F26] hover:bg-black text-white text-[11px] font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <span>Sincronizar en Google Calendar</span>
+                              <ExternalLink className="w-3 h-3 text-neutral-300"/>
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-4 text-center font-mono text-xs text-neutral-400 bg-white rounded-xl border border-neutral-200">
+                  No existen audiencias o diligencias agendadas para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]}.
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       )}
 
       {/* TAB 2: DIRECTORIO DE CLIENTES */}
       {tabIntranet === 'clientes' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-xs">
           <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
             <div>
               <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
@@ -580,7 +665,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
       {/* TAB 3: REDACTAR BORRADOR EDITORIAL */}
       {tabIntranet === 'editorial-borradores' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-4 shadow-sm">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-4 shadow-xs">
           <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-neutral-900"/>
             <span>Redactar Criterio para la Editorial</span>
@@ -597,7 +682,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
       {/* TAB 4: GASTOS CON BARRA DE PROGRESO DE REEMBOLSOS */}
       {tabIntranet === 'gastos' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-6 shadow-xs">
           <div>
             <h3 className="text-lg font-serif font-bold text-neutral-950">Registro de Gastos & Comprobantes Drive</h3>
             <p className="text-xs text-neutral-500 mt-1">Archivado automático en info@actiolegisec.com en la carpeta GASTOS DE CLIENTES.</p>
@@ -655,7 +740,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
       {tabIntranet === 'expedientes' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-5 space-y-4">
-            <div className="bg-neutral-950 text-white rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="bg-neutral-950 text-white rounded-2xl p-6 shadow-xs space-y-4">
               <span className="text-xs font-mono uppercase text-neutral-300 flex items-center gap-1.5"><Bot className="w-4 h-4 text-emerald-400"/> Expediente IA</span>
               <textarea rows={4} value={textoNotificacionIA} onChange={(e) => setTextoNotificacionIA(e.target.value)} placeholder="Pegue la providencia judicial aquí..." className="w-full bg-neutral-900 border border-neutral-700 text-white text-xs rounded-xl p-3 resize-none" />
               <button type="button" disabled={procesandoIA || !textoNotificacionIA.trim()} onClick={handleProcesarConIA} className="w-full py-3 bg-white text-neutral-950 text-xs font-semibold uppercase tracking-wider cursor-pointer">
