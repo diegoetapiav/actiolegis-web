@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { 
   FileText, Calendar, Clock, ChevronRight, Bot, 
-  Sparkles, CheckCircle2, Upload, FileCheck, DollarSign, Building2
+  Sparkles, Upload, FileCheck, DollarSign, Building2,
+  Users, Plus, Trash2, BookOpen, CheckCircle2, RefreshCw
 } from 'lucide-react';
 import { UsuarioSistema } from './LoginModal';
 
@@ -35,7 +36,8 @@ export interface RegistroGastoDrive {
   id: string;
   causaId: string;
   cliente: string;
-  monto: string;
+  monto: number;
+  estado: 'Pendiente' | 'Reembolsado' | 'Pagado';
   concepto: string;
   nombreArchivo: string;
   rutaDrive: string;
@@ -47,8 +49,8 @@ interface ModuloExpedientesProps {
   expedientes: ExpedienteInterno[];
   setExpedientes: React.Dispatch<React.SetStateAction<ExpedienteInterno[]>>;
   usuarioSesion: UsuarioSistema | null;
-  tabIntranet: 'expedientes' | 'citas' | 'gastos' | 'editorial-borradores';
-  setTabIntranet: (tab: 'expedientes' | 'citas' | 'gastos' | 'editorial-borradores') => void;
+  tabIntranet: 'expedientes' | 'citas' | 'gastos' | 'editorial-borradores' | 'clientes';
+  setTabIntranet: (tab: 'expedientes' | 'citas' | 'gastos' | 'editorial-borradores' | 'clientes') => void;
   onRegistrarAuditoria: (usuario: string, accion: string, modulo: string) => void;
 }
 
@@ -66,13 +68,6 @@ const PALETA_TRAMITES = [
     barraProgreso: 'bg-[#8C6424]',
     indicadorActivo: 'bg-[#8C6424]',
     detalleFondo: 'bg-[#FCFBF8]',
-  },
-  {
-    fondoCard: 'bg-[#F0F5FA] border-[#CFDFEE]',
-    badgeMateria: 'bg-[#E1EDF7] text-[#19456B] border-[#BFDAF0]',
-    barraProgreso: 'bg-[#255C8F]',
-    indicadorActivo: 'bg-[#255C8F]',
-    detalleFondo: 'bg-[#F7FAFC]',
   }
 ];
 
@@ -87,35 +82,76 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const [casoActivoId, setCasoActivoId] = useState(expedientes[0]?.id || 'exp-1');
   const [textoNotificacionIA, setTextoNotificacionIA] = useState('');
   const [procesandoIA, setProcesandoIA] = useState(false);
-  const [resultadoIA, setResultadoIA] = useState<string | null>(null);
 
-  // Estados de Gastos & Comprobantes Drive
+  // Estados Gastos & Barra de Progreso
   const [montoGastoInput, setMontoGastoInput] = useState('');
   const [conceptoGastoInput, setConceptoGastoInput] = useState('');
   const [archivoComprobante, setArchivoComprobante] = useState<File | null>(null);
-  const [comprobantesDrive, setComprobantesDrive] = useState<RegistroGastoDrive[]>([]);
+  
+  const [comprobantesDrive, setComprobantesDrive] = useState<RegistroGastoDrive[]>([
+    {
+      id: 'gst-1',
+      causaId: 'exp-1',
+      cliente: 'Inmobiliaria del Valle S.A.S.',
+      monto: 350,
+      estado: 'Pagado',
+      concepto: 'Pago de peritaje técnico',
+      nombreArchivo: 'factura_perito.pdf',
+      rutaDrive: 'Drive > info@actiolegisec.com > GASTOS DE CLIENTES > Inmobiliaria del Valle S.A.S. > 2026-Octubre > factura_perito.pdf',
+      fechaSubida: '2026-10-15 10:30',
+      usuarioSubida: 'Lcda. María Elena Castro'
+    },
+    {
+      id: 'gst-2',
+      causaId: 'exp-1',
+      cliente: 'Inmobiliaria del Valle S.A.S.',
+      monto: 150,
+      estado: 'Pendiente',
+      concepto: 'Tasa judicial COGEP',
+      nombreArchivo: 'recibo_tasa.jpg',
+      rutaDrive: 'Drive > info@actiolegisec.com > GASTOS DE CLIENTES > Inmobiliaria del Valle S.A.S. > 2026-Octubre > recibo_tasa.jpg',
+      fechaSubida: '2026-10-20 14:10',
+      usuarioSubida: 'Abg. Marcela Dunn-Ortega'
+    }
+  ]);
+
+  // Directorio de Clientes (Admin / Abogado)
+  const [listaClientes, setListaClientes] = useState<{ id: string; nombre: string; correo: string; codigo: string }[]>([
+    { id: 'cli-1', nombre: 'Inmobiliaria del Valle S.A.S.', correo: 'contacto@inmovalle.com', codigo: 'ACTIO-00001' },
+    { id: 'cli-2', nombre: 'Corporación Mercantil GYE', correo: 'legal@corpmec.ec', codigo: 'ACTIO-00002' }
+  ]);
+  const [nuevoNombreCliente, setNuevoNombreCliente] = useState('');
+  const [nuevoCorreoCliente, setNuevoCorreoCliente] = useState('');
+
+  // Borradores Editorial
+  const [tituloArticulo, setTituloArticulo] = useState('');
+  const [resumenArticulo, setResumenArticulo] = useState('');
 
   const casoActivo = expedientes.find((c) => c.id === casoActivoId) || expedientes[0];
-  const indiceActivo = expedientes.findIndex((c) => c.id === casoActivo?.id);
-  const estiloActivo = PALETA_TRAMITES[Math.max(0, indiceActivo) % PALETA_TRAMITES.length];
 
-  // SUBIDA DE GASTO CON COMPROBANTE ORGANIZADO EN GOOGLE DRIVE
+  // Cálculo de Barra de Gastos vs. Reembolsados
+  const totalGastos = comprobantesDrive.reduce((acc, curr) => acc + curr.monto, 0);
+  const totalReembolsados = comprobantesDrive.filter(g => g.estado === 'Pagado' || g.estado === 'Reembolsado').reduce((acc, curr) => acc + curr.monto, 0);
+  const porcentajeReembolsado = totalGastos > 0 ? Math.round((totalReembolsados / totalGastos) * 100) : 0;
+
   const handleRegistrarGastoConDrive = (e: React.FormEvent) => {
     e.preventDefault();
     if (!montoGastoInput || !casoActivo) return;
 
+    const montoNum = parseFloat(montoGastoInput) || 0;
     const fechaActual = new Date();
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     const carpetaMesAno = `${fechaActual.getFullYear()}-${meses[fechaActual.getMonth()]}`;
 
     const nombreArchivoFinal = archivoComprobante ? archivoComprobante.name : 'comprobante_digital.pdf';
-    const rutaEstructuradaDrive = `Google Drive > info@actiolegisec.com > GASTOS DE CLIENTES > ${casoActivo.cliente} > ${carpetaMesAno} > ${nombreArchivoFinal}`;
+    const rutaEstructuradaDrive = `Drive > info@actiolegisec.com > GASTOS DE CLIENTES > ${casoActivo.cliente} > ${carpetaMesAno} > ${nombreArchivoFinal}`;
 
     const nuevoGastoDrive: RegistroGastoDrive = {
       id: `gst-${Date.now()}`,
       causaId: casoActivo.id,
       cliente: casoActivo.cliente,
-      monto: montoGastoInput,
+      monto: montoNum,
+      estado: 'Pendiente',
       concepto: conceptoGastoInput || 'Gasto operacional judicial',
       nombreArchivo: nombreArchivoFinal,
       rutaDrive: rutaEstructuradaDrive,
@@ -124,70 +160,70 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
     };
 
     setComprobantesDrive(prev => [nuevoGastoDrive, ...prev]);
-
-    setExpedientes(prev => prev.map(exp => {
-      if (exp.id === casoActivo.id) {
-        return { ...exp, gastosRegistrados: `$ ${montoGastoInput} USD` };
-      }
-      return exp;
-    }));
-
-    onRegistrarAuditoria(
-      usuarioSesion?.nombre || 'Usuario', 
-      `Subió comprobante "${nombreArchivoFinal}" a ${rutaEstructuradaDrive}`, 
-      'Drive Gastos'
-    );
+    onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Subió comprobante "${nombreArchivoFinal}" a ${rutaEstructuradaDrive}`, 'Drive Gastos');
 
     setMontoGastoInput('');
     setConceptoGastoInput('');
     setArchivoComprobante(null);
-    alert(`¡Gasto y comprobante registrados con éxito!\n\nOrganizado en Drive institucional:\n${rutaEstructuradaDrive}`);
+    alert(`Gasto y comprobante registrados en Drive:\n${rutaEstructuradaDrive}`);
   };
 
-  // MOTOR PROCESADOR DE PROVIDENCIAS CON IA
+  const handleCrearClienteDirectorio = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoNombreCliente || !nuevoCorreoCliente) return;
+
+    const codSecuencial = `ACTIO-${String(listaClientes.length + 1).padStart(5, '0')}`;
+    const nCli = {
+      id: `cli-${Date.now()}`,
+      nombre: nuevoNombreCliente,
+      correo: nuevoCorreoCliente,
+      codigo: codSecuencial
+    };
+
+    setListaClientes(prev => [...prev, nCli]);
+    onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Creó cliente ${nuevoNombreCliente} (${codSecuencial})`, 'Gestión Clientes');
+    setNuevoNombreCliente('');
+    setNuevoCorreoCliente('');
+  };
+
+  const handleBorrarCliente = (id: string, nombre: string) => {
+    if (confirm(`¿Desea eliminar de la base de datos al cliente "${nombre}"?`)) {
+      setListaClientes(prev => prev.filter(c => c.id !== id));
+      onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Eliminó cliente ${nombre}`, 'Gestión Clientes');
+    }
+  };
+
+  const handleEnviarEditorial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!tituloArticulo || !resumenArticulo) return;
+
+    onRegistrarAuditoria(usuarioSesion?.nombre || 'Abogado', `Redactó y envió ensayo: "${tituloArticulo}"`, 'Línea Editorial');
+    setTituloArticulo('');
+    setResumenArticulo('');
+    alert('Borrador enviado con éxito a la Consola del Administrador para aprobación.');
+  };
+
   const handleProcesarConIA = () => {
     if (!textoNotificacionIA.trim() || !casoActivo) return;
     setProcesandoIA(true);
 
     setTimeout(() => {
-      const texto = textoNotificacionIA;
-      let tituloDetectado = 'Providencia Judicial Notificada';
-      let resumenGenerado = 'Se agrega al expediente la providencia emitida por el juzgador para conocimiento de las partes.';
-      let proximaFecha = '2026-11-12';
-
-      if (texto.toLowerCase().includes('audiencia')) {
-        tituloDetectado = 'Convocatoria a Audiencia de Juicio';
-        resumenGenerado = 'El tribunal ha fijado día y hora para la instalación de la audiencia.';
-        proximaFecha = '2026-11-20';
-      }
-
       const nuevaActuacion: Actuacion = {
         id: `act-${Date.now()}`,
         fecha: new Date().toISOString().replace('T', ' ').substring(0, 16),
-        titulo: tituloDetectado,
-        resumenParaCliente: resumenGenerado,
+        titulo: 'Providencia Judicial Notificada',
+        resumenParaCliente: 'El juzgado emite providencia de término para conocimiento de las partes.',
         detectadoPorIA: true
       };
 
       setExpedientes((prev) =>
-        prev.map((exp) => {
-          if (exp.id === casoActivo.id) {
-            return {
-              ...exp,
-              proximaFechaClave: proximaFecha,
-              actuaciones: [nuevaActuacion, ...exp.actuaciones]
-            };
-          }
-          return exp;
-        })
+        prev.map((exp) => exp.id === casoActivo.id ? { ...exp, actuaciones: [nuevaActuacion, ...exp.actuaciones] } : exp)
       );
 
       setProcesandoIA(false);
-      setResultadoIA(`Notificación interpretada con éxito para la causa ${casoActivo.numProceso}.`);
-      onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Procesó providencia con IA para causa ${casoActivo.numProceso}`, 'Expediente IA');
+      onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Procesó providencia para causa ${casoActivo.numProceso}`, 'Expediente IA');
       setTextoNotificacionIA('');
-      setTimeout(() => setResultadoIA(null), 5000);
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -203,13 +239,21 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
           <h1 className="text-2xl font-serif font-bold text-neutral-950">Intranet ACTIO LEGIS</h1>
         </div>
 
-        <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-xl">
+        <div className="flex flex-wrap items-center gap-2 bg-neutral-100 p-1 rounded-xl">
           <button 
             type="button" 
             onClick={() => setTabIntranet('expedientes')} 
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'expedientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
           >
             Expedientes & IA
+          </button>
+
+          <button 
+            type="button" 
+            onClick={() => setTabIntranet('clientes')} 
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'clientes' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+          >
+            Directorio Clientes
           </button>
           
           <button 
@@ -220,29 +264,103 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
             Google Calendar Inst.
           </button>
           
-          {(usuarioSesion?.rol === 'admin' || usuarioSesion?.rol === 'abogado' || usuarioSesion?.rol === 'asistente') && (
+          <button 
+            type="button" 
+            onClick={() => setTabIntranet('gastos')} 
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'gastos' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+          >
+            Registrar Gastos
+          </button>
+
+          {(usuarioSesion?.rol === 'admin' || usuarioSesion?.rol === 'abogado') && (
             <button 
               type="button" 
-              onClick={() => setTabIntranet('gastos')} 
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'gastos' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
+              onClick={() => setTabIntranet('editorial-borradores')} 
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${tabIntranet === 'editorial-borradores' ? 'bg-white text-neutral-950 shadow-2xs' : 'text-neutral-600'}`}
             >
-              Registrar Gastos
+              Redactar Editorial
             </button>
           )}
         </div>
       </div>
 
-      {/* TAB 1: REGISTRO DE GASTOS CON COMPROBANTE A GOOGLE DRIVE */}
+      {/* TAB: DIRECTORIO DE CLIENTES (ADMIN & ABOGADOS) */}
+      {tabIntranet === 'clientes' && (
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm">
+          <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
+            <div>
+              <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
+                <Users className="w-5 h-5 text-neutral-900" />
+                <span>Gestión & Directorio de Clientes</span>
+              </h3>
+              <p className="text-xs text-neutral-500">Registro de firmas y personas patrocinadas con asignación automática de código ACTIO-XXXXX.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleCrearClienteDirectorio} className="bg-neutral-50 p-4 rounded-xl border border-neutral-200 space-y-3">
+            <span className="text-xs font-mono font-bold text-neutral-900 block">Registrar Nuevo Cliente</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input type="text" placeholder="Razón social o Nombre del Cliente" required value={nuevoNombreCliente} onChange={e => setNuevoNombreCliente(e.target.value)} className="bg-white border border-neutral-300 rounded-lg p-2.5 text-xs" />
+              <input type="email" placeholder="correo@cliente.com" required value={nuevoCorreoCliente} onChange={e => setNuevoCorreoCliente(e.target.value)} className="bg-white border border-neutral-300 rounded-lg p-2.5 text-xs" />
+            </div>
+            <button type="submit" className="px-4 py-2 bg-neutral-950 text-white text-xs rounded-lg font-semibold cursor-pointer">Registrar Cliente & Generar Código</button>
+          </form>
+
+          <div className="space-y-2">
+            {listaClientes.map(cli => (
+              <div key={cli.id} className="p-4 border border-neutral-200 rounded-xl flex items-center justify-between text-xs bg-white">
+                <div>
+                  <div className="font-bold text-neutral-900">{cli.nombre}</div>
+                  <div className="text-neutral-500 font-mono text-[11px]">{cli.correo} • Código Confidencial: <strong className="text-neutral-900">{cli.codigo}</strong></div>
+                </div>
+                <button type="button" onClick={() => handleBorrarCliente(cli.id, cli.nombre)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TAB: REDACTAR BORRADOR EDITORIAL */}
+      {tabIntranet === 'editorial-borradores' && (
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-4 shadow-sm">
+          <h3 className="text-lg font-serif font-bold text-neutral-950 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-neutral-900" />
+            <span>Redactar Criterio para la Editorial</span>
+          </h3>
+          <p className="text-xs text-neutral-500">Los ensayos serán enviados a revisión del Administrador antes de su publicación pública.</p>
+
+          <form onSubmit={handleEnviarEditorial} className="space-y-3">
+            <input type="text" placeholder="Título del artículo" required value={tituloArticulo} onChange={e => setTituloArticulo(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-3 text-xs" />
+            <textarea rows={6} placeholder="Escriba el ensayo o criterio jurídico aquí..." required value={resumenArticulo} onChange={e => setResumenArticulo(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-3 text-xs resize-none" />
+            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer">Enviar a Revisión de la Administración</button>
+          </form>
+        </div>
+      )}
+
+      {/* TAB: GASTOS CON BARRA DE PROGRESO DE REEMBOLSOS */}
       {tabIntranet === 'gastos' && (
-        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-xl mx-auto space-y-5 shadow-sm">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 max-w-2xl mx-auto space-y-6 shadow-sm">
           <div>
-            <h3 className="text-lg font-serif font-bold text-neutral-950">Registrar Gastos & Subir Comprobante a Drive</h3>
-            <p className="text-xs text-neutral-500 mt-1">Los comprobantes se archivarán de forma estructurada en la cuenta info@actiolegisec.com bajo: GASTOS DE CLIENTES {'>'} Cliente {'>'} Año-Mes.</p>
+            <h3 className="text-lg font-serif font-bold text-neutral-950">Registro de Gastos & Comprobantes Drive</h3>
+            <p className="text-xs text-neutral-500 mt-1">Archivado automático en info@actiolegisec.com en la carpeta GASTOS DE CLIENTES.</p>
+          </div>
+
+          {/* BARRA DE PROGRESO: GASTOS VS REEMBOLSADOS */}
+          <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 space-y-2">
+            <div className="flex justify-between text-xs font-mono font-bold">
+              <span>Estado de Reembolsos de Gastos:</span>
+              <span>${totalReembolsados} / ${totalGastos} USD ({porcentajeReembolsado}%)</span>
+            </div>
+            <div className="w-full h-2.5 bg-neutral-200 rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-700 transition-all duration-500" style={{ width: `${porcentajeReembolsado}%` }} />
+            </div>
           </div>
 
           <form onSubmit={handleRegistrarGastoConDrive} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Causa Judicial Seleccionada:</label>
+              <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Causa Seleccionada:</label>
               <select value={casoActivoId} onChange={e => setCasoActivoId(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs font-mono">
                 {expedientes.map(exp => (
                   <option key={exp.id} value={exp.id}>{exp.numProceso} — {exp.cliente}</option>
@@ -251,16 +369,15 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Monto del Gasto ($ USD):</label>
-              <input type="text" required placeholder="350.00" value={montoGastoInput} onChange={e => setMontoGastoInput(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs" />
+              <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Monto ($ USD):</label>
+              <input type="number" required placeholder="350.00" value={montoGastoInput} onChange={e => setMontoGastoInput(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs" />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Concepto / Detalle:</label>
-              <input type="text" placeholder="Pago de tasa judicial / Peritaje técnico" value={conceptoGastoInput} onChange={e => setConceptoGastoInput(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs" />
+              <label className="block text-[11px] font-mono text-neutral-500 uppercase mb-1">Concepto:</label>
+              <input type="text" placeholder="Tasa judicial / Peritaje" value={conceptoGastoInput} onChange={e => setConceptoGastoInput(e.target.value)} className="w-full border border-neutral-300 rounded-xl p-2.5 text-xs" />
             </div>
 
-            {/* ADJUNTAR ARCHIVOS JPG, PNG, PDF */}
             <div className="border-2 border-dashed border-neutral-300 hover:border-neutral-950 rounded-xl p-4 text-center transition-all bg-neutral-50">
               <Upload className="w-6 h-6 text-neutral-400 mx-auto mb-2" />
               <label className="block text-xs font-semibold text-neutral-800 cursor-pointer">
@@ -272,128 +389,69 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                   className="hidden" 
                 />
               </label>
-              {archivoComprobante && (
-                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-900 rounded-lg text-xs font-mono">
-                  <FileCheck className="w-3.5 h-3.5" />
-                  <span>{archivoComprobante.name}</span>
-                </div>
-              )}
             </div>
 
-            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer shadow-xs">
-              Registrar Gasto & Archivar en Drive
-            </button>
+            <button type="submit" className="w-full py-3 bg-neutral-950 text-white text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer">Registrar Gasto en Drive</button>
           </form>
-
-          {/* HISTORIAL LOCAL DE SUBIDAS A DRIVE */}
-          {comprobantesDrive.length > 0 && (
-            <div className="pt-4 border-t border-neutral-200 space-y-2">
-              <h4 className="text-xs font-mono font-bold uppercase text-neutral-500">Comprobantes Subidos en esta Sesión</h4>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {comprobantesDrive.map(item => (
-                  <div key={item.id} className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-[11px] font-mono space-y-0.5">
-                    <div className="flex justify-between font-bold text-neutral-900">
-                      <span>{item.cliente}</span>
-                      <span>$ {item.monto} USD</span>
-                    </div>
-                    <div className="text-neutral-500 truncate">{item.rutaDrive}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* TAB 2: GOOGLE CALENDAR DENTRO DEL CONTENEDOR DE LA PÁGINA (SIN SALTAR COMO POP-UP) */}
+      {/* TAB: GOOGLE CALENDAR OFICIAL INTEGRADOR */}
       {tabIntranet === 'citas' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-4 shadow-sm w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 pb-3">
+          <div className="flex justify-between items-center border-b border-neutral-200 pb-3">
             <div>
               <h3 className="text-lg font-serif font-bold text-neutral-950">Google Calendar Institucional ACTIO LEGIS</h3>
-              <p className="text-xs font-mono text-neutral-500">ID Causa: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
+              <p className="text-xs font-mono text-neutral-500">ID: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
             </div>
           </div>
 
-          <div className="w-full border border-neutral-200 rounded-2xl overflow-hidden bg-neutral-50 h-[700px] shadow-inner relative">
+          <div className="w-full border border-neutral-200 rounded-2xl overflow-hidden bg-neutral-50 h-[650px]">
             <iframe 
-              src="https://calendar.google.com/calendar/embed?height=700&wkst=1&ctz=America%2FGuayaquil&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0&src=YWN0aW9sZWdpc2VjLmNvbV9mZzRmaWhoYm01ZjRvZHFmaGQ0cGJnZmR0Y0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23039BE5"
+              src="https://calendar.google.com/calendar/embed?src=actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc%40group.calendar.google.com&ctz=America%2FGuayaquil"
               style={{ border: 0 }} 
               width="100%" 
               height="100%" 
               frameBorder="0" 
               scrolling="no"
-              title="Google Calendar Oficial ACTIO LEGIS"
+              title="Google Calendar ACTIO LEGIS"
             />
           </div>
         </div>
       )}
 
-      {/* TAB 3: EXPEDIENTES, PROVIDENCIAS & MOTOR IA */}
+      {/* TAB: EXPEDIENTES & MOTOR IA */}
       {tabIntranet === 'expedientes' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           <div className="lg:col-span-5 space-y-4">
-            
-            {/* LECTOR DE PROVIDENCIAS IA */}
             <div className="bg-neutral-950 text-white rounded-2xl p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
-                  <Bot className="w-4 h-4 text-emerald-400" /> 
-                  Expediente IA
-                </span>
-              </div>
-              <textarea 
-                rows={4} 
-                value={textoNotificacionIA} 
-                onChange={(e) => setTextoNotificacionIA(e.target.value)} 
-                placeholder="Pegue el texto de la providencia judicial aquí..." 
-                className="w-full bg-neutral-900 border border-neutral-700 text-white text-xs rounded-xl p-3 resize-none" 
-              />
-              <button 
-                type="button" 
-                disabled={procesandoIA || !textoNotificacionIA.trim()} 
-                onClick={handleProcesarConIA} 
-                className="w-full py-3 bg-white hover:bg-neutral-100 text-neutral-950 text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer transition-all"
-              >
+              <span className="text-xs font-mono uppercase text-neutral-300 flex items-center gap-1.5"><Bot className="w-4 h-4 text-emerald-400" /> Expediente IA</span>
+              <textarea rows={4} value={textoNotificacionIA} onChange={(e) => setTextoNotificacionIA(e.target.value)} placeholder="Pegue la providencia judicial aquí..." className="w-full bg-neutral-900 border border-neutral-700 text-white text-xs rounded-xl p-3 resize-none" />
+              <button type="button" disabled={procesandoIA || !textoNotificacionIA.trim()} onClick={handleProcesarConIA} className="w-full py-3 bg-white text-neutral-950 text-xs font-semibold rounded-xl uppercase tracking-wider cursor-pointer">
                 {procesandoIA ? 'Analizando...' : 'Interpretar Providencia'}
               </button>
             </div>
 
-            {/* LISTA DE CAUSAS PATROCINADAS */}
             <div className="bg-white rounded-2xl border border-neutral-200 p-5 space-y-3">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
-                Causas Patrocinadas ({expedientes.length})
-              </h3>
+              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">Causas Patrocinadas ({expedientes.length})</h3>
               <div className="space-y-2">
                 {expedientes.map((c) => (
-                  <div
-                    key={c.id}
-                    onClick={() => setCasoActivoId(c.id)}
-                    className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${c.id === casoActivoId ? 'border-neutral-950 bg-neutral-50 font-medium' : 'border-neutral-200 hover:bg-neutral-50'}`}
-                  >
-                    <div className="flex justify-between font-mono text-[11px]">
-                      <span>{c.numProceso}</span>
-                      <span className="font-bold">{c.porcentaje}%</span>
-                    </div>
+                  <div key={c.id} onClick={() => setCasoActivoId(c.id)} className={`p-3 rounded-xl border text-xs cursor-pointer ${c.id === casoActivoId ? 'border-neutral-950 bg-neutral-50 font-medium' : 'border-neutral-200'}`}>
+                    <div className="flex justify-between font-mono text-[11px]"><span>{c.numProceso}</span><span className="font-bold">{c.porcentaje}%</span></div>
                     <div className="text-neutral-700 truncate mt-1">{c.cliente}</div>
                   </div>
                 ))}
               </div>
             </div>
-
           </div>
 
-          {/* DETALLE DEL EXPEDIENTE ACTIVO */}
           <div className="lg:col-span-7 bg-white rounded-2xl border border-neutral-200 p-6 space-y-6">
             <div className="border-b border-neutral-200 pb-4 flex justify-between items-center">
               <div>
-                <span className="text-[10px] font-mono uppercase text-neutral-400">Expediente Judicial Activo</span>
+                <span className="text-[10px] font-mono uppercase text-neutral-400">Expediente Activo</span>
                 <h2 className="text-xl font-serif font-bold text-neutral-950">{casoActivo.numProceso}</h2>
-                <p className="text-xs text-neutral-600 mt-0.5">Cliente: <strong>{casoActivo.cliente}</strong> • {casoActivo.unidadJudicial}</p>
+                <p className="text-xs text-neutral-600 mt-0.5">Cliente: <strong>{casoActivo.cliente}</strong></p>
               </div>
-              <span className="px-3 py-1 bg-neutral-100 rounded-lg text-xs font-mono text-neutral-800">
-                Líder: {casoActivo.abogadoLider}
-              </span>
             </div>
 
             <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 font-mono text-xs space-y-2">
@@ -401,33 +459,6 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
               <div className="flex justify-between"><span>Honorarios Fijados:</span><strong className="text-neutral-900">{casoActivo.honorariosFijados}</strong></div>
               <div className="flex justify-between"><span>Gastos Acumulados:</span><strong className="text-neutral-900">{casoActivo.gastosRegistrados}</strong></div>
             </div>
-
-            <div className="space-y-3">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
-                Historial de Providencias ({casoActivo.actuaciones.length})
-              </h3>
-              <div className="space-y-2">
-                {casoActivo.actuaciones.map((act) => (
-                  <div key={act.id} className="p-4 rounded-xl border border-neutral-200 space-y-2 bg-neutral-50/50">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-bold text-neutral-900 flex items-center gap-1.5">
-                        {act.titulo}
-                        {act.detectadoPorIA && (
-                          <span className="bg-neutral-950 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
-                            IA
-                          </span>
-                        )}
-                      </span>
-                      <span className="font-mono text-[11px] text-neutral-400">{act.fecha}</span>
-                    </div>
-                    <p className="text-xs text-neutral-600 leading-relaxed bg-white p-2.5 rounded-lg border border-neutral-200">
-                      {act.resumenParaCliente}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
           </div>
         </div>
       )}
