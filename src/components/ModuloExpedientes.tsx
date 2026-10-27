@@ -49,7 +49,7 @@ interface EventoCalendario {
   id: string;
   titulo: string;
   causa: string;
-  fecha: string;
+  fecha: string; // Formato YYYY-MM-DD
   hora: string;
   tipo: 'Audiencia' | 'Reunión' | 'Término Fatal';
 }
@@ -112,8 +112,8 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const [tituloArticulo, setTituloArticulo] = useState('');
   const [resumenArticulo, setResumenArticulo] = useState('');
 
-  // Calendario Interactivo
-  const [mesActualIndex, setMesActualIndex] = useState(9); // Octubre
+  // Calendario Interactivo Dinámico
+  const [mesActualIndex, setMesActualIndex] = useState(9); // 9 = Octubre (0-indexed)
   const [anoActual, setAnoActual] = useState(2026);
   const [diaSeleccionado, setDiaSeleccionado] = useState(28);
   const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>(EVENTOS_CALENDARIO_BASE);
@@ -131,6 +131,12 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const totalGastos = comprobantesDrive.reduce((acc, curr) => acc + curr.monto, 0);
   const totalReembolsados = comprobantesDrive.filter(g => g.estado === 'Pagado' || g.estado === 'Reembolsado').reduce((acc, curr) => acc + curr.monto, 0);
   const porcentajeReembolsado = totalGastos > 0 ? Math.round((totalReembolsados / totalGastos) * 100) : 0;
+
+  // FECHA ACTUAL SELECCIONADA EN FORMATO YYYY-MM-DD
+  const fechaSeleccionadaString = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`;
+
+  // EVENTOS FILTRADOS ESTRICTAMENTE POR LA FECHA SELECCIONADA
+  const eventosDelDia = eventosCalendario.filter(evt => evt.fecha === fechaSeleccionadaString);
 
   const handleNavegarMes = (direccion: 'anterior' | 'siguiente') => {
     if (direccion === 'anterior') {
@@ -154,7 +160,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
     setSyncState(true);
     setTimeout(() => {
       setSyncState(false);
-      alert("¡Calendario sincronizado con la API de Google Workspace de @actiolegisec.com!");
+      alert("¡Calendario sincronizado con Google Workspace (@actiolegisec.com)!");
     }, 800);
   };
 
@@ -162,21 +168,19 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
     e.preventDefault();
     if (!nuevoTituloEvento) return;
 
-    const fechaFormateada = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`;
-
     const nEvt: EventoCalendario = {
       id: `evt-${Date.now()}`,
       titulo: nuevoTituloEvento,
       causa: casoActivo?.numProceso || 'General',
-      fecha: fechaFormateada,
+      fecha: fechaSeleccionadaString,
       hora: nuevaHoraEvento,
       tipo: nuevoTipoEvento
     };
 
     setEventosCalendario(prev => [nEvt, ...prev]);
-    onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Agendó evento "${nuevoTituloEvento}" para el ${fechaFormateada}`, 'Google Calendar');
+    onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Agendó evento "${nuevoTituloEvento}" para el ${fechaSeleccionadaString}`, 'Google Calendar');
     setNuevoTituloEvento('');
-    alert(`Evento registrado para el ${fechaFormateada} a las ${nuevaHoraEvento}`);
+    alert(`Evento guardado en el calendario para el ${fechaSeleccionadaString} a las ${nuevaHoraEvento}`);
   };
 
   const handleRegistrarGastoConDrive = (e: React.FormEvent) => {
@@ -264,7 +268,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         id: `evt-${Date.now()}`,
         titulo: 'Providencia Notificada por IA',
         causa: casoActivo.numProceso,
-        fecha: `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`,
+        fecha: fechaSeleccionadaString,
         hora: '09:00 AM',
         tipo: 'Término Fatal'
       };
@@ -339,7 +343,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         </div>
       </div>
 
-      {/* TAB 1: GOOGLE CALENDAR NATIVO TOTALMENTE NAVEGABLE Y CON SELECCIÓN DE DÍAS */}
+      {/* TAB 1: CALENDARIO DE PANTALLA COMPLETA CON EVENTOS FILTRADOS Y BADGES DE COLORES */}
       {tabIntranet === 'citas' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
@@ -363,7 +367,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* PANEL PRINCIPAL DE GRILLA DE DÍAS SELECCIONABLES */}
+            {/* PANEL PRINCIPAL DE GRILLA DE DÍAS */}
             <div className="lg:col-span-8 bg-neutral-50 p-6 rounded-2xl border border-neutral-200 space-y-5">
               
               {/* NAVEGADOR DE MESES */}
@@ -388,8 +392,8 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                   </button>
                 </div>
 
-                <span className="text-xs font-mono text-neutral-500 bg-white px-3 py-1 rounded-md border border-neutral-200">
-                  Día Seleccionado: {diaSeleccionado} {NOMBRES_MESES[mesActualIndex]}
+                <span className="text-xs font-mono text-neutral-500 bg-white px-3 py-1 rounded-md border border-neutral-200 font-bold">
+                  Día Seleccionado: {diaSeleccionado} {NOMBRES_MESES[mesActualIndex]} {anoActual}
                 </span>
               </div>
 
@@ -398,68 +402,82 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                 <div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
               </div>
 
-              {/* GRILLA DE DÍAS TOTALMENTE SELECCIONABLES */}
+              {/* GRILLA DE DÍAS CON PUNTOS DE COLOR PARA DÍAS CON EVENTOS */}
               <div className="grid grid-cols-7 gap-2 text-center text-xs font-mono">
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
                   const esSeleccionado = dia === diaSeleccionado;
+                  const fechaDiaStr = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                  const tieneEventos = eventosCalendario.some(e => e.fecha === fechaDiaStr);
+
                   return (
                     <button 
                       key={dia} 
                       type="button"
                       onClick={() => setDiaSeleccionado(dia)}
-                      className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border transition-all cursor-pointer relative flex flex-col items-center justify-center gap-1 ${
                         esSeleccionado 
                           ? 'bg-neutral-950 text-white font-bold ring-2 ring-neutral-950 shadow-xs' 
+                          : tieneEventos
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-950 font-bold'
                           : 'bg-white border-neutral-200 text-neutral-800 hover:border-neutral-400'
                       }`}
                     >
-                      {dia < 10 ? `0${dia}` : dia}
+                      <span>{dia < 10 ? `0${dia}` : dia}</span>
+                      
+                      {/* INDICADOR VISUAL DE EVENTO (PUNTO O BADGE DE COLOR) */}
+                      {tieneEventos && (
+                        <span className={`w-1.5 h-1.5 rounded-full ${esSeleccionado ? 'bg-emerald-400' : 'bg-emerald-700'}`} />
+                      )}
                     </button>
                   );
                 })}
               </div>
 
-              {/* DILIGENCIAS DEL DÍA SELECCIONADO */}
+              {/* MUESTRA ÚNICAMENTE LOS EVENTOS DEL DÍA SELECCIONADO */}
               <div className="p-4 bg-white rounded-xl border border-neutral-200 space-y-3">
                 <div className="flex justify-between items-center border-b border-neutral-100 pb-2">
                   <span className="font-serif font-bold text-xs text-neutral-950">
-                    Eventos para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]}
+                    Eventos Agendados para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]} de {anoActual}
                   </span>
                   <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold">
                     Google Sincronizado
                   </span>
                 </div>
 
-                {eventosCalendario.length > 0 ? (
-                  eventosCalendario.map(evt => (
-                    <div key={evt.id} className="p-3 bg-neutral-50 rounded-xl flex items-center justify-between text-xs border border-neutral-100">
+                {eventosDelDia.length > 0 ? (
+                  eventosDelDia.map(evt => (
+                    <div key={evt.id} className="p-3 bg-neutral-50 rounded-xl flex items-center justify-between text-xs border border-neutral-200">
                       <div>
                         <strong className="text-neutral-900 font-serif block text-sm">{evt.titulo}</strong>
-                        <span className="text-neutral-500 font-mono text-[11px]">Causa: {evt.causa}</span>
+                        <span className="text-neutral-500 font-mono text-[11px]">Causa Judicial: {evt.causa}</span>
                       </div>
                       <div className="text-right">
-                        <span className="px-2.5 py-1 bg-white border border-neutral-200 rounded-md font-mono text-[11px] font-bold text-neutral-800 block">
-                          {evt.fecha} • {evt.hora}
+                        <span className={`px-2.5 py-1 rounded-md font-mono text-[11px] font-bold block ${
+                          evt.tipo === 'Término Fatal' ? 'bg-rose-100 text-rose-900 border border-rose-200' : 'bg-white border border-neutral-200 text-neutral-800'
+                        }`}>
+                          {evt.hora} • {evt.tipo}
                         </span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-neutral-400 font-mono text-center py-2">No hay audiencias o términos fijados para este día.</p>
+                  <div className="p-4 text-center font-mono text-xs text-neutral-400">
+                    No existen audiencias ni diligencias agendadas para la fecha seleccionada ({fechaSeleccionadaString}).
+                  </div>
                 )}
               </div>
 
             </div>
 
-            {/* FORMULARIO PARA AGENDAR CITAS EN VIVO */}
+            {/* FORMULARIO PARA AGENDAR CITAS EN LA FECHA ACTIVA */}
             <div className="lg:col-span-4 bg-neutral-950 text-white p-6 rounded-2xl space-y-5 shadow-sm">
               <div>
                 <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-1">
-                  Agendar en Google Workspace
+                  Google Workspace Conectado
                 </span>
                 <h4 className="font-serif font-bold text-xl">Nueva Cita o Diligencia</h4>
                 <p className="text-xs text-neutral-300 leading-relaxed font-light mt-1">
-                  Fije fecha para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]}:
+                  Agendar para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]} de {anoActual}:
                 </p>
               </div>
 
