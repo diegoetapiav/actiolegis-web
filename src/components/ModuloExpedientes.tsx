@@ -112,11 +112,17 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
   const [tituloArticulo, setTituloArticulo] = useState('');
   const [resumenArticulo, setResumenArticulo] = useState('');
 
-  // Calendario Interactivo con Sincronización Real y Navegación de Meses
+  // Calendario Interactivo
   const [mesActualIndex, setMesActualIndex] = useState(9); // Octubre
   const [anoActual, setAnoActual] = useState(2026);
+  const [diaSeleccionado, setDiaSeleccionado] = useState(28);
   const [eventosCalendario, setEventosCalendario] = useState<EventoCalendario[]>(EVENTOS_CALENDARIO_BASE);
   const [syncState, setSyncState] = useState(false);
+
+  // Formulario nuevo evento
+  const [nuevoTituloEvento, setNuevoTituloEvento] = useState('');
+  const [nuevaHoraEvento, setNuevaHoraEvento] = useState('10:00 AM');
+  const [nuevoTipoEvento, setNuevoTipoEvento] = useState<'Audiencia' | 'Reunión' | 'Término Fatal'>('Audiencia');
 
   const NOMBRES_MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
@@ -149,7 +155,28 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
     setTimeout(() => {
       setSyncState(false);
       alert("¡Calendario sincronizado con la API de Google Workspace de @actiolegisec.com!");
-    }, 1000);
+    }, 800);
+  };
+
+  const handleAgregarEventoCalendario = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoTituloEvento) return;
+
+    const fechaFormateada = `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`;
+
+    const nEvt: EventoCalendario = {
+      id: `evt-${Date.now()}`,
+      titulo: nuevoTituloEvento,
+      causa: casoActivo?.numProceso || 'General',
+      fecha: fechaFormateada,
+      hora: nuevaHoraEvento,
+      tipo: nuevoTipoEvento
+    };
+
+    setEventosCalendario(prev => [nEvt, ...prev]);
+    onRegistrarAuditoria(usuarioSesion?.nombre || 'Usuario', `Agendó evento "${nuevoTituloEvento}" para el ${fechaFormateada}`, 'Google Calendar');
+    setNuevoTituloEvento('');
+    alert(`Evento registrado para el ${fechaFormateada} a las ${nuevaHoraEvento}`);
   };
 
   const handleRegistrarGastoConDrive = (e: React.FormEvent) => {
@@ -237,7 +264,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         id: `evt-${Date.now()}`,
         titulo: 'Providencia Notificada por IA',
         causa: casoActivo.numProceso,
-        fecha: '2026-11-12',
+        fecha: `${anoActual}-${String(mesActualIndex + 1).padStart(2, '0')}-${String(diaSeleccionado).padStart(2, '0')}`,
         hora: '09:00 AM',
         tipo: 'Término Fatal'
       };
@@ -312,7 +339,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
         </div>
       </div>
 
-      {/* TAB 1: GOOGLE CALENDAR COMPLETO Y TOTALMENTE NAVEGABLE ENTRE MESES */}
+      {/* TAB 1: GOOGLE CALENDAR NATIVO TOTALMENTE NAVEGABLE Y CON SELECCIÓN DE DÍAS */}
       {tabIntranet === 'citas' && (
         <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6 shadow-sm w-full">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-200 pb-4">
@@ -324,21 +351,19 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
               <p className="text-xs font-mono text-neutral-500">ID Oficial: actiolegisec.com_fg4fihhbm5f4odqfhd4pbgfdtc@group.calendar.google.com</p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button 
-                type="button" 
-                onClick={handleForzarSincronizacionGoogle}
-                className="px-3.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${syncState ? 'animate-spin' : ''}`} />
-                <span>Sincronizar Google Workspace</span>
-              </button>
-            </div>
+            <button 
+              type="button" 
+              onClick={handleForzarSincronizacionGoogle}
+              className="px-3.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${syncState ? 'animate-spin' : ''}`} />
+              <span>Sincronizar Google Workspace</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* PANEL PRINCIPAL NAVEGABLE POR MESES Y DÍAS */}
+            {/* PANEL PRINCIPAL DE GRILLA DE DÍAS SELECCIONABLES */}
             <div className="lg:col-span-8 bg-neutral-50 p-6 rounded-2xl border border-neutral-200 space-y-5">
               
               {/* NAVEGADOR DE MESES */}
@@ -364,7 +389,7 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                 </div>
 
                 <span className="text-xs font-mono text-neutral-500 bg-white px-3 py-1 rounded-md border border-neutral-200">
-                  Zona Horaria: Guayaquil (GMT-5)
+                  Día Seleccionado: {diaSeleccionado} {NOMBRES_MESES[mesActualIndex]}
                 </span>
               </div>
 
@@ -373,73 +398,121 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
                 <div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
               </div>
 
-              {/* GRILLA DE DÍAS DEL MES */}
+              {/* GRILLA DE DÍAS TOTALMENTE SELECCIONABLES */}
               <div className="grid grid-cols-7 gap-2 text-center text-xs font-mono">
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((dia) => {
-                  const esHoy = dia === 28 && mesActualIndex === 9;
+                  const esSeleccionado = dia === diaSeleccionado;
                   return (
-                    <div 
+                    <button 
                       key={dia} 
+                      type="button"
+                      onClick={() => setDiaSeleccionado(dia)}
                       className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                        esHoy 
+                        esSeleccionado 
                           ? 'bg-neutral-950 text-white font-bold ring-2 ring-neutral-950 shadow-xs' 
                           : 'bg-white border-neutral-200 text-neutral-800 hover:border-neutral-400'
                       }`}
                     >
                       {dia < 10 ? `0${dia}` : dia}
-                    </div>
+                    </button>
                   );
                 })}
               </div>
 
-              {/* EVENTOS SINCRONIZADOS DE LA CAUSA */}
+              {/* DILIGENCIAS DEL DÍA SELECCIONADO */}
               <div className="p-4 bg-white rounded-xl border border-neutral-200 space-y-3">
                 <div className="flex justify-between items-center border-b border-neutral-100 pb-2">
                   <span className="font-serif font-bold text-xs text-neutral-950">
-                    Diligencias & Audiencias en {NOMBRES_MESES[mesActualIndex]}
+                    Eventos para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]}
                   </span>
                   <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-semibold">
                     Google Sincronizado
                   </span>
                 </div>
 
-                {eventosCalendario.map(evt => (
-                  <div key={evt.id} className="p-3 bg-neutral-50 rounded-xl flex items-center justify-between text-xs border border-neutral-100">
-                    <div>
-                      <strong className="text-neutral-900 font-serif block text-sm">{evt.titulo}</strong>
-                      <span className="text-neutral-500 font-mono text-[11px]">Causa Judicial: {evt.causa}</span>
+                {eventosCalendario.length > 0 ? (
+                  eventosCalendario.map(evt => (
+                    <div key={evt.id} className="p-3 bg-neutral-50 rounded-xl flex items-center justify-between text-xs border border-neutral-100">
+                      <div>
+                        <strong className="text-neutral-900 font-serif block text-sm">{evt.titulo}</strong>
+                        <span className="text-neutral-500 font-mono text-[11px]">Causa: {evt.causa}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="px-2.5 py-1 bg-white border border-neutral-200 rounded-md font-mono text-[11px] font-bold text-neutral-800 block">
+                          {evt.fecha} • {evt.hora}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <span className="px-2.5 py-1 bg-white border border-neutral-200 rounded-md font-mono text-[11px] font-bold text-neutral-800 block">
-                        {evt.fecha} • {evt.hora}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-xs text-neutral-400 font-mono text-center py-2">No hay audiencias o términos fijados para este día.</p>
+                )}
               </div>
 
             </div>
 
-            {/* LATERAL DE CONTROL */}
+            {/* FORMULARIO PARA AGENDAR CITAS EN VIVO */}
             <div className="lg:col-span-4 bg-neutral-950 text-white p-6 rounded-2xl space-y-5 shadow-sm">
               <div>
                 <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest block mb-1">
-                  Google Workspace Conectado
+                  Agendar en Google Workspace
                 </span>
-                <h4 className="font-serif font-bold text-xl">Gestión Integrada de Citas</h4>
-                <p className="text-xs text-neutral-300 leading-relaxed font-light mt-2">
-                  Los eventos agendados en la Intranet y las providencias interpretadas por la IA se cargan directamente al calendario institucional de la firma sin abrir cuadros flotantes.
+                <h4 className="font-serif font-bold text-xl">Nueva Cita o Diligencia</h4>
+                <p className="text-xs text-neutral-300 leading-relaxed font-light mt-1">
+                  Fije fecha para el {diaSeleccionado} de {NOMBRES_MESES[mesActualIndex]}:
                 </p>
               </div>
 
-              <div className="pt-3 border-t border-neutral-800 space-y-2">
+              <form onSubmit={handleAgregarEventoCalendario} className="space-y-3 text-neutral-900">
+                <input 
+                  type="text" 
+                  required 
+                  placeholder="Detalle de audiencia o reunión" 
+                  value={nuevoTituloEvento} 
+                  onChange={e => setNuevoTituloEvento(e.target.value)} 
+                  className="w-full bg-white border border-neutral-300 rounded-xl p-2.5 text-xs font-sans" 
+                />
+
+                <div className="grid grid-cols-2 gap-2">
+                  <select 
+                    value={nuevaHoraEvento} 
+                    onChange={e => setNuevaHoraEvento(e.target.value)}
+                    className="bg-white border border-neutral-300 rounded-xl p-2 text-xs font-mono"
+                  >
+                    <option value="09:00 AM">09:00 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="11:30 AM">11:30 AM</option>
+                    <option value="15:00 PM">15:00 PM</option>
+                    <option value="16:30 PM">16:30 PM</option>
+                  </select>
+
+                  <select 
+                    value={nuevoTipoEvento} 
+                    onChange={e => setNuevoTipoEvento(e.target.value as any)}
+                    className="bg-white border border-neutral-300 rounded-xl p-2 text-xs font-mono"
+                  >
+                    <option value="Audiencia">Audiencia</option>
+                    <option value="Reunión">Reunión</option>
+                    <option value="Término Fatal">Término Fatal</option>
+                  </select>
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="w-full py-3 bg-white text-neutral-950 font-bold text-xs uppercase tracking-wider rounded-xl cursor-pointer hover:bg-neutral-100 transition-all font-mono"
+                >
+                  Agendar Cita en Calendario
+                </button>
+              </form>
+
+              <div className="pt-3 border-t border-neutral-800">
                 <a 
                   href="https://calendar.google.com/calendar/u/0/r" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-full py-3 bg-white text-neutral-950 text-xs font-semibold uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-neutral-100 transition-all font-mono"
+                  className="w-full py-2.5 bg-neutral-900 border border-neutral-700 text-neutral-300 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 cursor-pointer hover:bg-neutral-800 transition-all font-mono"
                 >
-                  <span>Abrir en Pestaña Google</span>
+                  <span>Abrir Google Calendar en Navegador</span>
                   <ExternalLink className="w-3.5 h-3.5"/>
                 </a>
               </div>
