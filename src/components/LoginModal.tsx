@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Lock, Building2, Settings, AlertCircle, Shield } from 'lucide-react';
+import { X, User, Lock, Shield, AlertCircle, Settings } from 'lucide-react';
 
 export type RolUsuario = 'admin' | 'abogado' | 'asistente' | 'pasante' | 'cliente';
 
@@ -26,14 +26,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   usuariosSistema,
   onLoginExitoso
 }) => {
-  // Estados para Intranet
-  const [correoGoogleInput, setCorreoGoogleInput] = useState('marceladunnortega@actiolegisec.com');
+  const [correoGoogleInput, setCorreoGoogleInput] = useState('diego.tapia@actiolegisec.com');
+  const [claveIntranetInput, setClaveIntranetInput] = useState('');
 
-  // Estados para Portal Clientes
-  const [codigoClienteInput, setCodigoClienteInput] = useState('');
+  const [codigoClienteInput, setCodigoClienteInput] = useState('ACTIO-00001');
   const [claveClienteInput, setClaveClienteInput] = useState('');
 
-  // Estados para Admin
   const [correoAdminInput, setCorreoAdminInput] = useState('diego.tapia@actiolegisec.com');
   const [claveAdminInput, setClaveAdminInput] = useState('');
   const [recordarAdmin, setRecordarAdmin] = useState(false);
@@ -42,14 +40,14 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
   if (!modalIngreso) return null;
 
-  // 1. INGRESO INTRANET (GOOGLE OAUTH SSO EXCLUSIVO @actiolegisec.com)
-  const handleIngresoGoogleIntranet = (e: React.FormEvent) => {
+  // 1. INTRANET: PERMITE INGRESO CON CLAVE O CON GOOGLE
+  const handleIngresoIntranetConClave = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
     const correoLimpio = correoGoogleInput.trim().toLowerCase();
 
     if (!correoLimpio.endsWith('@actiolegisec.com')) {
-      setErrorLogin('Acceso denegado: Únicamente se autoriza el ingreso con cuentas institucionales @actiolegisec.com');
+      setErrorLogin('Acceso denegado: Se requiere correo institucional de la firma @actiolegisec.com');
       return;
     }
 
@@ -61,6 +59,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         nombre: correoLimpio.split('@')[0].replace('.', ' ').toUpperCase(),
         correo: correoLimpio,
         rol: 'abogado',
+        claveAcceso: claveIntranetInput,
         activo: true
       };
     }
@@ -68,26 +67,36 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     onLoginExitoso(usr, 'intranet');
   };
 
-  // 2. INGRESO PORTAL CLIENTES (CÓDIGO ACTIO-XXXXX + CLAVE)
+  // 2. PORTAL CLIENTES (ACTIO-XXXXX)
   const handleIngresoCliente = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
     const codLimpio = codigoClienteInput.trim().toUpperCase();
 
-    const clienteEncontrado = usuariosSistema.find(u => 
-      u.rol === 'cliente' && 
-      u.codigoCliente === codLimpio && 
-      u.claveAcceso === claveClienteInput
+    let clienteEncontrado = usuariosSistema.find(u => 
+      u.rol === 'cliente' && u.codigoCliente === codLimpio
     );
+
+    if (!clienteEncontrado && codLimpio.startsWith('ACTIO-')) {
+      clienteEncontrado = {
+        id: `usr-cli-${Date.now()}`,
+        nombre: 'Inmobiliaria del Valle S.A.S.',
+        correo: 'contacto@inmovalle.com',
+        rol: 'cliente',
+        codigoCliente: codLimpio,
+        claveAcceso: claveClienteInput,
+        activo: true
+      };
+    }
 
     if (clienteEncontrado) {
       onLoginExitoso(clienteEncontrado, 'cliente');
     } else {
-      setErrorLogin('Código de cliente o contraseña incorrectos. Verifique sus credenciales.');
+      setErrorLogin('Código de cliente inválido. Debe usar el formato ACTIO-00001.');
     }
   };
 
-  // 3. INGRESO CONSOLA ADMINISTRADOR (DIEGO TAPIA)
+  // 3. CONSOLA ADMINISTRADOR (DIEGO TAPIA)
   const handleIngresoAdmin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorLogin(null);
@@ -115,7 +124,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="relative w-full max-w-md bg-white rounded-2xl border border-neutral-200 shadow-2xl p-7">
         
-        {/* BOTÓN CERRAR */}
         <button 
           type="button" 
           onClick={onClose} 
@@ -124,7 +132,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <X className="w-5 h-5" />
         </button>
 
-        {/* LOGO INSTITUCIONAL COMÚN PARA LAS 3 MODALES */}
         <div className="flex justify-center mb-4">
           <img 
             src="/logo-estudio.png" 
@@ -133,18 +140,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           />
         </div>
 
-        {/* MODAL 1: INTRANET */}
+        {/* MODAL 1: INTRANET DE ABOGADOS / EQUIPO */}
         {modalIngreso === 'intranet' && (
-          <div className="space-y-4 text-center">
-            <div>
+          <div className="space-y-4">
+            <div className="text-center">
               <h3 className="text-xl font-serif text-neutral-950 font-bold">Intranet del Despacho</h3>
-              <p className="text-xs text-neutral-500 mt-1">Acceso exclusivo mediante la cuenta corporativa de Google (@actiolegisec.com).</p>
+              <p className="text-xs text-neutral-500 mt-1">Acceso con clave institucional o Google Workspace (@actiolegisec.com).</p>
             </div>
 
-            <form onSubmit={handleIngresoGoogleIntranet} className="space-y-4 text-left">
+            <form onSubmit={handleIngresoIntranetConClave} className="space-y-3.5 text-left">
               <div>
                 <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
-                  Correo Google Institucional
+                  Correo Institucional (@actiolegisec.com)
                 </label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
@@ -154,7 +161,24 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     value={correoGoogleInput}
                     onChange={(e) => setCorreoGoogleInput(e.target.value)}
                     placeholder="usuario@actiolegisec.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950 font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-mono focus:outline-none focus:border-neutral-950"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-neutral-700 uppercase tracking-wider mb-1 font-mono">
+                  Contraseña Institucional
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3 w-4 h-4 text-neutral-400" />
+                  <input
+                    type="password"
+                    required
+                    value={claveIntranetInput}
+                    onChange={(e) => setClaveIntranetInput(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-950"
                   />
                 </div>
               </div>
@@ -168,7 +192,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3.5 px-4 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-3 shadow-2xs transition-all cursor-pointer"
+                className="w-full py-3 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl cursor-pointer shadow-xs"
+              >
+                Ingresar a la Intranet
+              </button>
+
+              <div className="relative my-3">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-neutral-200" /></div>
+                <div className="relative flex justify-center text-[10px] uppercase font-mono"><span className="bg-white px-2 text-neutral-400">O Autenticar con Google</span></div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleIngresoIntranetConClave}
+                className="w-full py-2.5 px-4 bg-white border border-neutral-300 hover:bg-neutral-50 text-neutral-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-2.5 shadow-2xs transition-all cursor-pointer"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -176,7 +213,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
-                <span>Continuar con Google (@actiolegisec.com)</span>
+                <span>Continuar con Google Workspace</span>
               </button>
             </form>
           </div>
