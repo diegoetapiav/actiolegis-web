@@ -386,4 +386,50 @@ export const ModuloExpedientes: React.FC<ModuloExpedientesProps> = ({
             <div className="border-b border-neutral-200 pb-4 flex justify-between items-center">
               <div>
                 <span className="text-[10px] font-mono uppercase text-neutral-400">Expediente Judicial Activo</span>
-                <h2 className="text-xl font-serif font-bold text-neutral-950">{casoActivo
+                <h2 className="text-xl font-serif font-bold text-neutral-950">{casoActivo.numProceso}</h2>
+                <p className="text-xs text-neutral-600 mt-0.5">Cliente: <strong>{casoActivo.cliente}</strong> • {casoActivo.unidadJudicial}</p>
+              </div>
+              <span className="px-3 py-1 bg-neutral-100 rounded-lg text-xs font-mono text-neutral-800">
+                Líder: {casoActivo.abogadoLider}
+              </span>
+            </div>
+
+            <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 font-mono text-xs space-y-2">
+              <div className="flex justify-between"><span>Etapa Procesal:</span><strong className="text-neutral-900">{casoActivo.etapaProcesalActual}</strong></div>
+              <div className="flex justify-between"><span>Honorarios Fijados:</span><strong className="text-neutral-900">{casoActivo.honorariosFijados}</strong></div>
+              <div className="flex justify-between"><span>Gastos Acumulados:</span><strong className="text-neutral-900">{casoActivo.gastosRegistrados}</strong></div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+                Historial de Providencias ({casoActivo.actuaciones.length})
+              </h3>
+              <div className="space-y-2">
+                {casoActivo.actuaciones.map((act) => (
+                  <div key={act.id} className="p-4 rounded-xl border border-neutral-200 space-y-2 bg-neutral-50/50">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                        {act.titulo}
+                        {act.detectadoPorIA && (
+                          <span className="bg-neutral-950 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
+                            IA
+                          </span>
+                        )}
+                      </span>
+                      <span className="font-mono text-[11px] text-neutral-400">{act.fecha}</span>
+                    </div>
+                    <p className="text-xs text-neutral-600 leading-relaxed bg-white p-2.5 rounded-lg border border-neutral-200">
+                      {act.resumenParaCliente}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
