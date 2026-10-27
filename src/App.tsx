@@ -63,7 +63,7 @@ const CASOS_BASE: ExpedienteInterno[] = [
     cliente: 'Inmobiliaria del Valle S.A.S.',
     contraparte: 'Herederos de Juan Carlos Peñaherrera y Otros',
     unidadJudicial: 'Unidad Judicial Civil de Guayaquil',
-    abogadoLider: 'Abg. Mgs. Diego Tapia Vicuña',
+    abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
     etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
     porcentaje: 65,
     proximaFechaClave: '2026-10-18',
@@ -93,7 +93,7 @@ const CASOS_BASE: ExpedienteInterno[] = [
     cliente: 'Inmobiliaria del Valle S.A.S.',
     contraparte: 'Fiscalía General del Estado',
     unidadJudicial: 'Fiscalía Provincial del Guayas',
-    abogadoLider: 'Abg. Mgs. Diego Tapia Vicuña & Abg. Mgs. Marcela Dunn-Ortega',
+    abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs. & Abg. Marcela Dunn-Ortega, Mgs.',
     etapaProcesalActual: 'Calificación & Diligencias Previas',
     porcentaje: 35,
     proximaFechaClave: '2026-11-05',
@@ -245,7 +245,7 @@ export default function App() {
 
             <div className="hidden sm:flex flex-col border-l border-neutral-200 pl-3">
               <span className="font-serif text-xs font-bold tracking-tight text-neutral-950">
-                {vista === 'editorial' ? 'Editorial Jurídico' : 'Estudio Jurídico Boutique'}
+                {vista === 'editorial' ? 'Editorial Jurídico' : 'Estudio Jurídico'}
               </span>
               <span className="text-[9px] uppercase tracking-[0.2em] text-neutral-400 font-mono">
                 Guayaquil • Ecuador
@@ -404,10 +404,10 @@ export default function App() {
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
                   <p>
-                    En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.
+                    En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.
                   </p>
                   <p>
-                    Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos engañosos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.
+                    Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.
                   </p>
                 </div>
               </div>
@@ -433,28 +433,28 @@ export default function App() {
                 <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socio Fundador</span>
-                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Diego Tapia Vicuña</h3>
-                    <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
+                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Diego Tapia Vicuña, Mgs.</h3>
+                    <p className="text-xs font-mono text-neutral-500">Litigio en área penal y práctica civil</p>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
                     Abogado litigante con más de dos décadas de trayectoria en el patrocinio de causas complejas, defensa ante las judicaturas del Estado y diseño de estrategias de prevención de responsabilidad legal empresarial.
                   </p>
                   <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
-                    info@actiolegisec.com • Guayaquil
+                    diego.tapia@actiolegisec.com • Guayaquil
                   </div>
                 </div>
 
                 <div className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-xs space-y-6">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400">Socia Fundadora</span>
-                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Marcela Dunn-Ortega</h3>
-                    <p className="text-xs font-mono text-neutral-500">Derecho Corporativo, Cumplimiento & Litigio Civil</p>
+                    <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Marcela Dunn-Ortega, Mgs.</h3>
+                    <p className="text-xs font-mono text-neutral-500">Litigio en prevención de género y área penal</p>
                   </div>
                   <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-                    Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias y patrocinio judicial en litigios patrimoniales y mercantiles ante cortes provinciales.
+                    Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias, patrocinio mercantil, patrimonial y litigio en prevención de género.
                   </p>
                   <div className="pt-4 border-t border-neutral-100 text-xs text-neutral-500 font-mono">
-                    mdunn@actiolegisec.com • Guayaquil
+                    marceladunnortega@actiolegisec.com • Guayaquil
                   </div>
                 </div>
               </div>
@@ -615,7 +615,7 @@ export default function App() {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full md:w-auto">
                   <button
                     type="button"
-                    onClick={() => alert('Para coordinar su cita en despacho, contáctenos al +593 4 6005080 o al correo info@actiolegisec.com')}
+                    onClick={() => alert('Para coordinar su cita en despacho, contáctenos al +593 4 6005080 o al correo diego.tapia@actiolegisec.com')}
                     className="px-6 py-3.5 bg-neutral-950 hover:bg-black text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs text-center cursor-pointer"
                   >
                     Agende su consulta
@@ -651,22 +651,22 @@ export default function App() {
               
               <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
                 <span className="text-[10px] font-mono uppercase text-neutral-400">Socio Fundador</span>
-                <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Diego Tapia Vicuña</h3>
-                <p className="text-xs font-mono text-neutral-500">Litigio Penal Estratégico & Delitos Económicos</p>
+                <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Diego Tapia Vicuña, Mgs.</h3>
+                <p className="text-xs font-mono text-neutral-500">Litigio en área penal y práctica civil</p>
                 <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
                   Más de 20 años dedicado a la defensa penal técnica, patrocinio en investigaciones complejas ante Fiscalía y formulación de estrategias procesales preventivas.
                 </p>
-                <div className="pt-2 text-xs font-mono text-neutral-400">info@actiolegisec.com</div>
+                <div className="pt-2 text-xs font-mono text-neutral-400">diego.tapia@actiolegisec.com</div>
               </div>
 
               <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
                 <span className="text-[10px] font-mono uppercase text-neutral-400">Socia Fundadora</span>
-                <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Mgs. Marcela Dunn-Ortega</h3>
-                <p className="text-xs font-mono text-neutral-500">Derecho Corporativo, Cumplimiento & Litigio Civil</p>
+                <h3 className="text-2xl font-serif font-bold text-neutral-950">Abg. Marcela Dunn-Ortega, Mgs.</h3>
+                <p className="text-xs font-mono text-neutral-500">Litigio en prevención de género y área penal</p>
                 <p className="text-xs sm:text-sm text-neutral-600 font-light leading-relaxed">
-                  Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias y patrocinio mercantil y patrimonial.
+                  Especialista en estructuración fiduciaria, resolución prejudicial de controversias societarias, patrocinio mercantil y litigio en prevención de género.
                 </p>
-                <div className="pt-2 text-xs font-mono text-neutral-400">mdunn@actiolegisec.com</div>
+                <div className="pt-2 text-xs font-mono text-neutral-400">marceladunnortega@actiolegisec.com</div>
               </div>
 
               <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-xs space-y-4">
@@ -674,7 +674,7 @@ export default function App() {
                 <h3 className="text-xl font-serif font-bold text-neutral-950">Abg. Javier Morales R.</h3>
                 <p className="text-xs font-mono text-neutral-500">Derecho Civil & Procedimiento COGEP</p>
                 <p className="text-xs text-neutral-600 font-light leading-relaxed">
-                  Litigante enfocado en juicio ordinarios, prescripciones adquisitivas y ejecución de títulos crediticios y contratos solemnes.
+                  Litigante enfocado en juicios ordinarios, prescripciones adquisitivas y ejecución de títulos crediticios y contratos solemnes.
                 </p>
               </div>
 
@@ -1285,7 +1285,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-neutral-950 shrink-0" />
-                  <span>info@actiolegisec.com</span>
+                  <span>diego.tapia@actiolegisec.com</span>
                 </div>
                 <p className="text-[11px] text-neutral-400 pt-1 leading-relaxed">
                   Kennedy Norte, Alfonso Ortiz y José Castillo. Edificio Kennedy Office Center, piso 3, oficina 2.
