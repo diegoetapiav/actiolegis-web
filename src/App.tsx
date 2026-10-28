@@ -5,7 +5,7 @@ import {
   ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, 
   Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot, BookOpen, 
   HeartHandshake, UserCheck, Settings, Upload, FileCheck, ShieldCheck, Bell,
-  FolderDown, Receipt
+  Receipt, FileCheck2
 } from 'lucide-react';
 
 import { LoginModal, UsuarioSistema, RolUsuario } from './components/LoginModal';
@@ -208,13 +208,13 @@ export default function App() {
   const gastosPagadosNum = Math.round(gastosTotalesNum * (casoClienteActivo.id === 'exp-1' ? 0.80 : 0.50));
   const porcentajeGastos = Math.round((gastosPagadosNum / gastosTotalesNum) * 100);
 
-  // Lista de comprobantes de gastos asociados al caso
+  // Lista de comprobantes de gastos individuales (Enlace de vista previa aislada)
   const comprobantesGastos = casoClienteActivo.id === 'exp-1' ? [
-    { id: 'cmp-1', concepto: 'Tasa Judicial y Fianza de Inspección Predial', fecha: '2026-10-15', monto: '$ 840.00 USD', archivo: 'Comprobante_Tasa_Judicial_17230.pdf' },
-    { id: 'cmp-2', concepto: 'Honorarios Peritaje Técnico de Agrimensura', fecha: '2026-10-02', monto: '$ 400.00 USD', archivo: 'Factura_Peritaje_Agrimensura.pdf' }
+    { id: 'cmp-1', concepto: 'Tasa Judicial y Fianza de Inspección Predial', fecha: '2026-10-15', monto: '$ 840.00 USD', urlArchivo: 'https://drive.google.com/file/d/1_EXAMPLO_FILE_PDF_TASA/view' },
+    { id: 'cmp-2', concepto: 'Honorarios Peritaje Técnico de Agrimensura', fecha: '2026-10-02', monto: '$ 400.00 USD', urlArchivo: 'https://drive.google.com/file/d/1_EXAMPLO_FILE_JPG_PERITAJE/view' }
   ] : [
-    { id: 'cmp-3', concepto: 'Arancel Notarial y Copias Certificadas de Libros', fecha: '2026-10-10', monto: '$ 150.00 USD', archivo: 'Factura_Notarial_Copias_09281.pdf' },
-    { id: 'cmp-4', concepto: 'Honorarios Perito Contable Acreditado', fecha: '2026-09-28', monto: '$ 2,000.00 USD', archivo: 'Comprobante_Peritaje_Contable.pdf' }
+    { id: 'cmp-3', concepto: 'Arancel Notarial y Copias Certificadas de Libros', fecha: '2026-10-10', monto: '$ 150.00 USD', urlArchivo: 'https://drive.google.com/file/d/1_EXAMPLO_FILE_PDF_NOTARIA/view' },
+    { id: 'cmp-4', concepto: 'Honorarios Perito Contable Acreditado', fecha: '2026-09-28', monto: '$ 2,000.00 USD', urlArchivo: 'https://drive.google.com/file/d/1_EXAMPLO_FILE_PDF_CONTABLE/view' }
   ];
 
   return (
@@ -635,7 +635,7 @@ export default function App() {
         </div>
       )}
 
-      {/* VISTA PORTAL DE CLIENTES (CON COMPROBANTES DE GASTOS) */}
+      {/* VISTA PORTAL DE CLIENTES (COMPROBANTES INDIVIDUALES PRIVADOS) */}
       {vista === 'cliente' && usuarioSesion?.rol === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           
@@ -709,7 +709,7 @@ export default function App() {
             {/* COLUMNA DERECHA */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* TARJETA 1: PROCESO SELECCIONADO */}
+              {/* TARJETA 1 */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
                 <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -751,27 +751,14 @@ export default function App() {
 
               {/* TARJETA 2: BARRAS FINANCIERAS */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
-                <div className="border-b border-neutral-200 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-neutral-900"/>
-                      <span>Estado Financiero & Reembolso de Gastos</span>
-                    </h3>
-                    <p className="text-xs text-neutral-500 font-light mt-0.5">
-                      Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
-                    </p>
-                  </div>
-
-                  <a 
-                    href="https://drive.google.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-mono font-semibold rounded-lg flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer"
-                  >
-                    <FolderDown className="w-3.5 h-3.5 text-emerald-700"/>
-                    <span>Revisar Comprobantes</span>
-                    <ExternalLink className="w-3 h-3 text-emerald-600"/>
-                  </a>
+                <div className="border-b border-neutral-200 pb-2">
+                  <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-neutral-900"/>
+                    <span>Estado Financiero & Reembolso de Gastos</span>
+                  </h3>
+                  <p className="text-xs text-neutral-500 font-light mt-0.5">
+                    Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
+                  </p>
                 </div>
 
                 <div className="space-y-4">
@@ -803,14 +790,14 @@ export default function App() {
                 </div>
               </div>
 
-              {/* TARJETA 3: DESGLOSE Y COMPROBANTES SUBIDOS */}
+              {/* TARJETA 3: COMPROBANTES DE GASTOS INDIVIDUALES */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
                 <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
                   <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
                     <Receipt className="w-4 h-4 text-neutral-900"/>
                     <span>Comprobantes de Gastos Justificados ({comprobantesGastos.length})</span>
                   </h3>
-                  <span className="text-[10px] font-mono text-neutral-500 uppercase">Archivos Alojados en Drive</span>
+                  <span className="text-[10px] font-mono text-neutral-500 uppercase">Resguardos de Ley</span>
                 </div>
 
                 <div className="space-y-2">
@@ -821,14 +808,15 @@ export default function App() {
                         <div className="text-[11px] font-mono text-neutral-500">Fecha: {cmp.fecha} • Monto: <strong className="text-neutral-900">{cmp.monto}</strong></div>
                       </div>
 
+                      {/* ENLACE DIRECTO EXCLUSIVO AL ARCHIVO INDIVIDUAL */}
                       <a 
-                        href="https://drive.google.com" 
+                        href={cmp.urlArchivo} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-mono font-semibold rounded-lg flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer shrink-0"
+                        className="px-3.5 py-2 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-mono font-semibold rounded-xl flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer shrink-0 shadow-2xs"
                       >
-                        <FileText className="w-3.5 h-3.5 text-neutral-600"/>
-                        <span>Ver PDF</span>
+                        <FileCheck2 className="w-3.5 h-3.5 text-emerald-700"/>
+                        <span>Ver Comprobante PDF / Foto</span>
                         <ExternalLink className="w-3 h-3 text-neutral-400"/>
                       </a>
                     </div>
