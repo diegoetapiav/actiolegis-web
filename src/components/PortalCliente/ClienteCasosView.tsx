@@ -1,167 +1,154 @@
 import React, { useState } from 'react';
 import { 
-  FileText, 
-  Clock, 
-  Scale, 
-  Calendar, 
-  AlertCircle, 
-  ChevronRight, 
-  Briefcase,
-  HelpCircle,
-  Building,
-  UserCheck,
-  CheckCircle2
+  Building2, ExternalLink, ShieldCheck, DollarSign, FileText, 
+  ChevronRight, Scale
 } from 'lucide-react';
-import type { Cliente, ExpedienteJudicial, ActuacionJudicial } from '../../types/legal';
+import { ExpedienteInterno } from '../ModuloExpedientes';
 
-interface Props {
-  cliente: Cliente;
-  expedientes: ExpedienteJudicial[];
+interface ClienteCasosViewProps {
+  expedientes?: ExpedienteInterno[];
+  codigoClienteSesion?: string;
 }
 
-export const ClienteCasosView: React.FC<Props> = ({ cliente, expedientes = [] }) => {
-  // Asegurar que expedientes sea un arreglo válido
-  const listaSegura = Array.isArray(expedientes) && expedientes.length > 0 ? expedientes : [];
-  
-  const [casoSeleccionadoId, setCasoSeleccionadoId] = useState<string>(
-    listaSegura[0]?.id || ''
-  );
-  const [filtroTexto, setFiltroTexto] = useState('');
-
-  // Paleta de colores suaves diferenciados por trámite (del 1 al 4)
-  const coloresTramites = [
+export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
+  expedientes = [],
+  codigoClienteSesion = 'ACTIO-00001'
+}) => {
+  // Lista base de respaldo en caso de que no lleguen expedientes dinámicos
+  const expedientesBase: ExpedienteInterno[] = [
     {
-      badge: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-      activeCard: 'border-emerald-500 bg-emerald-50/30 ring-1 ring-emerald-500/20',
-      barra: 'bg-emerald-600',
-      tag: 'Trámite 1 • Verde Sabiduría'
+      id: 'exp-1',
+      numProceso: '17230-2024-00482',
+      materia: 'Civil',
+      tipoProceso: 'Prescripción Extraordinaria Adquisitiva de Dominio de Lote Urbano',
+      cliente: 'Inmobiliaria del Valle S.A.S.',
+      contraparte: 'Municipio de Guayaquil',
+      unidadJudicial: 'Unidad Judicial Civil con sede en Guayaquil',
+      abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
+      etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
+      porcentaje: 65,
+      proximaFechaClave: '2026-10-28',
+      proximasAcciones: 'Presentación de alegatos finales y prueba pericial.',
+      honorariosFijados: '$3,500.00',
+      gastosRegistrados: '$450.00',
+      actuaciones: [
+        {
+          id: 'act-1',
+          fecha: '2026-10-18',
+          titulo: 'Providencia Notificada',
+          resumenParaCliente: 'Se señala fecha para la práctica de la diligencia de inspección judicial en el sitio.'
+        },
+        {
+          id: 'act-2',
+          fecha: '2026-10-05',
+          titulo: 'Informe Pericial Incorporado',
+          resumenParaCliente: 'El perito acreditado por el Consejo de la Judicatura rinde su informe técnico favorable.'
+        }
+      ]
     },
     {
-      badge: 'bg-amber-50 text-amber-800 border-amber-200',
-      activeCard: 'border-amber-500 bg-amber-50/30 ring-1 ring-amber-500/20',
-      barra: 'bg-amber-500',
-      tag: 'Trámite 2 • Ámbar Cálido'
-    },
-    {
-      badge: 'bg-sky-50 text-sky-800 border-sky-200',
-      activeCard: 'border-sky-500 bg-sky-50/30 ring-1 ring-sky-500/20',
-      barra: 'bg-sky-500',
-      tag: 'Trámite 3 • Celeste Claridad'
-    },
-    {
-      badge: 'bg-purple-50 text-purple-800 border-purple-200',
-      activeCard: 'border-purple-500 bg-purple-50/30 ring-1 ring-purple-500/20',
-      barra: 'bg-purple-500',
-      tag: 'Trámite 4 • Lavanda Serena'
+      id: 'exp-2',
+      numProceso: '09281-2025-01129',
+      materia: 'Penal',
+      tipoProceso: 'Investigación Previa por Presunto Delito Económico',
+      cliente: 'Inmobiliaria del Valle S.A.S.',
+      contraparte: 'Fiscalía General del Estado',
+      unidadJudicial: 'Unidad Judicial Penal con sede en Guayaquil',
+      abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
+      etapaProcesalActual: 'Diligencias de Investigación Previa',
+      porcentaje: 40,
+      proximaFechaClave: '2026-11-05',
+      proximasAcciones: 'Rendición de versión libre y voluntaria.',
+      honorariosFijados: '$2,800.00',
+      gastosRegistrados: '$200.00',
+      actuaciones: [
+        {
+          id: 'act-3',
+          fecha: '2026-10-12',
+          titulo: 'Señalamiento de Versión',
+          resumenParaCliente: 'Fiscalía notifica fecha para la recepción de la versión de la parte interesada.'
+        }
+      ]
     }
   ];
 
-  // Filtrado 100% blindado contra valores nulos o undefined
-  const expedientesFiltrados = listaSegura.filter((item) => {
-    if (!item) return false;
-    const busqueda = String(filtroTexto || '').toLowerCase().trim();
-    if (!busqueda) return true;
+  const listaAMostrar = expedientes.length > 0 ? expedientes : expedientesBase;
+  const [causaSeleccionadaId, setCausaSeleccionadaId] = useState(listaAMostrar[0]?.id || 'exp-1');
+  const causaActiva = listaAMostrar.find((c) => c.id === causaSeleccionadaId) || listaAMostrar[0];
 
-    const num = String(item.numeroCaso || '').toLowerCase();
-    const tit = String(item.titulo || '').toLowerCase();
-    const mat = String(item.materia || '').toLowerCase();
-    return num.includes(busqueda) || tit.includes(busqueda) || mat.includes(busqueda);
-  });
+  // Datos de valores convenidos y reembolsos
+  const honorariosTotales = 3500;
+  const honorariosPagados = 2400;
+  const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
 
-  const casoActivo = expedientesFiltrados.find(e => e?.id === casoSeleccionadoId) 
-    || expedientesFiltrados[0] 
-    || listaSegura[0];
-
-  const indiceCasoActivo = listaSegura.findIndex(e => e?.id === casoActivo?.id);
-  const colorEstilo = coloresTramites[indiceCasoActivo % coloresTramites.length] || coloresTramites[0];
-
-  // Cálculo de etapas procesales individuales
-  const etapas = [
-    { key: 'demanda', label: 'Demanda' },
-    { key: 'citacion', label: 'Citación' },
-    { key: 'audiencia', label: 'Audiencia / Pruebas' },
-    { key: 'sentencia', label: 'Sentencia' }
-  ];
-
-  const calcularIndiceEtapa = (etapa: string = '') => {
-    const et = String(etapa).toLowerCase();
-    if (et.includes('demanda')) return 0;
-    if (et.includes('citacion')) return 1;
-    if (et.includes('audiencia') || et.includes('prueba')) return 2;
-    if (et.includes('sentencia') || et.includes('ejecucion')) return 3;
-    return 1;
-  };
-
-  const etapaActualIndex = calcularIndiceEtapa(casoActivo?.etapaProcesal);
+  const gastosTotales = 450;
+  const gastosCubiertos = 350;
+  const porcentajeGastos = Math.round((gastosCubiertos / gastosTotales) * 100);
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
-      {/* =========================================================
-          LEYENDA INSTITUCIONAL OFICIAL (SIN BANNER NEGRO)
-         ========================================================= */}
-      <div className="bg-white border border-neutral-200/90 rounded-2xl p-5 sm:p-6 shadow-sm">
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 rounded-xl bg-neutral-100 border border-neutral-200 flex items-center justify-center flex-shrink-0 text-neutral-800">
-            <Scale className="w-5 h-5 text-neutral-900" />
+      {/* CABECERA BIENVENIDA CLIENTE */}
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700"/>
+            <span>Portal del Cliente • Código Confidencial: {codigoClienteSesion}</span>
           </div>
-          <div className="space-y-1">
-            <h2 className="text-sm sm:text-base font-semibold text-neutral-950 font-serif">
-              Portal Informativo de Causas & Procesos
-            </h2>
-            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed font-light">
-              Este dashboard le permitirá enterarse de las causas judiciales, trámites administrativos o investigaciones patrocinados por <strong className="font-semibold text-neutral-900">ACTIO LEGIS</strong>. Cualquier información adicional, no dude en contactar a su abogado patrocinador.
-            </p>
-          </div>
+          <h1 className="text-2xl font-serif font-bold text-neutral-950">
+            Bienvenido/a, <span className="underline decoration-neutral-300">{causaActiva?.cliente || 'Inmobiliaria del Valle S.A.S.'}</span>
+          </h1>
+          <p className="text-xs text-neutral-500 mt-1">
+            Plataforma confidencial de seguimiento en vivo de causas judiciales y estado de cuenta patrocinado por ACTIO LEGIS.
+          </p>
         </div>
+
+        {/* ENLACE DIRECTO AL SATJE OFICIAL */}
+        <a 
+          href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="px-4 py-2.5 bg-[#281F26] hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer font-mono shadow-xs"
+        >
+          <Scale className="w-4 h-4 text-neutral-300"/>
+          <span>Consultar Causa en SATJE</span>
+          <ExternalLink className="w-3.5 h-3.5 text-neutral-400"/>
+        </a>
       </div>
 
-      {/* =========================================================
-          CONTENIDO: LISTA LATERAL Y DETALLE DEL EXPEDIENTE
-         ========================================================= */}
+      {/* CUERPO PRINCIPAL */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* LISTA LATERAL DE TRÁMITES (COLORES SUAVES DIFERENCIADOS) */}
-        <div className="lg:col-span-4 space-y-3">
-          <div className="flex items-center justify-between pb-1">
-            <span className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">
-              Sus Procesos Activos ({expedientesFiltrados.length})
+        {/* COLUMNA IZQUIERDA: LISTADO DE CAUSAS DEL CLIENTE */}
+        <div className="lg:col-span-4 bg-white rounded-2xl border border-neutral-200 p-5 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-bold">
+              Causas Patrocinadas ({listaAMostrar.length})
+            </span>
+            <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              En Trámite
             </span>
           </div>
 
-          <div className="space-y-2.5">
-            {expedientesFiltrados.map((item, index) => {
-              const color = coloresTramites[index % coloresTramites.length];
-              const estaSeleccionado = casoActivo?.id === item.id;
-
+          <div className="space-y-2">
+            {listaAMostrar.map((c) => {
+              const esSeleccionado = c.id === causaActiva?.id;
               return (
-                <div
-                  key={item.id}
-                  onClick={() => setCasoSeleccionadoId(item.id)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer bg-white ${
-                    estaSeleccionado 
-                      ? color.activeCard 
-                      : 'border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50/50'
+                <div 
+                  key={c.id} 
+                  onClick={() => setCausaSeleccionadaId(c.id)}
+                  className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                    esSeleccionado 
+                      ? 'border-neutral-950 bg-[#FAF9F6] shadow-2xs font-semibold' 
+                      : 'border-neutral-200 bg-white hover:border-neutral-400'
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border font-mono ${color.badge}`}>
-                      Trámite #{index + 1}
-                    </span>
-                    <span className="text-[11px] font-mono text-neutral-400">
-                      {item.numeroCaso}
-                    </span>
+                  <div className="flex items-center justify-between font-mono text-[11px] text-neutral-500 mb-1">
+                    <span>Juicio No: {c.numProceso}</span>
+                    <ChevronRight className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${esSeleccionado ? 'rotate-90 text-neutral-950' : ''}`} />
                   </div>
-
-                  <h3 className="text-xs font-semibold text-neutral-900 line-clamp-2 leading-snug mb-1">
-                    {item.titulo}
-                  </h3>
-
-                  <div className="flex items-center justify-between text-[11px] text-neutral-500 pt-1">
-                    <span>{item.materia || 'Materia General'}</span>
-                    <span className="font-medium text-neutral-700">
-                      {item.porcentajeCompletado || 30}% avance
-                    </span>
+                  <div className="font-serif font-bold text-neutral-950 text-xs leading-snug line-clamp-2">
+                    {c.tipoProceso}
                   </div>
                 </div>
               );
@@ -169,140 +156,126 @@ export const ClienteCasosView: React.FC<Props> = ({ cliente, expedientes = [] })
           </div>
         </div>
 
-        {/* DETALLE DEL TRÁMITE SELECCIONADO */}
-        {casoActivo ? (
-          <div className="lg:col-span-8 space-y-6">
-            
-            {/* Cabecera y Resumen del Expediente */}
-            <div className="bg-white rounded-2xl border border-neutral-200/90 p-6 shadow-sm space-y-6">
-              
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-100 pb-4">
-                <div>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-md border font-mono ${colorEstilo.badge}`}>
-                    Trámite #{indiceCasoActivo + 1} • {casoActivo.materia}
-                  </span>
-                  <h1 className="text-lg sm:text-xl font-serif font-bold text-neutral-950 mt-2">
-                    {casoActivo.titulo}
-                  </h1>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-mono text-neutral-400 block">Número de Causa</span>
-                  <span className="text-xs font-mono font-semibold text-neutral-900 bg-neutral-100 px-2.5 py-1 rounded-md border border-neutral-200 mt-0.5 inline-block">
-                    {casoActivo.numeroCaso}
-                  </span>
-                </div>
-              </div>
-
-              {/* BARRA DE PROGRESO INDIVIDUAL POR ETAPAS */}
-              <div className="space-y-3 bg-[#FAF9F6] p-4 rounded-xl border border-neutral-200/60">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-neutral-800">
-                    Estado Procesal Individual
-                  </span>
-                  <span className="font-mono text-xs text-neutral-500">
-                    Fase {etapaActualIndex + 1} de 4
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-4 gap-2 pt-1">
-                  {etapas.map((et, idx) => {
-                    const completada = idx <= etapaActualIndex;
-                    return (
-                      <div key={et.key} className="space-y-1.5">
-                        <div className={`h-2 rounded-full ${
-                          completada ? colorEstilo.barra : 'bg-neutral-200'
-                        }`} />
-                        <span className={`block text-[10px] text-center font-medium ${
-                          completada ? 'text-neutral-900' : 'text-neutral-400'
-                        }`}>
-                          {et.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Ficha Técnica del Proceso */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 text-xs">
-                <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <span className="text-neutral-400 block mb-0.5">Unidad Judicial / Tribunal</span>
-                  <span className="font-medium text-neutral-800 leading-snug">
-                    {casoActivo.unidadJudicial || 'Sede Judicial Guayaquil'}
-                  </span>
-                </div>
-                <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <span className="text-neutral-400 block mb-0.5">Juez / Ponente</span>
-                  <span className="font-medium text-neutral-800">
-                    {casoActivo.juez || 'Por sorteo procesal'}
-                  </span>
-                </div>
-                <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-                  <span className="text-neutral-400 block mb-0.5">Abogado Patrocinador</span>
-                  <span className="font-medium text-neutral-800">
-                    {casoActivo.abogadoPatrocinador || 'Diego Tapia, Ab.'}
-                  </span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* RESOLUCIONES Y PROCESO CON CÁPSULA: "¿QUÉ SIGNIFICA?" */}
-            <div className="bg-white rounded-2xl border border-neutral-200/90 p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-                <h3 className="text-sm font-semibold text-neutral-900 font-serif flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-neutral-700" />
-                  Actuaciones y Providencias Judiciales
-                </h3>
-                <span className="text-xs text-neutral-400 font-mono">
-                  Orden Cronológico
+        {/* COLUMNA DERECHA: INFORMACIÓN DETALLADA, BARRAS FINANCIERAS Y ACTUACIONES */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* TARJETA 1: DETALLES DE LA CAUSA SELECCIONADA Y SATJE */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+            <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 block mb-0.5">
+                  Proceso Judicial Seleccionado
+                </span>
+                <h2 className="text-xl font-serif font-bold text-neutral-950">
+                  {causaActiva?.tipoProceso}
+                </h2>
+                <span className="text-xs font-mono text-neutral-600 block mt-1">
+                  Causa Judicial No: <strong>{causaActiva?.numProceso}</strong>
                 </span>
               </div>
 
-              <div className="space-y-4 pt-1">
-                {Array.isArray(casoActivo.actuaciones) && casoActivo.actuaciones.length > 0 ? (
-                  casoActivo.actuaciones.map((act) => (
-                    <div 
-                      key={act.id} 
-                      className="p-4 rounded-xl border border-neutral-200 bg-white space-y-3"
-                    >
-                      <div className="flex items-center justify-between gap-2 flex-wrap">
-                        <span className="text-xs font-semibold text-neutral-900">
-                          {act.titulo}
-                        </span>
-                        <span className="text-[11px] font-mono text-neutral-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {act.fecha}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-neutral-600 leading-relaxed">
-                        {act.descripcion}
-                      </p>
-
-                      {/* CÁPSULA SENCILLA: "¿QUÉ SIGNIFICA?" */}
-                      {act.interpretacionSencilla && (
-                        <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl text-xs text-amber-950 flex items-start gap-2.5 leading-relaxed">
-                          <span className="font-bold flex-shrink-0">📌 ¿Qué significa?</span>
-                          <span className="font-light">{act.interpretacionSencilla}</span>
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-neutral-400 text-xs">
-                    No se registran nuevas actuaciones judiciales para este proceso en las últimas 48 horas.
-                  </div>
-                )}
-              </div>
+              <a 
+                href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-mono font-semibold rounded-lg flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer"
+              >
+                <span>Ver Movimientos SATJE</span>
+                <ExternalLink className="w-3 h-3 text-neutral-500"/>
+              </a>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans text-neutral-700">
+              <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+                <span className="text-[10px] font-mono text-neutral-400 uppercase block">Etapa Procesal Actual:</span>
+                <strong className="text-neutral-950 font-serif text-sm block">{causaActiva?.etapaProcesalActual}</strong>
+              </div>
+
+              <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+                <span className="text-[10px] font-mono text-neutral-400 uppercase block">Próxima Fecha Clave:</span>
+                <strong className="text-neutral-950 font-mono text-sm block">{causaActiva?.proximaFechaClave}</strong>
+              </div>
+            </div>
           </div>
-        ) : null}
+
+          {/* TARJETA 2: BARRAS DE PROGRESO DE HONORARIOS Y GASTOS */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
+            <div className="border-b border-neutral-200 pb-2">
+              <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-neutral-900"/>
+                <span>Estado Financiero & Reembolso de Gastos</span>
+              </h3>
+              <p className="text-xs text-neutral-500 font-light mt-0.5">
+                Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {/* BARRA 1: HONORARIOS PROFESIONALES */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-neutral-700 font-bold">Honorarios Profesionales Convenidos:</span>
+                  <span className="text-neutral-950 font-bold">${honorariosPagados} / ${honorariosTotales} USD ({porcentajeHonorarios}%)</span>
+                </div>
+                <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+                  <div 
+                    className="h-full bg-neutral-950 rounded-full transition-all duration-700" 
+                    style={{ width: `${porcentajeHonorarios}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* BARRA 2: GASTOS JUDICIALES Y OPERACIONALES */}
+              <div className="space-y-1.5 pt-1">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-neutral-700 font-bold">Gastos Operacionales & Peritajes:</span>
+                  <span className="text-emerald-900 font-bold">${gastosCubiertos} / ${gastosTotales} USD ({porcentajeGastos}%)</span>
+                </div>
+                <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+                  <div 
+                    className="h-full bg-emerald-700 rounded-full transition-all duration-700" 
+                    style={{ width: `${porcentajeGastos}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* TARJETA 3: LÍNEA DE TIEMPO PROCESAL */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+            <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
+              <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-neutral-900"/>
+                <span>Línea de Tiempo Procesal</span>
+              </h3>
+              <span className="text-[10px] font-mono text-neutral-500 uppercase">Resumen Ejecutivo</span>
+            </div>
+
+            <div className="space-y-3">
+              {causaActiva?.actuaciones && causaActiva.actuaciones.length > 0 ? (
+                causaActiva.actuaciones.map((act) => (
+                  <div key={act.id} className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200 space-y-1 text-xs">
+                    <div className="flex justify-between items-center font-mono text-[11px] text-neutral-500">
+                      <strong className="text-neutral-950 font-serif text-sm">{act.titulo}</strong>
+                      <span>{act.fecha}</span>
+                    </div>
+                    <p className="text-neutral-700 leading-relaxed font-sans mt-1">
+                      {act.resumenParaCliente}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center font-mono text-xs text-neutral-400 bg-[#FAF9F6] rounded-xl border border-neutral-200">
+                  No existen actuaciones procesales registradas recientemente para este expediente.
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
 
       </div>
+
     </div>
   );
 };
-
-export default ClienteCasosView;
