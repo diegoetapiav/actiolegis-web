@@ -4,7 +4,8 @@ import {
   MapPin, Phone, Mail, ArrowRight, ArrowUp, ExternalLink, 
   ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, 
   Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot, BookOpen, 
-  HeartHandshake, UserCheck, Settings, Upload, FileCheck, ShieldCheck, Bell
+  HeartHandshake, UserCheck, Settings, Upload, FileCheck, ShieldCheck, Bell,
+  FolderDown, Receipt
 } from 'lucide-react';
 
 import { LoginModal, UsuarioSistema, RolUsuario } from './components/LoginModal';
@@ -198,7 +199,7 @@ export default function App() {
 
   const casoClienteActivo = expedientes.find(c => c.id === causaSeleccionadaId) || expedientes[0];
 
-  // Extracción de datos dinámicos financieros por cada expediente
+  // Extracción de datos dinámicos financieros
   const honorariosTotalesNum = parseFloat(casoClienteActivo.honorariosFijados?.replace(/[^0-9.]/g, '') || '3500');
   const honorariosPagadosNum = Math.round(honorariosTotalesNum * (casoClienteActivo.id === 'exp-1' ? 0.65 : 0.40));
   const porcentajeHonorarios = Math.round((honorariosPagadosNum / honorariosTotalesNum) * 100);
@@ -206,6 +207,15 @@ export default function App() {
   const gastosTotalesNum = parseFloat(casoClienteActivo.gastosRegistrados?.replace(/[^0-9.]/g, '') || '450');
   const gastosPagadosNum = Math.round(gastosTotalesNum * (casoClienteActivo.id === 'exp-1' ? 0.80 : 0.50));
   const porcentajeGastos = Math.round((gastosPagadosNum / gastosTotalesNum) * 100);
+
+  // Lista de comprobantes de gastos asociados al caso
+  const comprobantesGastos = casoClienteActivo.id === 'exp-1' ? [
+    { id: 'cmp-1', concepto: 'Tasa Judicial y Fianza de Inspección Predial', fecha: '2026-10-15', monto: '$ 840.00 USD', archivo: 'Comprobante_Tasa_Judicial_17230.pdf' },
+    { id: 'cmp-2', concepto: 'Honorarios Peritaje Técnico de Agrimensura', fecha: '2026-10-02', monto: '$ 400.00 USD', archivo: 'Factura_Peritaje_Agrimensura.pdf' }
+  ] : [
+    { id: 'cmp-3', concepto: 'Arancel Notarial y Copias Certificadas de Libros', fecha: '2026-10-10', monto: '$ 150.00 USD', archivo: 'Factura_Notarial_Copias_09281.pdf' },
+    { id: 'cmp-4', concepto: 'Honorarios Perito Contable Acreditado', fecha: '2026-09-28', monto: '$ 2,000.00 USD', archivo: 'Comprobante_Peritaje_Contable.pdf' }
+  ];
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
@@ -373,7 +383,7 @@ export default function App() {
                   <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white leading-tight">No ejercemos el derecho en masa. Asumimos causas con compromiso de fondo.</h2>
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
-                  <p>En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.</p>
+                  <p>En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.</p>
                   <p>Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.</p>
                 </div>
               </div>
@@ -625,7 +635,7 @@ export default function App() {
         </div>
       )}
 
-      {/* VISTA PORTAL DE CLIENTES (HONORARIOS Y GASTOS DINÁMICOS) */}
+      {/* VISTA PORTAL DE CLIENTES (CON COMPROBANTES DE GASTOS) */}
       {vista === 'cliente' && usuarioSesion?.rol === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           
@@ -699,7 +709,7 @@ export default function App() {
             {/* COLUMNA DERECHA */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* TARJETA 1 */}
+              {/* TARJETA 1: PROCESO SELECCIONADO */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
                 <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -739,16 +749,29 @@ export default function App() {
                 </div>
               </div>
 
-              {/* TARJETA 2: BARRAS DINÁMICAS POR CASO */}
+              {/* TARJETA 2: BARRAS FINANCIERAS */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
-                <div className="border-b border-neutral-200 pb-2">
-                  <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-neutral-900"/>
-                    <span>Estado Financiero & Reembolso de Gastos</span>
-                  </h3>
-                  <p className="text-xs text-neutral-500 font-light mt-0.5">
-                    Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
-                  </p>
+                <div className="border-b border-neutral-200 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                      <DollarSign className="w-4 h-4 text-neutral-900"/>
+                      <span>Estado Financiero & Reembolso de Gastos</span>
+                    </h3>
+                    <p className="text-xs text-neutral-500 font-light mt-0.5">
+                      Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
+                    </p>
+                  </div>
+
+                  <a 
+                    href="https://drive.google.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-mono font-semibold rounded-lg flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer"
+                  >
+                    <FolderDown className="w-3.5 h-3.5 text-emerald-700"/>
+                    <span>Revisar Comprobantes</span>
+                    <ExternalLink className="w-3 h-3 text-emerald-600"/>
+                  </a>
                 </div>
 
                 <div className="space-y-4">
@@ -780,7 +803,40 @@ export default function App() {
                 </div>
               </div>
 
-              {/* TARJETA 3 */}
+              {/* TARJETA 3: DESGLOSE Y COMPROBANTES SUBIDOS */}
+              <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+                <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
+                  <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                    <Receipt className="w-4 h-4 text-neutral-900"/>
+                    <span>Comprobantes de Gastos Justificados ({comprobantesGastos.length})</span>
+                  </h3>
+                  <span className="text-[10px] font-mono text-neutral-500 uppercase">Archivos Alojados en Drive</span>
+                </div>
+
+                <div className="space-y-2">
+                  {comprobantesGastos.map((cmp) => (
+                    <div key={cmp.id} className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="space-y-0.5">
+                        <div className="font-bold text-neutral-950 font-serif text-sm">{cmp.concepto}</div>
+                        <div className="text-[11px] font-mono text-neutral-500">Fecha: {cmp.fecha} • Monto: <strong className="text-neutral-900">{cmp.monto}</strong></div>
+                      </div>
+
+                      <a 
+                        href="https://drive.google.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-300 text-xs font-mono font-semibold rounded-lg flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer shrink-0"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-neutral-600"/>
+                        <span>Ver PDF</span>
+                        <ExternalLink className="w-3 h-3 text-neutral-400"/>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* TARJETA 4: LÍNEA DE TIEMPO PROCESAL */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
                 <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
                   <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
