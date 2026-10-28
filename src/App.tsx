@@ -4,7 +4,7 @@ import {
   MapPin, Phone, Mail, ArrowRight, ArrowUp, ExternalLink, 
   ChevronRight, Lock, User, LogOut, X, Clock, Award, Landmark, 
   Users, Building2, Sparkles, Plus, CheckCircle2, AlertCircle, Bot, BookOpen, 
-  HeartHandshake, UserCheck, Settings, Upload, FileCheck
+  HeartHandshake, UserCheck, Settings, Upload, FileCheck, ShieldCheck, Bell
 } from 'lucide-react';
 
 import { LoginModal, UsuarioSistema, RolUsuario } from './components/LoginModal';
@@ -28,30 +28,6 @@ export interface ArticuloEditorial {
   fecha: string;
 }
 
-const PALETA_TRAMITES = [
-  {
-    fondoCard: 'bg-[#F2F7F4] border-[#D1E3D8]',
-    badgeMateria: 'bg-[#E1EFE7] text-[#1B4D33] border-[#C2DFCF]',
-    barraProgreso: 'bg-[#2E6B4A]',
-    indicadorActivo: 'bg-[#2E6B4A]',
-    detalleFondo: 'bg-[#FAFBF9]',
-  },
-  {
-    fondoCard: 'bg-[#FAF6EE] border-[#EADFCB]',
-    badgeMateria: 'bg-[#F3EBD8] text-[#5C4217] border-[#DFCBB0]',
-    barraProgreso: 'bg-[#8C6424]',
-    indicadorActivo: 'bg-[#8C6424]',
-    detalleFondo: 'bg-[#FCFBF8]',
-  },
-  {
-    fondoCard: 'bg-[#F0F5FA] border-[#CFDFEE]',
-    badgeMateria: 'bg-[#E1EDF7] text-[#19456B] border-[#BFDAF0]',
-    barraProgreso: 'bg-[#255C8F]',
-    indicadorActivo: 'bg-[#255C8F]',
-    detalleFondo: 'bg-[#F7FAFC]',
-  }
-];
-
 const USUARIOS_BASE: UsuarioSistema[] = [
   { id: 'usr-admin', nombre: 'Abg. Diego Tapia Vicuña, Mgs.', correo: 'diego.tapia@actiolegisec.com', rol: 'admin', activo: true },
   { id: 'usr-abg', nombre: 'Abg. Marcela Dunn-Ortega, Mgs.', correo: 'marceladunnortega@actiolegisec.com', rol: 'abogado', activo: true },
@@ -72,16 +48,23 @@ const CASOS_BASE: ExpedienteInterno[] = [
     abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
     etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
     porcentaje: 65,
-    proximaFechaClave: '2026-10-18',
+    proximaFechaClave: '2026-10-28',
     proximasAcciones: 'Entrega de informe pericial técnico y preparación de alegatos orales.',
-    honorariosFijados: '$ 12,500.00 USD',
-    gastosRegistrados: '$ 1,240.00 USD',
+    honorariosFijados: '$ 3,500.00 USD',
+    gastosRegistrados: '$ 450.00 USD',
     actuaciones: [
       {
         id: 'act-1',
-        fecha: '2026-10-08 11:20',
-        titulo: 'Concesión de término fatal para informe pericial',
-        resumenParaCliente: 'El Juez ordenó al perito técnico la entrega formal de la planimetría del terreno en 10 días para continuar a juicio.',
+        fecha: '2026-10-18',
+        titulo: 'Providencia Judicial Notificada',
+        resumenParaCliente: 'El Juez ordenó la práctica de la inspección judicial en el predio para la siguiente semana.',
+        detectadoPorIA: false
+      },
+      {
+        id: 'act-2',
+        fecha: '2026-10-05',
+        titulo: 'Informe Pericial Incorporado',
+        resumenParaCliente: 'El perito acreditado rinde su informe técnico favorable sobre el terreno.',
         detectadoPorIA: false
       }
     ]
@@ -99,12 +82,12 @@ const CASOS_BASE: ExpedienteInterno[] = [
     porcentaje: 35,
     proximaFechaClave: '2026-11-05',
     proximasAcciones: 'Revisión y descargo de peritaje contable en sede fiscal.',
-    honorariosFijados: '$ 18,000.00 USD',
-    gastosRegistrados: '$ 2,150.00 USD',
+    honorariosFijados: '$ 2,800.00 USD',
+    gastosRegistrados: '$ 200.00 USD',
     actuaciones: [
       {
         id: 'act-3',
-        fecha: '2026-10-01 15:00',
+        fecha: '2026-10-12',
         titulo: 'Recepción de versión libre y voluntaria',
         resumenParaCliente: 'Se compareció con la defensa técnica aportando libros contables que certifican la licitud patrimonial.',
         detectadoPorIA: false
@@ -142,7 +125,7 @@ const NOTIFICACIONES_BASE: NotificacionAuditoria[] = [
 
 export default function App() {
   const [vista, setVista] = useState<'sitio-web' | 'editorial' | 'equipo' | 'cliente' | 'intranet' | 'admin-console'>('sitio-web');
-  const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'gastos' | 'editorial-borradores'>('expedientes');
+  const [tabIntranet, setTabIntranet] = useState<'expedientes' | 'citas' | 'gastos' | 'editorial-borradores' | 'clientes'>('expedientes');
   const [modalIngreso, setModalIngreso] = useState<'intranet' | 'cliente' | 'admin' | null>(null);
 
   const [usuarioSesion, setUsuarioSesion] = useState<UsuarioSistema | null>(null);
@@ -150,6 +133,9 @@ export default function App() {
   const [expedientes, setExpedientes] = useState<ExpedienteInterno[]>(CASOS_BASE);
   const [articulos, setArticulos] = useState<ArticuloEditorial[]>(ARTICULOS_BASE);
   const [notificaciones, setNotificaciones] = useState<NotificacionAuditoria[]>(NOTIFICACIONES_BASE);
+
+  // Estado para la causa seleccionada en el Portal del Cliente
+  const [causaSeleccionadaId, setCausaSeleccionadaId] = useState<string>('exp-1');
 
   // Formulario CMS Admin
   const [nuevoNombre, setNuevoNombre] = useState('');
@@ -211,10 +197,16 @@ export default function App() {
     setNuevoCorreo('');
   };
 
-  const handleAprobarArticulo = (artId: string) => {
-    setArticulos(prev => prev.map(a => a.id === artId ? { ...a, estado: 'publicado' } : a));
-    registrarAuditoria(usuarioSesion?.nombre || 'Administrador', `Aprobó y publicó artículo en línea editorial`, 'Consola CMS');
-  };
+  const casoClienteActivo = expedientes.find(c => c.id === causaSeleccionadaId) || expedientes[0];
+
+  // Datos financieros simulados para las barras de progreso del cliente
+  const honorariosTotales = 3500;
+  const honorariosPagados = 2400;
+  const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
+
+  const gastosTotales = 450;
+  const gastosCubiertos = 350;
+  const porcentajeGastos = Math.round((gastosCubiertos / gastosTotales) * 100);
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
@@ -634,34 +626,198 @@ export default function App() {
         </div>
       )}
 
-      {/* 5. VISTA PORTAL DE CLIENTES */}
+      {/* 5. VISTA PORTAL DE CLIENTES (RESTABLECIDA Y ENRIQUECIDA) */}
       {vista === 'cliente' && usuarioSesion?.rol === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm flex justify-between items-center">
+          
+          {/* CABECERA CON BIENVENIDA Y ACCESO DIRECTO A SATJE */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] font-mono text-neutral-600">Código Confidencial: {usuarioSesion.codigoCliente}</span>
-              <h1 className="text-2xl font-serif text-neutral-950 font-normal mt-1">Bienvenido/a, <span className="font-semibold">{usuarioSesion.nombre}</span></h1>
+              <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700"/>
+                <span>Portal del Cliente • Código Confidencial: {usuarioSesion.codigoCliente}</span>
+              </div>
+              <h1 className="text-2xl font-serif font-bold text-neutral-950">
+                Bienvenido/a, <span className="underline decoration-neutral-300">{usuarioSesion.nombre}</span>
+              </h1>
+              <p className="text-xs text-neutral-500 mt-1">
+                Plataforma de seguimiento en vivo de causas judiciales y estado de cuenta patrocinado por ACTIO LEGIS.
+              </p>
             </div>
+
+            <a 
+              href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-[#281F26] hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer font-mono shadow-xs"
+            >
+              <Scale className="w-4 h-4 text-neutral-300"/>
+              <span>Consultar Causa en SATJE</span>
+              <ExternalLink className="w-3.5 h-3.5 text-neutral-400"/>
+            </a>
           </div>
 
+          {/* CUERPO PRINCIPAL DEL PORTAL */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-4 space-y-3">
-              {expedientes.map((caso) => (
-                <div key={caso.id} className="rounded-2xl p-5 border bg-white shadow-2xs">
-                  <span className="font-mono text-xs font-bold text-neutral-900">{caso.numProceso}</span>
-                  <h3 className="font-serif font-semibold text-neutral-950 text-sm mt-1">{caso.tipoProceso}</h3>
-                </div>
-              ))}
-            </div>
+            
+            {/* COLUMNA IZQUIERDA: LISTADO DE CAUSAS PATROCINADAS */}
+            <div className="lg:col-span-4 bg-white rounded-2xl border border-neutral-200 p-5 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
+                <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-bold">
+                  Causas Patrocinadas ({expedientes.length})
+                </span>
+                <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
+                  En Trámite
+                </span>
+              </div>
 
-            <div className="lg:col-span-8 rounded-3xl border border-neutral-200 p-6 bg-white space-y-4">
-              <h2 className="text-xl font-serif font-bold text-neutral-950">{expedientes[0]?.tipoProceso}</h2>
-              <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200 text-xs space-y-2 font-mono">
-                <div>Etapa Procesal: <strong>{expedientes[0]?.etapaProcesalActual}</strong></div>
-                <div>Próxima Fecha Clave: <strong>{expedientes[0]?.proximaFechaClave}</strong></div>
+              <div className="space-y-2">
+                {expedientes.map((caso) => {
+                  const esSeleccionado = caso.id === casoClienteActivo.id;
+                  return (
+                    <div 
+                      key={caso.id} 
+                      onClick={() => setCausaSeleccionadaId(caso.id)}
+                      className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                        esSeleccionado 
+                          ? 'border-neutral-950 bg-[#FAF9F6] shadow-2xs font-semibold' 
+                          : 'border-neutral-200 bg-white hover:border-neutral-400'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between font-mono text-[11px] text-neutral-500 mb-1">
+                        <span>Juicio No: {caso.numProceso}</span>
+                        <ChevronRight className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${esSeleccionado ? 'rotate-90 text-neutral-950' : ''}`} />
+                      </div>
+                      <div className="font-serif font-bold text-neutral-950 text-xs leading-snug line-clamp-2">
+                        {caso.tipoProceso}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
+
+            {/* COLUMNA DERECHA: INFORMACIÓN DETALLADA, BARRAS Y LÍNEA DE TIEMPO */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* TARJETA 1: PROCESO Y ENLACE SATJE */}
+              <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+                <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 block mb-0.5">
+                      Proceso Judicial Seleccionado
+                    </span>
+                    <h2 className="text-xl font-serif font-bold text-neutral-950">
+                      {casoClienteActivo?.tipoProceso}
+                    </h2>
+                    <span className="text-xs font-mono text-neutral-600 block mt-1">
+                      Causa Judicial No: <strong>{casoClienteActivo?.numProceso}</strong>
+                    </span>
+                  </div>
+
+                  <a 
+                    href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml"
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-mono font-semibold rounded-xl flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer"
+                  >
+                    <Scale className="w-3.5 h-3.5 text-neutral-600"/>
+                    <span>Ver Movimientos SATJE</span>
+                    <ExternalLink className="w-3 h-3 text-neutral-500"/>
+                  </a>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans text-neutral-700">
+                  <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+                    <span className="text-[10px] font-mono text-neutral-400 uppercase block">Etapa Procesal Actual:</span>
+                    <strong className="text-neutral-950 font-serif text-sm block">{casoClienteActivo?.etapaProcesalActual}</strong>
+                  </div>
+
+                  <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+                    <span className="text-[10px] font-mono text-neutral-400 uppercase block">Próxima Fecha Clave:</span>
+                    <strong className="text-neutral-950 font-mono text-sm block">{casoClienteActivo?.proximaFechaClave}</strong>
+                  </div>
+                </div>
+              </div>
+
+              {/* TARJETA 2: BARRAS DE PROGRESO DE HONORARIOS Y GASTOS */}
+              <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
+                <div className="border-b border-neutral-200 pb-2">
+                  <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-neutral-900"/>
+                    <span>Estado Financiero & Reembolso de Gastos</span>
+                  </h3>
+                  <p className="text-xs text-neutral-500 font-light mt-0.5">
+                    Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* BARRA HONORARIOS */}
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center text-xs font-mono">
+                      <span className="text-neutral-700 font-bold">Honorarios Profesionales Convenidos:</span>
+                      <span className="text-neutral-950 font-bold">${honorariosPagados} / ${honorariosTotales} USD ({porcentajeHonorarios}%)</span>
+                    </div>
+                    <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+                      <div 
+                        className="h-full bg-neutral-950 rounded-full transition-all duration-700" 
+                        style={{ width: `${porcentajeHonorarios}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* BARRA GASTOS */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex justify-between items-center text-xs font-mono">
+                      <span className="text-neutral-700 font-bold">Gastos Operacionales & Peritajes:</span>
+                      <span className="text-emerald-900 font-bold">${gastosCubiertos} / ${gastosTotales} USD ({porcentajeGastos}%)</span>
+                    </div>
+                    <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+                      <div 
+                        className="h-full bg-emerald-700 rounded-full transition-all duration-700" 
+                        style={{ width: `${porcentajeGastos}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* TARJETA 3: LÍNEA DE TIEMPO PROCESAL */}
+              <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+                <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
+                  <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-neutral-900"/>
+                    <span>Línea de Tiempo Procesal</span>
+                  </h3>
+                  <span className="text-[10px] font-mono text-neutral-500 uppercase">Resumen Ejecutivo</span>
+                </div>
+
+                <div className="space-y-3">
+                  {casoClienteActivo?.actuaciones && casoClienteActivo.actuaciones.length > 0 ? (
+                    casoClienteActivo.actuaciones.map((act) => (
+                      <div key={act.id} className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200 space-y-1 text-xs">
+                        <div className="flex justify-between items-center font-mono text-[11px] text-neutral-500">
+                          <strong className="text-neutral-950 font-serif text-sm">{act.titulo}</strong>
+                          <span>{act.fecha}</span>
+                        </div>
+                        <p className="text-neutral-700 leading-relaxed font-sans mt-1">
+                          {act.resumenParaCliente}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center font-mono text-xs text-neutral-400 bg-[#FAF9F6] rounded-xl border border-neutral-200">
+                      No existen actuaciones procesales registradas recientemente para este expediente.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
           </div>
+
         </div>
       )}
 
@@ -801,7 +957,7 @@ export default function App() {
                 </li>
                 <li>
                   <a 
-                    href="https://procesosjudiciales.funcionjudicial.gob.ec/busqueda" 
+                    href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="hover:text-neutral-950 transition-colors flex items-center gap-1.5 cursor-pointer"
