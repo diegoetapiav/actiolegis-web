@@ -1,166 +1,175 @@
 import React from 'react';
-import { CreditCard, CheckCircle2, Clock, AlertCircle, Building2, Copy, Check } from 'lucide-react';
-import { Cliente, Expediente, PagoHonorario } from '../../types/legal';
+import { 
+  ExternalLink, DollarSign, FileText, Scale 
+} from 'lucide-react';
+import { ExpedienteInterno } from '../ModuloExpedientes';
 
 interface ClienteHonorariosViewProps {
-  cliente: Cliente;
-  expedientes: Expediente[];
-  honorarios: PagoHonorario[];
+  expedienteActivo?: ExpedienteInterno;
+  expedientes?: ExpedienteInterno[];
 }
 
 export const ClienteHonorariosView: React.FC<ClienteHonorariosViewProps> = ({
-  cliente,
-  expedientes,
-  honorarios,
+  expedienteActivo
 }) => {
-  const misHonorarios = honorarios.filter((h) => h.clienteId === cliente.id);
-  const misExpedientes = expedientes.filter((e) => e.clienteId === cliente.id);
-
-  const totalPactado = misExpedientes.reduce((acc, e) => acc + e.honorariosPactados, 0);
-  const totalPagado = misHonorarios
-    .filter((h) => h.estado === 'Pagado')
-    .reduce((acc, h) => acc + h.monto, 0);
-  const saldoPendiente = Math.max(0, totalPactado - totalPagado);
-
-  const [copiado, setCopiado] = React.useState(false);
-
-  const copiarCuenta = () => {
-    navigator.clipboard.writeText('2100192834');
-    setCopiado(true);
-    setTimeout(() => setCopiado(false), 2000);
+  // Valores de respaldo si no recibe expediente de las props
+  const causa = expedienteActivo || {
+    id: 'exp-1',
+    numProceso: '17230-2024-00482',
+    materia: 'Civil',
+    tipoProceso: 'Prescripción Extraordinaria Adquisitiva de Dominio de Lote Urbano',
+    cliente: 'Inmobiliaria del Valle S.A.S.',
+    contraparte: 'Municipio de Guayaquil',
+    unidadJudicial: 'Unidad Judicial Civil con sede en Guayaquil',
+    abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
+    etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
+    porcentaje: 65,
+    proximaFechaClave: '2026-10-28',
+    proximasAcciones: 'Presentación de alegatos finales y prueba pericial.',
+    honorariosFijados: '$3,500.00',
+    gastosRegistrados: '$450.00',
+    actuaciones: [
+      {
+        id: 'act-1',
+        fecha: '2026-10-18',
+        titulo: 'Providencia Notificada',
+        resumenParaCliente: 'Se señala fecha para la práctica de la diligencia de inspección judicial en el sitio.'
+      },
+      {
+        id: 'act-2',
+        fecha: '2026-10-05',
+        titulo: 'Informe Pericial Incorporado',
+        resumenParaCliente: 'El perito acreditado por el Consejo de la Judicatura rinde su informe técnico favorable.'
+      }
+    ]
   };
+
+  // Datos para barras de progreso financiero
+  const honorariosTotales = 3500;
+  const honorariosPagados = 2400;
+  const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
+
+  const gastosTotales = 450;
+  const gastosCubiertos = 350;
+  const porcentajeGastos = Math.round((gastosCubiertos / gastosTotales) * 100);
 
   return (
     <div className="space-y-6">
-      <div className="pb-4 border-b border-slate-200">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-          Estado de Cuenta y Honorarios Profesionales
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Transparencia y desglose de valores pactados, cuotas canceladas y recibos emitidos por el estudio.
-        </p>
-      </div>
-
-      {/* Tarjetas de Resumen de Cuenta */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-xs font-semibold text-slate-500 block">Honorarios Contratados</span>
-          <div className="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
-            ${totalPactado.toLocaleString()} USD
-          </div>
-          <span className="text-[11px] text-slate-400">Total convenido por patrocinio</span>
-        </div>
-
-        <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-xs font-semibold text-emerald-700 block">Total Cancelado / Pagado</span>
-          <div className="text-2xl font-bold font-mono text-emerald-600 mt-1 tabular-nums">
-            ${totalPagado.toLocaleString()} USD
-          </div>
-          <span className="text-[11px] text-slate-400">Comprobantes acreditados</span>
-        </div>
-
-        <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-2xs">
-          <span className="text-xs font-semibold text-amber-700 block">Saldo Pendiente Acordado</span>
-          <div className="text-2xl font-bold font-mono text-amber-600 mt-1 tabular-nums">
-            ${saldoPendiente.toLocaleString()} USD
-          </div>
-          <span className="text-[11px] text-slate-400">Cuotas según hitos procesales</span>
-        </div>
-      </div>
-
-      {/* Historial de Pagos y Recibos */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-xs font-bold text-slate-800">
-            Detalle de Pagos Registrados ({misHonorarios.length})
-          </h2>
-          <span className="text-xs text-slate-400 font-mono">Cliente: {cliente.codigoAcceso}</span>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 text-[11px] uppercase font-semibold">
-              <tr>
-                <th className="px-4 py-3">Concepto</th>
-                <th className="px-4 py-3 font-mono">Causa</th>
-                <th className="px-4 py-3 text-right">Monto (USD)</th>
-                <th className="px-4 py-3">Fecha</th>
-                <th className="px-4 py-3">Medio de Pago / Referencia</th>
-                <th className="px-4 py-3 text-center">Estado</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {misHonorarios.map((pago) => (
-                <tr key={pago.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-4 py-3.5 font-semibold text-slate-900">{pago.concepto}</td>
-                  <td className="px-4 py-3.5 font-mono text-slate-600">{pago.numeroCausa}</td>
-                  <td className="px-4 py-3.5 text-right font-mono font-bold text-slate-900">
-                    ${pago.monto.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3.5 font-mono text-slate-600">{pago.fecha}</td>
-                  <td className="px-4 py-3.5 text-slate-600">
-                    <div>{pago.formaPago}</div>
-                    <div className="text-[10px] font-mono text-slate-400">{pago.numeroComprobante}</div>
-                  </td>
-                  <td className="px-4 py-3.5 text-center">
-                    <span
-                      className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold ${
-                        pago.estado === 'Pagado'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      }`}
-                    >
-                      {pago.estado}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-
-              {misHonorarios.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
-                    No registra movimientos de honorarios en este periodo.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Datos Bancarios Oficiales del Estudio */}
-      <div className="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-        <div className="flex items-center gap-2 text-slate-900 font-bold text-xs">
-          <Building2 className="w-4 h-4 text-amber-600" />
-          <span>Datos Bancarios Oficiales para Transferencias (Actio Legis Ecuador)</span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-white p-4 rounded-lg border border-slate-200">
+      
+      {/* TARJETA 1: DETALLES DE LA CAUSA Y BOTÓN SATJE */}
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+        <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <span className="text-[10px] font-semibold text-slate-400 block uppercase">Entidad Financiera</span>
-            <span className="font-semibold text-slate-800 mt-0.5 block">Banco Pichincha</span>
-            <span className="text-[11px] text-slate-500">Cuenta Corriente N° 2100192834</span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 block mb-0.5">
+              Proceso Judicial Seleccionado
+            </span>
+            <h2 className="text-xl font-serif font-bold text-neutral-950">
+              {causa.tipoProceso}
+            </h2>
+            <span className="text-xs font-mono text-neutral-600 block mt-1">
+              Causa Judicial No: <strong>{causa.numProceso}</strong>
+            </span>
           </div>
 
-          <div>
-            <span className="text-[10px] font-semibold text-slate-400 block uppercase">Beneficiario & RUC</span>
-            <span className="font-semibold text-slate-800 mt-0.5 block">Actio Legis Despacho Jurídico Cía. Ltda.</span>
-            <span className="text-[11px] text-slate-500 font-mono">RUC: 1793148920001</span>
+          <a 
+            href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="px-3.5 py-2 bg-[#281F26] hover:bg-black text-white text-xs font-mono font-semibold rounded-xl flex items-center justify-center gap-2 self-start sm:self-auto transition-all shadow-2xs cursor-pointer"
+          >
+            <Scale className="w-3.5 h-3.5 text-neutral-300"/>
+            <span>Consultar Causa en SATJE</span>
+            <ExternalLink className="w-3 h-3 text-neutral-400"/>
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans text-neutral-700">
+          <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+            <span className="text-[10px] font-mono text-neutral-400 uppercase block">Etapa Procesal Actual:</span>
+            <strong className="text-neutral-950 font-serif text-sm block">{causa.etapaProcesalActual}</strong>
           </div>
 
-          <div>
-            <span className="text-[10px] font-semibold text-slate-400 block uppercase">Notificación de Pagos</span>
-            <span className="font-semibold text-slate-800 mt-0.5 block">pagos@actiolegisec.com</span>
-            <button
-              onClick={copiarCuenta}
-              className="mt-1 text-[11px] text-indigo-600 font-semibold flex items-center gap-1 hover:underline"
-            >
-              {copiado ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-              {copiado ? 'N° de cuenta copiado' : 'Copiar número de cuenta'}
-            </button>
+          <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+            <span className="text-[10px] font-mono text-neutral-400 uppercase block">Próxima Fecha Clave:</span>
+            <strong className="text-neutral-950 font-mono text-sm block">{causa.proximaFechaClave}</strong>
           </div>
         </div>
       </div>
+
+      {/* TARJETA 2: BARRAS DE PROGRESO DE HONORARIOS Y GASTOS */}
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
+        <div className="border-b border-neutral-200 pb-2">
+          <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-neutral-900"/>
+            <span>Estado Financiero & Reembolso de Gastos</span>
+          </h3>
+          <p className="text-xs text-neutral-500 font-light mt-0.5">
+            Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {/* BARRA 1: HONORARIOS PROFESIONALES */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center text-xs font-mono">
+              <span className="text-neutral-700 font-bold">Honorarios Profesionales Convenidos:</span>
+              <span className="text-neutral-950 font-bold">${honorariosPagados} / ${honorariosTotales} USD ({porcentajeHonorarios}%)</span>
+            </div>
+            <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+              <div 
+                className="h-full bg-neutral-950 rounded-full transition-all duration-700" 
+                style={{ width: `${porcentajeHonorarios}%` }}
+              />
+            </div>
+          </div>
+
+          {/* BARRA 2: GASTOS JUDICIALES Y OPERACIONALES */}
+          <div className="space-y-1.5 pt-1">
+            <div className="flex justify-between items-center text-xs font-mono">
+              <span className="text-neutral-700 font-bold">Gastos Operacionales & Peritajes:</span>
+              <span className="text-emerald-900 font-bold">${gastosCubiertos} / ${gastosTotales} USD ({porcentajeGastos}%)</span>
+            </div>
+            <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+              <div 
+                className="h-full bg-emerald-700 rounded-full transition-all duration-700" 
+                style={{ width: `${porcentajeGastos}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* TARJETA 3: LÍNEA DE TIEMPO PROCESAL */}
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+        <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
+          <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-neutral-900"/>
+            <span>Línea de Tiempo Procesal</span>
+          </h3>
+          <span className="text-[10px] font-mono text-neutral-500 uppercase">Resumen Ejecutivo</span>
+        </div>
+
+        <div className="space-y-3">
+          {causa.actuaciones && causa.actuaciones.length > 0 ? (
+            causa.actuaciones.map((act) => (
+              <div key={act.id} className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200 space-y-1 text-xs">
+                <div className="flex justify-between items-center font-mono text-[11px] text-neutral-500">
+                  <strong className="text-neutral-950 font-serif text-sm">{act.titulo}</strong>
+                  <span>{act.fecha}</span>
+                </div>
+                <p className="text-neutral-700 leading-relaxed font-sans mt-1">
+                  {act.resumenParaCliente}
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="p-4 text-center font-mono text-xs text-neutral-400 bg-[#FAF9F6] rounded-xl border border-neutral-200">
+              No existen actuaciones procesales registradas recientemente para este expediente.
+            </div>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 };
