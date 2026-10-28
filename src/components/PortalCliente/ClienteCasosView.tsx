@@ -14,7 +14,7 @@ export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
   expedientes = [],
   codigoClienteSesion = 'ACTIO-00001'
 }) => {
-  // Lista base de respaldo en caso de que no lleguen expedientes dinámicos
+  // Lista base con todos los datos integrados
   const expedientesBase: ExpedienteInterno[] = [
     {
       id: 'exp-1',
@@ -76,7 +76,7 @@ export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
   const [causaSeleccionadaId, setCausaSeleccionadaId] = useState(listaAMostrar[0]?.id || 'exp-1');
   const causaActiva = listaAMostrar.find((c) => c.id === causaSeleccionadaId) || listaAMostrar[0];
 
-  // Datos de valores convenidos y reembolsos
+  // Datos financieros simulados para las barras
   const honorariosTotales = 3500;
   const honorariosPagados = 2400;
   const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
@@ -116,7 +116,7 @@ export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
         </a>
       </div>
 
-      {/* CUERPO PRINCIPAL */}
+      {/* CUERPO PRINCIPAL DE DOS COLUMNAS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* COLUMNA IZQUIERDA: LISTADO DE CAUSAS DEL CLIENTE */}
@@ -125,7 +125,7 @@ export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
             <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-bold">
               Causas Patrocinadas ({listaAMostrar.length})
             </span>
-            <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
               En Trámite
             </span>
           </div>
@@ -156,7 +156,7 @@ export const ClienteCasosView: React.FC<ClienteCasosViewProps> = ({
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: INFORMACIÓN DETALLADA, BARRAS FINANCIERAS Y ACTUACIONES */}
+        {/* COLUMNA DERECHA: DETALLES, SATJE, BARRAS Y LÍNEA DE TIEMPO */}
         <div className="lg:col-span-8 space-y-6">
           
           {/* TARJETA 1: DETALLES DE LA CAUSA SELECCIONADA Y SATJE */}
