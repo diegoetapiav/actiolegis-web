@@ -1,357 +1,274 @@
 import React, { useState } from 'react';
 import { 
-  Calendar, Clock, Video, MapPin, Plus, CheckCircle2, AlertCircle, 
-  ArrowRight, ExternalLink, ShieldCheck, Lock, AlertTriangle, Scale 
+  Building2, ExternalLink, ShieldCheck, DollarSign, FileText, 
+  ChevronRight, Scale 
 } from 'lucide-react';
-import { Cliente, Expediente, CitaLegal, EventoCalendarioInterno } from '../../types/legal';
+import { ExpedienteInterno } from '../ModuloExpedientes';
 
-interface ClienteCitasViewProps {
-  cliente: Cliente;
-  expedientes: Expediente[];
-  citas: CitaLegal[];
-  eventosInternos?: EventoCalendarioInterno[];
-  onSolicitarCita: (cita: CitaLegal) => void;
+interface Props {
+  expedientes?: ExpedienteInterno[];
+  codigoClienteSesion?: string;
+  usuarioSesion?: any;
 }
 
-export const ClienteCitasView: React.FC<ClienteCitasViewProps> = ({
-  cliente,
-  expedientes,
-  citas,
-  eventosInternos = [],
-  onSolicitarCita,
+export const PortalClienteIndex: React.FC<Props> = ({
+  expedientes = [],
+  codigoClienteSesion = 'ACTIO-00001',
+  usuarioSesion
 }) => {
-  const misCitas = citas.filter((c) => c.clienteId === cliente.id);
-  const misExpedientes = expedientes.filter((e) => e.clienteId === cliente.id);
-
-  const URL_CALENDLY = 'https://calendly.com/app/scheduling/meeting_types/user/me';
-
-  // Formulario de Reserva
-  const [fecha, setFecha] = useState(
-    new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-  );
-  const [hora, setHora] = useState('15:00');
-  const [modalidad, setModalidad] = useState<CitaLegal['modalidad']>('Videollamada Zoom / Meet');
-  const [expedienteId, setExpedienteId] = useState(misExpedientes[0]?.id || '');
-  const [motivo, setMotivo] = useState('');
-  const [enviadoExito, setEnviadoExito] = useState(false);
-
-  // Verificación de disponibilidad contra el Calendario Interno de Audiencias
-  const eventoConflicto = eventosInternos.find((ev) => {
-    if (!ev.bloqueaDisponibilidadExterna) return false;
-    if (ev.fecha !== fecha) return false;
-
-    // Verificar solapamiento de horas (ej: hora = "10:00", ev: "09:00" a "11:00")
-    const [hSel, mSel] = hora.split(':').map(Number);
-    const minSel = hSel * 60 + mSel;
-
-    const [hIni, mIni] = ev.horaInicio.split(':').map(Number);
-    const minIni = hIni * 60 + mIni;
-
-    const [hFin, mFin] = ev.horaFin.split(':').map(Number);
-    const minFin = hFin * 60 + mFin;
-
-    // Cita estimada de 45 min
-    const minSelFin = minSel + 45;
-
-    return minSel < minFin && minSelFin > minIni;
-  });
-
-  const horarioEstaBloqueado = Boolean(eventoConflicto);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (horarioEstaBloqueado) {
-      alert('El horario seleccionado no está disponible debido a una audiencia judicial del despacho. Por favor seleccione otro horario.');
-      return;
+  const expedientesBase: ExpedienteInterno[] = [
+    {
+      id: 'exp-1',
+      numProceso: '17230-2024-00482',
+      materia: 'Civil',
+      tipoProceso: 'Prescripción Extraordinaria Adquisitiva de Dominio de Lote Urbano',
+      cliente: 'Inmobiliaria del Valle S.A.S.',
+      contraparte: 'Municipio de Guayaquil',
+      unidadJudicial: 'Unidad Judicial Civil de Guayaquil',
+      abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
+      etapaProcesalActual: 'Fase Probatoria / Audiencia de Juicio',
+      porcentaje: 65,
+      proximaFechaClave: '2026-10-28',
+      proximasAcciones: 'Presentación de alegatos finales y prueba pericial.',
+      honorariosFijados: '$3,500.00',
+      gastosRegistrados: '$450.00',
+      actuaciones: [
+        {
+          id: 'act-1',
+          fecha: '2026-10-18',
+          titulo: 'Providencia Notificada',
+          resumenParaCliente: 'Se señala fecha para la práctica de la diligencia de inspección judicial en el sitio.'
+        },
+        {
+          id: 'act-2',
+          fecha: '2026-10-05',
+          titulo: 'Informe Pericial Incorporado',
+          resumenParaCliente: 'El perito acreditado rinde su informe técnico favorable.'
+        }
+      ]
+    },
+    {
+      id: 'exp-2',
+      numProceso: '09281-2025-01129',
+      materia: 'Penal',
+      tipoProceso: 'Investigación Previa por Presunto Delito Económico',
+      cliente: 'Inmobiliaria del Valle S.A.S.',
+      contraparte: 'Fiscalía General del Estado',
+      unidadJudicial: 'Unidad Judicial Penal de Guayaquil',
+      abogadoLider: 'Abg. Diego Tapia Vicuña, Mgs.',
+      etapaProcesalActual: 'Diligencias de Investigación Previa',
+      porcentaje: 40,
+      proximaFechaClave: '2026-11-05',
+      proximasAcciones: 'Rendición de versión libre y voluntaria.',
+      honorariosFijados: '$2,800.00',
+      gastosRegistrados: '$200.00',
+      actuaciones: []
     }
+  ];
 
-    const expObj = misExpedientes.find((e) => e.id === expedienteId);
+  const listaAMostrar = expedientes.length > 0 ? expedientes : expedientesBase;
+  const [causaSeleccionadaId, setCausaSeleccionadaId] = useState(listaAMostrar[0]?.id || 'exp-1');
+  const causaActiva = listaAMostrar.find((c) => c.id === causaSeleccionadaId) || listaAMostrar[0];
 
-    const nuevaCita: CitaLegal = {
-      id: `cita-cli-${Date.now()}`,
-      clienteId: cliente.id,
-      clienteNombre: cliente.nombre,
-      expedienteId: expObj?.id,
-      numeroCausa: expObj?.numeroCausa,
-      fecha,
-      hora,
-      duracionMinutos: 45,
-      modalidad,
-      motivo: motivo.trim() || 'Consulta sobre el avance del proceso judicial',
-      abogadoAsignado: expObj?.abogadoResponsable || 'Dr. Diego Tapia',
-      estado: 'Pendiente de Aprobación',
-      enlaceReunion: modalidad.includes('Videollamada') ? 'https://meet.google.com/actio-legis-cita' : undefined,
-      lugar: modalidad.includes('Presencial')
-        ? 'Oficinas Actio Legis - Av. 12 de Octubre y Lincoln, Edif. Mirage, Quito'
-        : undefined,
-    };
+  const honorariosTotales = 3500;
+  const honorariosPagados = 2400;
+  const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
 
-    onSolicitarCita(nuevaCita);
-    setEnviadoExito(true);
-    setMotivo('');
-    setTimeout(() => setEnviadoExito(false), 5000);
-  };
+  const gastosTotales = 450;
+  const gastosCubiertos = 350;
+  const porcentajeGastos = Math.round((gastosCubiertos / gastosTotales) * 100);
 
   return (
-    <div className="space-y-6">
-      {/* Encabezado */}
-      <div className="pb-4 border-b border-slate-200">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-900 text-amber-400 font-mono">
-            ESTUDIO JURÍDICO ACTIO LEGIS
-          </span>
-          <span className="text-xs text-slate-400">· Portal Privado de Clientes</span>
-        </div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-          Agendamiento de Citas con sus Abogados Patrocinadores
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Reserve sesiones virtuales o presenciales para coordinar la estrategia jurídica y resolver dudas de sus causas.
-        </p>
-      </div>
-
-      {/* Banner de Integración Calendly Oficial */}
-      <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-900 to-slate-950 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 border border-indigo-800/40">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-indigo-400" />
-            <span className="text-xs font-bold uppercase tracking-wider text-indigo-200 font-mono">
-              Agendamiento Automatizado vía Calendly
-            </span>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      
+      {/* CABECERA BIENVENIDA CLIENTE */}
+      <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700"/>
+            <span>Portal del Cliente • Código Confidencial: {codigoClienteSesion}</span>
           </div>
-          <h3 className="text-sm font-bold text-white">
-            ¿Prefiere agendar directamente en nuestro Calendly Institucional?
-          </h3>
-          <p className="text-xs text-indigo-200/90 leading-relaxed max-w-2xl">
-            Acceda a la disponibilidad en tiempo real de los abogados de Actio Legis para coordinar videoconferencias inmediatas en Google Meet o Zoom.
+          <h1 className="text-2xl font-serif font-bold text-neutral-950">
+            Bienvenido/a, <span className="underline decoration-neutral-300">{causaActiva?.cliente || 'Inmobiliaria del Valle S.A.S.'}</span>
+          </h1>
+          <p className="text-xs text-neutral-500 mt-1">
+            Plataforma confidencial de seguimiento en vivo de causas judiciales y estado de cuenta patrocinado por ACTIO LEGIS.
           </p>
         </div>
 
-        <a
-          href={URL_CALENDLY}
-          target="_blank"
+        <a 
+          href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
+          target="_blank" 
           rel="noopener noreferrer"
-          className="px-4 py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2 shadow-md shrink-0"
+          className="px-4 py-2.5 bg-[#281F26] hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer font-mono shadow-xs"
         >
-          <ExternalLink className="w-4 h-4" />
-          Agendar en Calendly Oficial
+          <Scale className="w-4 h-4 text-neutral-300"/>
+          <span>Consultar Causa en SATJE</span>
+          <ExternalLink className="w-3.5 h-3.5 text-neutral-400"/>
         </a>
       </div>
 
+      {/* CUERPO PRINCIPAL */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Formulario de Solicitud de Cita con Verificador de Audiencias Internas */}
-        <div className="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-2xs p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-indigo-600" />
-              <h2 className="text-sm font-bold text-slate-900">Solicitud Directa en Plataforma</h2>
-            </div>
-            <span className="text-[10px] text-slate-500 font-mono font-bold">Modo Consultivo</span>
+        
+        {/* COLUMNA IZQUIERDA: LISTADO DE CAUSAS */}
+        <div className="lg:col-span-4 bg-white rounded-2xl border border-neutral-200 p-5 space-y-3 shadow-xs">
+          <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
+            <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-bold">
+              Causas Patrocinadas ({listaAMostrar.length})
+            </span>
+            <span className="text-[10px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
+              En Trámite
+            </span>
           </div>
 
-          {enviadoExito && (
-            <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 font-medium">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              ¡Su cita fue registrada exitosamente! El despacho de Actio Legis le enviará la confirmación y enlace.
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-3.5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Juicio / Trámite a Tratar
-              </label>
-              <select
-                value={expedienteId}
-                onChange={(e) => setExpedienteId(e.target.value)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white"
-              >
-                <option value="">Consulta legal general (Sin causa específica)</option>
-                {misExpedientes.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.numeroCausa} - {e.titulo.substring(0, 32)}...
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Fecha Sugerida</label>
-                <input
-                  type="date"
-                  required
-                  value={fecha}
-                  onChange={(e) => setFecha(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Hora Deseada</label>
-                <input
-                  type="time"
-                  required
-                  value={hora}
-                  onChange={(e) => setHora(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg font-mono"
-                />
-              </div>
-            </div>
-
-            {/* Verificador de Disponibilidad contra Agenda Interna de Audiencias */}
-            {horarioEstaBloqueado ? (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-800 flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block font-bold">Horario no disponible:</strong>
-                  <p className="text-[11px] text-rose-700 mt-0.5">
-                    Los abogados de Actio Legis tienen programada una audiencia judicial o diligencia en este horario ({fecha} a las {hora}). Por favor seleccione otro horario o consulte en Calendly.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="font-medium text-[11px]">
-                  Horario verificado: Disponible en la agenda del despacho.
-                </span>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Modalidad de Reunión</label>
-              <select
-                value={modalidad}
-                onChange={(e) => setModalidad(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white"
-              >
-                <option value="Videollamada Zoom / Meet">Videollamada por Google Meet / Zoom</option>
-                <option value="Presencial en Despacho">Presencial en Despacho (Quito, Av. 12 de Octubre)</option>
-                <option value="Llamada Telefónica">Llamada Telefónica Directa</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                ¿Qué tema o duda desea revisar con su abogado?
-              </label>
-              <textarea
-                required
-                rows={3}
-                value={motivo}
-                onChange={(e) => setMotivo(e.target.value)}
-                placeholder="Ej: Deseo revisar las preguntas previas a la audiencia de juicio..."
-                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={horarioEstaBloqueado}
-              className={`w-full py-2.5 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs ${
-                horarioEstaBloqueado
-                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                  : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-              }`}
-            >
-              {horarioEstaBloqueado ? 'Seleccione otro horario libre' : 'Enviar Solicitud de Cita al Estudio'}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-        </div>
-
-        {/* Lista de Citas Solicitadas y Confirmadas */}
-        <div className="lg:col-span-7 space-y-3">
-          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-wider px-1">
-            Mis Citas y Reuniones Programadas ({misCitas.length})
-          </h2>
-
-          <div className="space-y-3">
-            {misCitas.map((cita) => {
-              const esConfirmada = cita.estado === 'Confirmada';
-              const esVirtual = cita.modalidad.includes('Videollamada');
-
+          <div className="space-y-2">
+            {listaAMostrar.map((c) => {
+              const esSeleccionado = c.id === causaActiva?.id;
               return (
-                <div
-                  key={cita.id}
-                  className="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-3"
+                <div 
+                  key={c.id} 
+                  onClick={() => setCausaSeleccionadaId(c.id)}
+                  className={`p-3.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                    esSeleccionado 
+                      ? 'border-neutral-950 bg-[#FAF9F6] shadow-2xs font-semibold' 
+                      : 'border-neutral-200 bg-white hover:border-neutral-400'
+                  }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
-                        esConfirmada
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
-                      }`}
-                    >
-                      {cita.estado}
-                    </span>
-
-                    <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{cita.hora}</span>
-                      <span className="text-[11px] text-slate-400">({cita.duracionMinutos} min)</span>
-                    </div>
+                  <div className="flex items-center justify-between font-mono text-[11px] text-neutral-500 mb-1">
+                    <span>{c.numProceso}</span>
+                    <ChevronRight className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${esSeleccionado ? 'rotate-90 text-neutral-950' : ''}`} />
                   </div>
-
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-900 leading-snug">{cita.motivo}</h3>
-                    <div className="text-[11px] text-slate-500 mt-1">
-                      Abogado Asignado: <span className="font-semibold text-slate-700">{cita.abogadoAsignado}</span>
-                    </div>
-                    {cita.numeroCausa && (
-                      <div className="font-mono text-[10px] text-indigo-700 mt-0.5">
-                        Causa: {cita.numeroCausa}
-                      </div>
-                    )}
+                  <div className="font-serif font-bold text-neutral-950 text-xs leading-snug line-clamp-2">
+                    {c.tipoProceso}
                   </div>
-
-                  <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-1.5 text-slate-700 font-mono font-semibold">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{cita.fecha}</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-slate-600">
-                      {esVirtual ? (
-                        <Video className="w-3.5 h-3.5 text-indigo-500" />
-                      ) : (
-                        <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                      )}
-                      <span>{cita.modalidad}</span>
-                    </div>
-                  </div>
-
-                  {esConfirmada && cita.enlaceReunion && (
-                    <div className="p-2.5 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-between text-xs">
-                      <span className="text-indigo-900 font-medium">Enlace de Videollamada:</span>
-                      <a
-                        href={cita.enlaceReunion}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1 bg-indigo-600 text-white rounded-md text-xs font-semibold hover:bg-indigo-700 transition-colors"
-                      >
-                        Unirse a Reunión
-                      </a>
-                    </div>
-                  )}
                 </div>
               );
             })}
-
-            {misCitas.length === 0 && (
-              <div className="p-10 text-center bg-white rounded-xl border border-dashed border-slate-200">
-                <Calendar className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                <p className="text-xs font-semibold text-slate-700">No tiene citas agendadas aún</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
-                  Utilice el formulario de la izquierda o el botón de Calendly para programar su cita.
-                </p>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* COLUMNA DERECHA: INFORMACIÓN DETALLADA, BARRAS FINANCIERAS Y ACTUACIONES */}
+        <div className="lg:col-span-8 space-y-6">
+          
+          {/* TARJETA 1: CAUSA SELECCIONADA Y ENLACE A SATJE */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+            <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-400 block mb-0.5">
+                  Proceso Judicial Seleccionado
+                </span>
+                <h2 className="text-xl font-serif font-bold text-neutral-950">
+                  {causaActiva?.tipoProceso}
+                </h2>
+                <span className="text-xs font-mono text-neutral-600 block mt-1">
+                  Causa Judicial No: <strong>{causaActiva?.numProceso}</strong>
+                </span>
+              </div>
+
+              <a 
+                href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml"
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-3.5 py-2 bg-[#281F26] text-white text-xs font-mono font-semibold rounded-xl flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer shadow-2xs"
+              >
+                <Scale className="w-3.5 h-3.5 text-neutral-300"/>
+                <span>Ver Movimientos SATJE</span>
+                <ExternalLink className="w-3 h-3 text-neutral-400"/>
+              </a>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans text-neutral-700">
+              <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+                <span className="text-[10px] font-mono text-neutral-400 uppercase block">Etapa Procesal Actual:</span>
+                <strong className="text-neutral-950 font-serif text-sm block">{causaActiva?.etapaProcesalActual}</strong>
+              </div>
+
+              <div className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200/80 space-y-1">
+                <span className="text-[10px] font-mono text-neutral-400 uppercase block">Próxima Fecha Clave:</span>
+                <strong className="text-neutral-950 font-mono text-sm block">{causaActiva?.proximaFechaClave}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* TARJETA 2: BARRAS FINANCIERAS */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
+            <div className="border-b border-neutral-200 pb-2">
+              <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-neutral-900"/>
+                <span>Estado Financiero & Reembolso de Gastos</span>
+              </h3>
+              <p className="text-xs text-neutral-500 font-light mt-0.5">
+                Transparencia de valores convenidos, cancelados y gastos operacionales abonados.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-neutral-700 font-bold">Honorarios Profesionales Convenidos:</span>
+                  <span className="text-neutral-950 font-bold">${honorariosPagados} / ${honorariosTotales} USD ({porcentajeHonorarios}%)</span>
+                </div>
+                <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+                  <div 
+                    className="h-full bg-neutral-950 rounded-full transition-all duration-700" 
+                    style={{ width: `${porcentajeHonorarios}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-neutral-700 font-bold">Gastos Operacionales & Peritajes:</span>
+                  <span className="text-emerald-900 font-bold">${gastosCubiertos} / ${gastosTotales} USD ({porcentajeGastos}%)</span>
+                </div>
+                <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
+                  <div 
+                    className="h-full bg-emerald-700 rounded-full transition-all duration-700" 
+                    style={{ width: `${porcentajeGastos}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* TARJETA 3: ACTUACIONES PROCESALES */}
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
+            <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
+              <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-neutral-900"/>
+                <span>Línea de Tiempo Procesal</span>
+              </h3>
+              <span className="text-[10px] font-mono text-neutral-500 uppercase">Resumen Ejecutivo</span>
+            </div>
+
+            <div className="space-y-3">
+              {causaActiva?.actuaciones && causaActiva.actuaciones.length > 0 ? (
+                causaActiva.actuaciones.map((act) => (
+                  <div key={act.id} className="p-3.5 bg-[#FAF9F6] rounded-xl border border-neutral-200 space-y-1 text-xs">
+                    <div className="flex justify-between items-center font-mono text-[11px] text-neutral-500">
+                      <strong className="text-neutral-950 font-serif text-sm">{act.titulo}</strong>
+                      <span>{act.fecha}</span>
+                    </div>
+                    <p className="text-neutral-700 leading-relaxed font-sans mt-1">
+                      {act.resumenParaCliente}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center font-mono text-xs text-neutral-400 bg-[#FAF9F6] rounded-xl border border-neutral-200">
+                  No existen actuaciones procesales registradas recientemente para este expediente.
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
   );
 };
+
+export default PortalClienteIndex;
