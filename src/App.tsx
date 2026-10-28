@@ -134,7 +134,6 @@ export default function App() {
   const [articulos, setArticulos] = useState<ArticuloEditorial[]>(ARTICULOS_BASE);
   const [notificaciones, setNotificaciones] = useState<NotificacionAuditoria[]>(NOTIFICACIONES_BASE);
 
-  // Estado para la causa seleccionada en el Portal del Cliente
   const [causaSeleccionadaId, setCausaSeleccionadaId] = useState<string>('exp-1');
 
   // Formulario CMS Admin
@@ -199,7 +198,6 @@ export default function App() {
 
   const casoClienteActivo = expedientes.find(c => c.id === causaSeleccionadaId) || expedientes[0];
 
-  // Datos financieros simulados para las barras de progreso del cliente
   const honorariosTotales = 3500;
   const honorariosPagados = 2400;
   const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
@@ -211,7 +209,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
       
-      {/* 1. HEADER INTEGRADO COMPLETO */}
+      {/* HEADER */}
       <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-between">
           
@@ -324,7 +322,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* 2. VISTA PORTADA PRINCIPAL COMPLETA */}
+      {/* PORTADA PRINCIPAL */}
       {vista === 'sitio-web' && (
         <main>
           {/* HERO */}
@@ -365,7 +363,7 @@ export default function App() {
             </div>
           </section>
 
-          {/* PROPÓSITO (#281F26) */}
+          {/* PROPÓSITO */}
           <section id="proposito" className="py-20 md:py-28 border-b border-neutral-800 bg-[#281F26] text-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
@@ -538,7 +536,7 @@ export default function App() {
         </main>
       )}
 
-      {/* 3. VISTA INTRANET MODULAR */}
+      {/* VISTA INTRANET MODULAR */}
       {vista === 'intranet' && (
         <ModuloExpedientes 
           expedientes={expedientes}
@@ -550,7 +548,7 @@ export default function App() {
         />
       )}
 
-      {/* 4. VISTA CONSOLA CMS ADMINISTRADOR */}
+      {/* VISTA CONSOLA CMS ADMINISTRADOR */}
       {vista === 'admin-console' && usuarioSesion?.rol === 'admin' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <div className="bg-neutral-950 text-white rounded-3xl p-8 shadow-lg space-y-4">
@@ -626,11 +624,11 @@ export default function App() {
         </div>
       )}
 
-      {/* 5. VISTA PORTAL DE CLIENTES (RESTABLECIDA Y ENRIQUECIDA) */}
+      {/* VISTA PORTAL DE CLIENTES (DIRECTA EN SATJE BUSQUEDA) */}
       {vista === 'cliente' && usuarioSesion?.rol === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           
-          {/* CABECERA CON BIENVENIDA Y ACCESO DIRECTO A SATJE */}
+          {/* CABECERA CON BIENVENIDA Y SATJE BUSQUEDA */}
           <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-neutral-500 mb-1">
@@ -646,7 +644,7 @@ export default function App() {
             </div>
 
             <a 
-              href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
+              href="https://procesosjudiciales.funcionjudicial.gob.ec/busqueda" 
               target="_blank" 
               rel="noopener noreferrer"
               className="px-4 py-2.5 bg-[#281F26] hover:bg-black text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer font-mono shadow-xs"
@@ -660,7 +658,7 @@ export default function App() {
           {/* CUERPO PRINCIPAL DEL PORTAL */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* COLUMNA IZQUIERDA: LISTADO DE CAUSAS PATROCINADAS */}
+            {/* COLUMNA IZQUIERDA */}
             <div className="lg:col-span-4 bg-white rounded-2xl border border-neutral-200 p-5 space-y-3 shadow-xs">
               <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
                 <span className="text-xs font-mono uppercase tracking-wider text-neutral-500 font-bold">
@@ -697,10 +695,10 @@ export default function App() {
               </div>
             </div>
 
-            {/* COLUMNA DERECHA: INFORMACIÓN DETALLADA, BARRAS Y LÍNEA DE TIEMPO */}
+            {/* COLUMNA DERECHA */}
             <div className="lg:col-span-8 space-y-6">
               
-              {/* TARJETA 1: PROCESO Y ENLACE SATJE */}
+              {/* TARJETA 1 */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
                 <div className="border-b border-neutral-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
@@ -716,7 +714,7 @@ export default function App() {
                   </div>
 
                   <a 
-                    href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml"
+                    href="https://procesosjudiciales.funcionjudicial.gob.ec/busqueda"
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="px-3.5 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-mono font-semibold rounded-xl flex items-center gap-1.5 self-start sm:self-auto transition-all cursor-pointer"
@@ -740,7 +738,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* TARJETA 2: BARRAS DE PROGRESO DE HONORARIOS Y GASTOS */}
+              {/* TARJETA 2 */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
                 <div className="border-b border-neutral-200 pb-2">
                   <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
@@ -753,7 +751,6 @@ export default function App() {
                 </div>
 
                 <div className="space-y-4">
-                  {/* BARRA HONORARIOS */}
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs font-mono">
                       <span className="text-neutral-700 font-bold">Honorarios Profesionales Convenidos:</span>
@@ -767,7 +764,6 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* BARRA GASTOS */}
                   <div className="space-y-1.5 pt-1">
                     <div className="flex justify-between items-center text-xs font-mono">
                       <span className="text-neutral-700 font-bold">Gastos Operacionales & Peritajes:</span>
@@ -783,7 +779,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* TARJETA 3: LÍNEA DE TIEMPO PROCESAL */}
+              {/* TARJETA 3 */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-4">
                 <div className="border-b border-neutral-200 pb-2 flex justify-between items-center">
                   <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
@@ -821,7 +817,7 @@ export default function App() {
         </div>
       )}
 
-      {/* 6. VISTA EDITORIAL PÚBLICA */}
+      {/* VISTA EDITORIAL PÚBLICA */}
       {vista === 'editorial' && (
         <main className="py-16 md:py-24 bg-neutral-50/50 min-h-[80vh]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
@@ -843,7 +839,7 @@ export default function App() {
         </main>
       )}
 
-      {/* 7. VISTA EQUIPO DE ABOGADOS */}
+      {/* VISTA EQUIPO DE ABOGADOS */}
       {vista === 'equipo' && (
         <main className="py-16 md:py-24 bg-neutral-50/50 min-h-[80vh]">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-12">
@@ -868,12 +864,11 @@ export default function App() {
         </main>
       )}
 
-      {/* 8. FOOTER INTEGRADO EN 4 COLUMNAS */}
+      {/* FOOTER */}
       <footer className="bg-white text-neutral-900 border-t border-neutral-200 py-16 px-6 text-xs font-sans">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             
-            {/* Columna 1: Marca & Logo */}
             <div className="space-y-4 md:col-span-1">
               <img 
                 src="/logo-estudio.png" 
@@ -886,7 +881,6 @@ export default function App() {
               </p>
             </div>
 
-            {/* Columna 2: Nuestra página */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Nuestra página
@@ -922,7 +916,6 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Columna 3: Enlaces de interés */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Enlaces de interés
@@ -957,7 +950,7 @@ export default function App() {
                 </li>
                 <li>
                   <a 
-                    href="https://sistemas.funcionjudicial.gob.ec/consultas-satje/publico/index.xhtml" 
+                    href="https://procesosjudiciales.funcionjudicial.gob.ec/busqueda" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="hover:text-neutral-950 transition-colors flex items-center gap-1.5 cursor-pointer"
@@ -969,7 +962,6 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Columna 4: Sede Guayaquil */}
             <div className="space-y-3">
               <h4 className="font-semibold text-neutral-950 text-xs uppercase tracking-[0.18em] font-mono">
                 Sede Guayaquil
@@ -991,7 +983,6 @@ export default function App() {
 
           </div>
 
-          {/* Sub-pie */}
           <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-neutral-400 font-light">
             <p>© {new Date().getFullYear()} ACTIO LEGIS. Todos los derechos reservados. Guayaquil, Ecuador.</p>
             <button 
@@ -1006,7 +997,7 @@ export default function App() {
         </div>
       </footer>
 
-      {/* 9. VENTANAS MODALES */}
+      {/* MODAL LOGIN */}
       <LoginModal 
         modalIngreso={modalIngreso}
         onClose={() => setModalIngreso(null)}
