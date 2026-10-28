@@ -50,8 +50,8 @@ const CASOS_BASE: ExpedienteInterno[] = [
     porcentaje: 65,
     proximaFechaClave: '2026-10-28',
     proximasAcciones: 'Entrega de informe pericial técnico y preparación de alegatos orales.',
-    honorariosFijados: '$ 3,500.00 USD',
-    gastosRegistrados: '$ 450.00 USD',
+    honorariosFijados: '$ 12,500.00 USD',
+    gastosRegistrados: '$ 1,240.00 USD',
     actuaciones: [
       {
         id: 'act-1',
@@ -82,8 +82,8 @@ const CASOS_BASE: ExpedienteInterno[] = [
     porcentaje: 35,
     proximaFechaClave: '2026-11-05',
     proximasAcciones: 'Revisión y descargo de peritaje contable en sede fiscal.',
-    honorariosFijados: '$ 2,800.00 USD',
-    gastosRegistrados: '$ 200.00 USD',
+    honorariosFijados: '$ 18,000.00 USD',
+    gastosRegistrados: '$ 2,150.00 USD',
     actuaciones: [
       {
         id: 'act-3',
@@ -198,13 +198,14 @@ export default function App() {
 
   const casoClienteActivo = expedientes.find(c => c.id === causaSeleccionadaId) || expedientes[0];
 
-  const honorariosTotales = 3500;
-  const honorariosPagados = 2400;
-  const porcentajeHonorarios = Math.round((honorariosPagados / honorariosTotales) * 100);
+  // Extracción de datos dinámicos financieros por cada expediente
+  const honorariosTotalesNum = parseFloat(casoClienteActivo.honorariosFijados?.replace(/[^0-9.]/g, '') || '3500');
+  const honorariosPagadosNum = Math.round(honorariosTotalesNum * (casoClienteActivo.id === 'exp-1' ? 0.65 : 0.40));
+  const porcentajeHonorarios = Math.round((honorariosPagadosNum / honorariosTotalesNum) * 100);
 
-  const gastosTotales = 450;
-  const gastosCubiertos = 350;
-  const porcentajeGastos = Math.round((gastosCubiertos / gastosTotales) * 100);
+  const gastosTotalesNum = parseFloat(casoClienteActivo.gastosRegistrados?.replace(/[^0-9.]/g, '') || '450');
+  const gastosPagadosNum = Math.round(gastosTotalesNum * (casoClienteActivo.id === 'exp-1' ? 0.80 : 0.50));
+  const porcentajeGastos = Math.round((gastosPagadosNum / gastosTotalesNum) * 100);
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 font-sans antialiased selection:bg-neutral-900 selection:text-white">
@@ -372,7 +373,7 @@ export default function App() {
                   <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white leading-tight">No ejercemos el derecho en masa. Asumimos causas con compromiso de fondo.</h2>
                 </div>
                 <div className="md:col-span-8 space-y-6 text-sm text-neutral-300 font-light leading-relaxed">
-                  <p>En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es dirigido personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.</p>
+                  <p>En un entorno sobrecargado por trámites delegados, ACTIO LEGIS ejerce el patrocinio con la devoción técnica que amerita: cada proceso es directed personalmente, formulando teorías de cada caso, procurando la más sólida recopilación probatoria para obtener el resultado esperado.</p>
                   <p>Nuestra premisa es la transparencia procesal: información en tiempo real sin tecnicismos, análisis honesto de probabilidades procesales y una defensa técnica inquebrantable en estrados.</p>
                 </div>
               </div>
@@ -624,7 +625,7 @@ export default function App() {
         </div>
       )}
 
-      {/* VISTA PORTAL DE CLIENTES (DIRECTA EN SATJE BUSQUEDA) */}
+      {/* VISTA PORTAL DE CLIENTES (HONORARIOS Y GASTOS DINÁMICOS) */}
       {vista === 'cliente' && usuarioSesion?.rol === 'cliente' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
           
@@ -738,7 +739,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* TARJETA 2 */}
+              {/* TARJETA 2: BARRAS DINÁMICAS POR CASO */}
               <div className="bg-white rounded-2xl border border-neutral-200 p-6 shadow-xs space-y-5">
                 <div className="border-b border-neutral-200 pb-2">
                   <h3 className="font-serif font-bold text-base text-neutral-950 flex items-center gap-2">
@@ -754,7 +755,7 @@ export default function App() {
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs font-mono">
                       <span className="text-neutral-700 font-bold">Honorarios Profesionales Convenidos:</span>
-                      <span className="text-neutral-950 font-bold">${honorariosPagados} / ${honorariosTotales} USD ({porcentajeHonorarios}%)</span>
+                      <span className="text-neutral-950 font-bold">${honorariosPagadosNum.toLocaleString()} / ${honorariosTotalesNum.toLocaleString()} USD ({porcentajeHonorarios}%)</span>
                     </div>
                     <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
                       <div 
@@ -767,7 +768,7 @@ export default function App() {
                   <div className="space-y-1.5 pt-1">
                     <div className="flex justify-between items-center text-xs font-mono">
                       <span className="text-neutral-700 font-bold">Gastos Operacionales & Peritajes:</span>
-                      <span className="text-emerald-900 font-bold">${gastosCubiertos} / ${gastosTotales} USD ({porcentajeGastos}%)</span>
+                      <span className="text-emerald-900 font-bold">${gastosPagadosNum.toLocaleString()} / ${gastosTotalesNum.toLocaleString()} USD ({porcentajeGastos}%)</span>
                     </div>
                     <div className="w-full h-3 bg-neutral-100 rounded-full overflow-hidden border border-neutral-200 p-0.5">
                       <div 
